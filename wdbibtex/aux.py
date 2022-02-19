@@ -24,6 +24,9 @@ class AuxParser():
         self.conversion_dict = {}
 
     def build_conversion_dict(self):
+        """Prepare replaing citation keys with dashed range strings.
+        Generate dictionary of such as {'refa,refb,refc,refe,refg': '1-3,5,7'}.
+        """
         for cite in self.citation:
             cite_nums = [self.bibcite[c] for c in cite.split(',')]
             self.conversion_dict.update(
@@ -31,6 +34,16 @@ class AuxParser():
                 )
 
     def get_dashed_range(self, nums):
+        """Convert multiple integers to dashed range string.
+        Multiple integers are such as 1,2,3,6.
+        And dashed rang strings are such as 1-3,6.
+
+        Parameters
+        ----------
+        nums : list
+            Multiple integers to convert dashed range string.
+            A list of single element integer is also allowd.
+        """
         seq = []
         final = []
         last = 0
@@ -67,6 +80,8 @@ class AuxParser():
         return final_str
 
     def parse_aux(self):
+        """Parse entire .aux file.
+        """
         with open(self.__auxdir / (self.__targetbasename + '.aux'), 'r') as f:
             self.__auxdata = f.readlines()
         for line in self.__auxdata:
@@ -74,6 +89,21 @@ class AuxParser():
         self.build_conversion_dict()
 
     def parse_line(self, line):
+        """Parse one line of .aux
+        \\citation{citation_key} will appended to the citation key as
+        str(citation_key).
+        \\bibstyle{style_file} will be saved as bibstyle attribute.
+        \\bibdata{path_to_data} will be saved as bibdata attribute.
+        \\bibcite{one_citation_key}{citation_number} will be saved as
+        dictionary of {one_citation_key: citation_number} to decide how
+        replace citation_keys of such as 'key1,key2,key3' to dashed citation
+        numbers of such as '2-4'.
+
+        Parameters
+        ----------
+        line : str
+            One line of .aux file to parse.
+        """
         if line.startswith('\\citation'):
             self.citation.append(line[len('\\citation{'): -len('}\n')])
         elif line.startswith('\\bibstyle'):
