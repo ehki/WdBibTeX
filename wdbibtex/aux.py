@@ -3,6 +3,28 @@ import os
 
 
 class AuxParser():
+    """Store contents of aux and connect citation keys with citation numbers.
+
+    Attributes
+    ----------
+    bibcite : str
+        The mapping of citation-key and citation-number. This field is
+        generated in second latex command of general compile routine
+        of latex -> bibtex -> latex -> latex -> dvipdfmx.
+    bibdata : str
+        The bibliography data given in tex file. Although BibTeX command use
+        this field, AuxParser class does not use.
+    bibstyle : str
+        The bibliographystyle of tex file. Although BibTeX command use this
+        field, AuxParser class does not use.
+    citation : list
+        Citation keys written in tex file. For example, in case two citation
+        commands of \\cite{ref1,ref2,ref3} and \\cite{ref4} are in the Word
+        file, citation will become ['ref1,ref2,ref3', 'ref4'].
+    conversion_dict : dict
+        Conversion mapping from citation keys to numbers. For example,
+        {'ref1,ref2,ref3': '1-3', 'ref4': '4'}
+    """
     def __init__(
             self,
             auxdir='.aux',
