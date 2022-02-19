@@ -22,8 +22,8 @@ class TeXWrite:
             auxdir='.aux',
             texname='wdbibtex.tex',
             texcmd='latex',
-            texopts='',
-            preamble=defaultbegindocument,
+            texopts='-interaction=nonstopmode -file-line-error',
+            preamble=defaultpreamble,
             autostart=False):
         self.__cwd = pathlib.Path(os.getcwd())
         self.__auxdir = self.__cwd / auxdir
@@ -37,8 +37,21 @@ class TeXWrite:
             self.write()
             self.compile()
 
-    def write(self):
-        pass
+    def write(self, contents):
+        with open(self.__auxdir / self.__texname, 'w') as f:
+            f.writelines(
+                self.__preamble + '\\begin{document}\n'
+                + contents + '\\end{document}\n'
+            )
 
     def compile(self):
-        pass
+        import subprocess
+        cwd = os.getcwd()
+        os.chdir(self.__auxdir)
+        cmd = ' '.join([
+                self.__texcmd,
+                self.__texopts,
+                str(self.__auxdir / self.__texname),
+            ])
+        subprocess.call(cmd, shell=True)
+        os.chdir(cwd)
