@@ -3,7 +3,8 @@ import os
 
 
 class AuxParser():
-    """Store contents of aux and connect citation keys with citation numbers.
+    r"""
+    Store contents of aux and connect citation keys with citation numbers.
 
     Attributes
     ----------
@@ -46,7 +47,7 @@ class AuxParser():
         self.conversion_dict = {}
 
     def build_conversion_dict(self):
-        """Prepare replaing citation keys with dashed range strings.
+        r"""Prepare replaing citation keys with dashed range strings.
         Generate dictionary of such as {'refa,refb,refc,refe,refg': '1-3,5,7'}.
         """
         for cite in self.citation:
@@ -56,7 +57,7 @@ class AuxParser():
                 )
 
     def get_dashed_range(self, nums):
-        """Convert multiple integers to dashed range string.
+        r"""Convert multiple integers to dashed range string.
         Multiple integers are such as 1,2,3,6.
         And dashed rang strings are such as 1-3,6.
 
@@ -102,7 +103,7 @@ class AuxParser():
         return final_str
 
     def parse_aux(self):
-        """Parse entire .aux file.
+        r"""Parse entire .aux file.
         """
         with open(self.__auxdir / (self.__targetbasename + '.aux'), 'r') as f:
             self.__auxdata = f.readlines()
@@ -111,7 +112,7 @@ class AuxParser():
         self.build_conversion_dict()
 
     def parse_line(self, line):
-        """Parse one line of .aux
+        r"""Parse one line of .aux
         \\citation{citation_key} will appended to the citation key as
         str(citation_key).
         \\bibstyle{style_file} will be saved as bibstyle attribute.
