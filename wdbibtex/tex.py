@@ -16,6 +16,25 @@ defaultenddocument = (
 
 
 class TeXWrite:
+    """TeX contents and commands.
+
+    Parameters
+    ----------
+    auxdir : str, default .aux
+        Temporary directory to store LaTeX contents.
+    targetbasename : str, default wdbib
+        Base name of LaTeX related files.
+    bibtexcmd : str or None, default None
+        BibTeX command. If None, automatically selected.
+    bibtexopts : str or None, default None
+        BibTeX command options. If None, automatically selected.
+    preamble : str or None, default None
+        Preamble of .tex file. if None, automatically selected.
+    texcmd : str or None, default None
+        LaTeX command. If None, automatically selected.
+    texopts : str or None, default None
+        LaTeX command options. If None, automatically selected.
+    """
     def __init__(
             self,
             auxdir='.aux',
