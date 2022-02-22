@@ -83,6 +83,13 @@ class TeXWrite:
             self.compile()
 
     def write(self, contents):
+        """Write .tex file.
+
+        Parameters
+        ----------
+        contents : str
+            String data to be written in .tex file.
+        """
         with open(self.__workdir / (self.__targetbasename + '.tex'), 'w') as f:
             f.writelines(
                 self.__preamble + '\\begin{document}\n'
@@ -90,6 +97,14 @@ class TeXWrite:
             )
 
     def compile(self):
+        """Compile LaTeX related files.
+
+        Compile LaTeX files in old-style four steps (without PDF generation).
+        1. latex: to generate .aux from .tex
+        2. bibtex: to generate .bbl and update .aux from .aux and .bst.
+        3. latex: to update .aux.
+        4. latex: to complete .aux.
+        """
         import subprocess
         cwd = os.getcwd()
         os.chdir(self.__workdir)
