@@ -20,8 +20,8 @@ class TeXWrite:
 
     Parameters
     ----------
-    auxdir : str, default .aux
-        Temporary directory to store LaTeX contents.
+    workdir : str, default .tmp
+        Temporal working directory to store LaTeX contents.
     targetbasename : str, default wdbib
         Base name of LaTeX related files.
     bibtexcmd : str or None, default None
@@ -37,7 +37,7 @@ class TeXWrite:
     """
     def __init__(
             self,
-            auxdir='.aux',
+            workdir='.tmp',
             targetbasename='wdbibtex',
             texcmd='latex',
             texopts='-interaction=nonstopmode -file-line-error',
@@ -46,8 +46,8 @@ class TeXWrite:
             preamble=defaultpreamble,
             autostart=False):
         self.__cwd = pathlib.Path(os.getcwd())
-        self.__auxdir = self.__cwd / auxdir
-        self.__auxdir.mkdir(exist_ok=True)
+        self.__workdir = self.__cwd / workdir
+        self.__workdir.mkdir(exist_ok=True)
         self.__targetbasename = targetbasename
         self.__texcmd = texcmd
         self.__bibtexcmd = bibtexcmd
@@ -60,7 +60,7 @@ class TeXWrite:
             self.compile()
 
     def write(self, contents):
-        with open(self.__auxdir / (self.__targetbasename + '.tex'), 'w') as f:
+        with open(self.__workdir / (self.__targetbasename + '.tex'), 'w') as f:
             f.writelines(
                 self.__preamble + '\\begin{document}\n'
                 + contents + '\\end{document}\n'
@@ -69,11 +69,11 @@ class TeXWrite:
     def compile(self):
         import subprocess
         cwd = os.getcwd()
-        os.chdir(self.__auxdir)
+        os.chdir(self.__workdir)
         cmd = ' '.join([
                 self.__texcmd,
                 self.__texopts,
-                str(self.__auxdir / (self.__targetbasename + '.tex')),
+                str(self.__workdir / (self.__targetbasename + '.tex')),
             ])
         subprocess.call(cmd, shell=True)
         os.chdir(cwd)
@@ -81,7 +81,7 @@ class TeXWrite:
     def bibtex(self):
         import subprocess
         cwd = os.getcwd()
-        os.chdir(self.__auxdir)
+        os.chdir(self.__workdir)
         cmd = ' '.join([
                 self.__bibtexcmd,
                 self.__bibtexopts,
