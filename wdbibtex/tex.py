@@ -108,22 +108,16 @@ class TeXWrite:
         import subprocess
         cwd = os.getcwd()
         os.chdir(self.__workdir)
-        cmd = ' '.join([
-                self.__texcmd,
-                self.__texopts,
-                str(self.__workdir / (self.__targetbasename + '.tex')),
-            ])
-        subprocess.call(cmd, shell=True)
-        os.chdir(cwd)
-
-    def bibtex(self):
-        import subprocess
-        cwd = os.getcwd()
-        os.chdir(self.__workdir)
-        cmd = ' '.join([
-                self.__bibtexcmd,
-                self.__bibtexopts,
-                self.__targetbasename,
-            ])
-        subprocess.call(cmd, shell=True)
+        latexcmd = ' '.join(filter('', [
+            self.__texcmd, self.__texopts,
+            self.__targetbasename + '.tex'
+        ]))
+        bibtexcmd = ' '.join(filter('', [
+            self.__bibtexcmd, self.__bibtexopts,
+            self.__targetbasename,
+        ]))
+        subprocess.call(latexcmd, shell=True)
+        subprocess.call(bibtexcmd, shell=True)
+        subprocess.call(latexcmd, shell=True)
+        subprocess.call(latexcmd, shell=True)
         os.chdir(cwd)
