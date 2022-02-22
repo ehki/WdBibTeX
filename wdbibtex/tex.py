@@ -1,3 +1,4 @@
+import locale
 import pathlib
 import os
 
@@ -38,22 +39,44 @@ class TeXWrite:
     def __init__(
             self,
             workdir='.tmp',
-            targetbasename='wdbibtex',
-            texcmd='latex',
-            texopts='-interaction=nonstopmode -file-line-error',
-            bibtexcmd='bibtex',
-            bibtexopts='',
-            preamble=defaultpreamble,
+            targetbasename='wdbib',
+            texcmd=None,
+            texopts=None,
+            bibtexcmd=None,
+            bibtexopts=None,
+            preamble=None,
             autostart=False):
+
+        # Set automatically selected values
+        if texcmd is None:
+            if 'en' in locale.getlocale():
+                texcmd = 'latex'
+            elif 'ja' in locale.getlocale():
+                texcmd = 'uplatex'
+        if texopts is None:
+            texopts = '-interaction=nonstopmode -file-line-error'
+        if bibtexcmd is None:
+            if 'en' in locale.getlocale():
+                bibtexcmd = 'bibtex'
+            elif 'ja' in locale.getlocale():
+                bibtexcmd = 'upbibtex'
+        if bibtexopts is None:
+            bibtexopts = ''
+        if preamble is None:
+            preamble = defaultpreamble
+
+        # Store settings in internal attributes.
         self.__cwd = pathlib.Path(os.getcwd())
         self.__workdir = self.__cwd / workdir
-        self.__workdir.mkdir(exist_ok=True)
         self.__targetbasename = targetbasename
         self.__texcmd = texcmd
+        self.__texopts = texopts
         self.__bibtexcmd = bibtexcmd
         self.__bibtexopts = bibtexopts
-        self.__texopts = texopts
         self.__preamble = preamble
+
+        # Makedir working directory if not exist.
+        self.__workdir.mkdir(exist_ok=True)
 
         if autostart:
             self.write()
