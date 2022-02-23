@@ -3,7 +3,7 @@ import pathlib
 import os
 
 
-class TeXWrite:
+class LaTeXHandler:
     """TeX contents and commands.
 
     Parameters
