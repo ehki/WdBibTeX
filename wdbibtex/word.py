@@ -33,8 +33,8 @@ class WordBibTeX:
 
     def compile(self):
         self.open_doc()
-        self.cites = self.find_latex_key('\\\\cite\\{*\\}')
-        self.thebibliographies = self.find_latex_key('\\\\thebibliography')
+        self.cites = self.find_all('\\\\cite\\{*\\}')
+        self.thebibliographies = self.find_all('\\\\thebibliography')
 
         # Build latex document
         context = '\n'.join([cite for cite, _, _ in self.cites])
@@ -51,9 +51,9 @@ class WordBibTeX:
         for key, val in self.__ltx.get_replacer().items():
             if 'thebibliography' in key:
                 continue
-            self.replace_key(key, val)
+            self.replace_all(key, val)
 
-    def find_latex_key(self, key):
+    def find_all(self, key):
         self.__fi = self.__sl.Find
         self.__fi.ClearFormatting()
         self.__fi.Highlight = 1
@@ -83,7 +83,7 @@ class WordBibTeX:
         self.__dc = self.__ap.Documents.Open(self.__target_file)
         self.__sl = self.__ap.Selection
 
-    def replace_key(self, key, val):
+    def replace_all(self, key, val):
         self.__fi = self.__sl.Find
         self.__fi.ClearFormatting()
         self.__fi.Highlight = 1
