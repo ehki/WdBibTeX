@@ -63,16 +63,16 @@ class LaTeXHandler:
 
         # Set automatically selected values
         if texcmd is None:
-            if True in ['en' in loc for loc in locale.getlocale()]:
+            if self.get_locale() is 'en':
                 texcmd = 'latex'
-            elif True in ['ja' in loc for loc in locale.getlocale()]:
+            elif self.get_locale() is 'ja':
                 texcmd = 'uplatex'
         if texopts is None:
             texopts = '-interaction=nonstopmode -file-line-error'
         if bibtexcmd is None:
-            if True in ['en' in loc for loc in locale.getlocale()]:
+            if self.get_locale() is 'en':
                 bibtexcmd = 'bibtex'
-            elif True in ['ja' in loc for loc in locale.getlocale()]:
+            elif self.get_locale() is 'ja':
                 bibtexcmd = 'upbibtex'
         if bibtexopts is None:
             bibtexopts = ''
@@ -176,6 +176,7 @@ class LaTeXHandler:
             self.__bibtexcmd, self.__bibtexopts,
             self.__targetbasename,
         ]))
+        print(latexcmd)
         subprocess.call(latexcmd, shell=True)
         subprocess.call(bibtexcmd, shell=True)
         subprocess.call(latexcmd, shell=True)
@@ -189,6 +190,8 @@ class LaTeXHandler:
         replacer.update({
             r'\n  ': ' ',
             r'\{\\em (.*)\}': r'\1',
+            r'\\emph\{(.*)\}': r'\1',
+            r'\\BIBforeignlanguage\{(.*)\}\{(.*)\}': r'\2',
             r'~': ' ',
             r'--': u'\u2014',
             r'``': '“',
@@ -218,7 +221,7 @@ class LaTeXHandler:
         """
         replacer = dict()
         for k, v in self.conversion_dict.items():
-            replacer.update({'\\\\cite\\{%s\\}' % k: v})
+            replacer.update({'\\\\cite\\{%s\\}' % k: '[%s]' % v})
         replacer.update({
             '\\\\thebibliography': self.get_thebibliography_text()
         })
@@ -321,3 +324,24 @@ class LaTeXHandler:
             key, value = line[len('\\bibcite{'): -len('}\n')].split('}{')
             value = int(value)
             self.bibcite.update({key: value})
+
+    def get_locale(self):
+        """Get system locale
+
+        Raise
+        -----
+        ValueError
+            If no locale detected.
+        """
+
+        loca, locb = locale.getlocale()
+        if 'en' in loca or 'en' in locb:
+            return 'en'
+        elif 'English' in loca or 'English' in locb:
+            return 'en'
+        elif 'ja' in loca or 'ja' in locb:
+            return 'ja'
+        elif 'Japanese' in loca or 'Japanese' in locb:
+            return 'ja'
+        else:
+            raise ValueError('Unhandled locale %s' % locale.getlocale())
