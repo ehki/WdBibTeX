@@ -33,14 +33,12 @@ class WordBibTeX:
         context = '\n'.join([cite for cite, _, _ in self.cites])
         ltx.write(context)
         ltx.compile()
-        ltx.parse_aux()
-        ltx.read_bbl()
 
         # Replace \thebibliography
         for _, start, end in self.thebibliographies[::-1]:
             rng = self.dc.Range(Start=start, End=end)
             rng.Delete()
-            rng.InsertAfter(ltx.get_thebibliography_text())
+            rng.InsertAfter(ltx.thebibliography_text)
 
         # Replace \cite{*}
         for key, val in ltx.get_replacer().items():

@@ -92,6 +92,7 @@ class LaTeXHandler:
         self.__bibtexopts = bibtexopts
         self.__preamble = preamble
         self.__dashstarts = dashstarts
+        self.__thebibtext = None
         self.citation = []
         self.bibstyle = None
         self.bibdata = None
@@ -181,35 +182,19 @@ class LaTeXHandler:
         subprocess.call(bibtexcmd, shell=True)
         subprocess.call(latexcmd, shell=True)
         subprocess.call(latexcmd, shell=True)
+        self.parse_aux()
+
+        self.read_bbl()
+        self.__make_thebibliography_text()
         os.chdir(cwd)
 
-    def get_thebibliography_text(self):
-        """Returns thebibliography plain text to incert word file.
-        """
-        replacer = {}
-        replacer.update({
-            r'\n  ': ' ',
-            r'\{\\em (.*)\}': r'\1',
-            r'\\emph\{(.*)\}': r'\1',
-            r'\\BIBforeignlanguage\{(.*)\}\{(.*)\}': r'\2',
-            r'~': ' ',
-            r'--': u'\u2014',
-            r'``': '“',
-            r"''": '”',
-            r'\n\n': '\n'
-            })
-        thebib_begin = None
-        for i, line in enumerate(self.__bbldata):
-            if line.startswith('\\bibitem') and thebib_begin is None:
-                thebib_begin = i
-            if line.startswith('\\end{thebibliography}'):
-                thebib_end = i
-        ret_text = ''.join(self.__bbldata[thebib_begin: thebib_end])
-        for k, v in replacer.items():
-            ret_text = re.sub(k, v, ret_text)
-        for k, v in self.bibcite.items():
-            ret_text = re.sub('\\\\bibitem{%s}\n' % k, '[%s]\t' % v, ret_text)
-        return ret_text
+    @property
+    def thebibliography_text(self):
+        if self.__thebibtext is None:
+            raise ValueError(
+                'Thebibliography text is not set yet.'
+            )
+        return self.__thebibtext
 
     def get_replacer(self):
         """Get key and value for replace word document.
@@ -222,9 +207,6 @@ class LaTeXHandler:
         replacer = dict()
         for k, v in self.conversion_dict.items():
             replacer.update({'\\\\cite\\{%s\\}' % k: '[%s]' % v})
-        replacer.update({
-            '\\\\thebibliography': self.get_thebibliography_text()
-        })
         return replacer
 
     def read_bbl(self):
@@ -345,3 +327,31 @@ class LaTeXHandler:
             return 'ja'
         else:
             raise ValueError('Unhandled locale %s' % locale.getlocale())
+
+    def __make_thebibliography_text(self):
+        """Generate thebibliography plain text to incert word file.
+        """
+        replacer = {}
+        replacer.update({
+            r'\n  ': ' ',
+            r'\{\\em (.*)\}': r'\1',
+            r'\\emph\{(.*)\}': r'\1',
+            r'\\BIBforeignlanguage\{(.*)\}\{(.*)\}': r'\2',
+            r'~': ' ',
+            r'--': u'\u2014',
+            r'``': '“',
+            r"''": '”',
+            r'\n\n': '\n'
+            })
+        thebib_begin = None
+        for i, line in enumerate(self.__bbldata):
+            if line.startswith('\\bibitem') and thebib_begin is None:
+                thebib_begin = i
+            if line.startswith('\\end{thebibliography}'):
+                thebib_end = i
+        thebibtext = ''.join(self.__bbldata[thebib_begin: thebib_end])
+        for k, v in replacer.items():
+            thebibtext = re.sub(k, v, thebibtext)
+        for k, v in self.bibcite.items():
+            thebibtext = re.sub('\\\\bibitem{%s}\n' % k, '[%s]\t' % v, thebibtext)
+        self.__thebibtext = thebibtext
