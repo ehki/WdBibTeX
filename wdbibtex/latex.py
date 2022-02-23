@@ -5,7 +5,7 @@ import re
 
 
 class LaTeXHandler:
-    """TeX contents and commands.
+    """LaTeX related contents and commands.
 
     Parameters
     ----------
@@ -23,6 +23,26 @@ class LaTeXHandler:
         LaTeX command. If None, automatically selected.
     texopts : str or None, default None
         LaTeX command options. If None, automatically selected.
+
+    Attributes
+    ----------
+    bibcite : str
+        The mapping of citation-key and citation-number. This field is
+        generated in second latex command of general compile routine
+        of latex -> bibtex -> latex -> latex -> dvipdfmx.
+    bibdata : str
+        The bibliography data given in tex file. Although BibTeX command use
+        this field, AuxParser class does not use.
+    bibstyle : str
+        The bibliographystyle of tex file. Although BibTeX command use this
+        field, AuxParser class does not use.
+    citation : list
+        Citation keys written in tex file. For example, in case two citation
+        commands of \\cite{ref1,ref2,ref3} and \\cite{ref4} are in the Word
+        file, citation will become ['ref1,ref2,ref3', 'ref4'].
+    conversion_dict : dict
+        Conversion mapping from citation keys to numbers. For example,
+        {'ref1,ref2,ref3': '1-3', 'ref4': '4'}
     """
     def __init__(
             self,
@@ -33,20 +53,26 @@ class LaTeXHandler:
             bibtexcmd=None,
             bibtexopts=None,
             preamble=None,
-            autostart=False):
+            autostart=False,
+            dashstarts=3,
+    ):
+        # Argument check
+        assert dashstarts in (2, 3), (
+            'Invalid dashstarts. Only integer 2 or 3 is allowed.'
+        )
 
         # Set automatically selected values
         if texcmd is None:
-            if 'en' in locale.getlocale():
+            if True in ['en' in loc for loc in locale.getlocale()]:
                 texcmd = 'latex'
-            elif 'ja' in locale.getlocale():
+            elif True in ['ja' in loc for loc in locale.getlocale()]:
                 texcmd = 'uplatex'
         if texopts is None:
             texopts = '-interaction=nonstopmode -file-line-error'
         if bibtexcmd is None:
-            if 'en' in locale.getlocale():
+            if True in ['en' in loc for loc in locale.getlocale()]:
                 bibtexcmd = 'bibtex'
-            elif 'ja' in locale.getlocale():
+            elif True in ['ja' in loc for loc in locale.getlocale()]:
                 bibtexcmd = 'upbibtex'
         if bibtexopts is None:
             bibtexopts = ''
@@ -65,6 +91,12 @@ class LaTeXHandler:
         self.__bibtexcmd = bibtexcmd
         self.__bibtexopts = bibtexopts
         self.__preamble = preamble
+        self.__dashstarts = dashstarts
+        self.citation = []
+        self.bibstyle = None
+        self.bibdata = None
+        self.bibcite = {}
+        self.conversion_dict = {}
 
         # Makedir working directory if not exist.
         self.__workdir.mkdir(exist_ok=True)
@@ -99,11 +131,11 @@ class LaTeXHandler:
         import subprocess
         cwd = os.getcwd()
         os.chdir(self.__workdir)
-        latexcmd = ' '.join(filter('', [
+        latexcmd = ' '.join(filter(None, [
             self.__texcmd, self.__texopts,
             self.__targetbasename + '.tex'
         ]))
-        bibtexcmd = ' '.join(filter('', [
+        bibtexcmd = ' '.join(filter(None, [
             self.__bibtexcmd, self.__bibtexopts,
             self.__targetbasename,
         ]))
@@ -141,53 +173,8 @@ class LaTeXHandler:
     def read_bbl(self):
         """Read .bbl file.
         """
-        with open(self.__auxdir / (self.__targetbasename + '.bbl'), 'r') as f:
+        with open(self.__workdir / (self.__targetbasename + '.bbl'), 'r') as f:
             self.__bbldata = f.readlines()
-
-
-class AuxParser():
-    r"""
-    Store contents of aux and connect citation keys with citation numbers.
-
-    Attributes
-    ----------
-    bibcite : str
-        The mapping of citation-key and citation-number. This field is
-        generated in second latex command of general compile routine
-        of latex -> bibtex -> latex -> latex -> dvipdfmx.
-    bibdata : str
-        The bibliography data given in tex file. Although BibTeX command use
-        this field, AuxParser class does not use.
-    bibstyle : str
-        The bibliographystyle of tex file. Although BibTeX command use this
-        field, AuxParser class does not use.
-    citation : list
-        Citation keys written in tex file. For example, in case two citation
-        commands of \\cite{ref1,ref2,ref3} and \\cite{ref4} are in the Word
-        file, citation will become ['ref1,ref2,ref3', 'ref4'].
-    conversion_dict : dict
-        Conversion mapping from citation keys to numbers. For example,
-        {'ref1,ref2,ref3': '1-3', 'ref4': '4'}
-    """
-    def __init__(
-            self,
-            auxdir='.aux',
-            targetbasename='wdbibtex',
-            dashstarts=3,
-            ):
-        assert dashstarts in (2, 3), (
-            'Invalid dashstarts. Only integer 2 or 3 is allowed.'
-            )
-        self.__cwd = pathlib.Path(os.getcwd())
-        self.__auxdir = self.__cwd / auxdir
-        self.__auxdir.mkdir(exist_ok=True)
-        self.__targetbasename = targetbasename
-        self.__dashstarts = dashstarts
-        self.citation = []
-        self.bibstyle = None
-        self.bibdata = None
-        self.bibcite = {}
-        self.conversion_dict = {}
 
     def build_conversion_dict(self):
         r"""Prepare replaing citation keys with dashed range strings.
@@ -248,7 +235,7 @@ class AuxParser():
     def parse_aux(self):
         r"""Parse entire .aux file.
         """
-        with open(self.__auxdir / (self.__targetbasename + '.aux'), 'r') as f:
+        with open(self.__workdir / (self.__targetbasename + '.aux'), 'r') as f:
             self.__auxdata = f.readlines()
         for line in self.__auxdata:
             self.parse_line(line)
