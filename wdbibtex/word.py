@@ -56,3 +56,17 @@ class WordBibTeX:
 
         self.dc = self.ap.Documents.Open(self.operating_file)
         self.sl = self.ap.Selection
+
+    def replace_key(self, key, val):
+        self.fi = self.sl.Find
+        self.fi.ClearFormatting()
+        self.fi.Highlight = 1
+        self.fi.MatchFuzzy = False
+        found = []
+        while True:
+            self.fi.Execute(
+                key, False, False, True, False, False, True, 1, False, val, 2
+            )
+            line = [str(self.sl.Range), self.sl.Range.Start, self.sl.Range.End]
+            if line in found:
+                break
