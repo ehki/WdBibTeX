@@ -83,11 +83,6 @@ class WordBibTeX:
         self.fi.ClearFormatting()
         self.fi.Highlight = 1
         self.fi.MatchFuzzy = False
-        found = []
-        while True:
-            self.fi.Execute(
-                key, False, False, True, False, False, True, 1, False, val, 2
-            )
-            line = [str(self.sl.Range), self.sl.Range.Start, self.sl.Range.End]
-            if line in found:
-                break
+        self.fi.Execute(
+            key, False, False, True, False, False, True, 1, False, val, 2
+        )
