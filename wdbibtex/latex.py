@@ -84,7 +84,7 @@ class LaTeXHandler:
 
         # Store settings in internal attributes.
         self.__cwd = pathlib.Path(os.getcwd())
-        self.__workdir = self.__cwd / workdir
+        self.workdir = self.__cwd / workdir
         self.__targetbasename = targetbasename
         self.__texcmd = texcmd
         self.__texopts = texopts
@@ -100,7 +100,7 @@ class LaTeXHandler:
         self.conversion_dict = {}
 
         # Makedir working directory if not exist.
-        self.__workdir.mkdir(exist_ok=True)
+        self.workdir.mkdir(exist_ok=True)
 
         if autostart:
             self.write()
@@ -147,7 +147,7 @@ class LaTeXHandler:
             else:
                 bibstyle = '../' + bibstyle[0]
 
-        with open(self.__workdir / (self.__targetbasename + '.tex'), 'w') as f:
+        with open(self.workdir / (self.__targetbasename + '.tex'), 'w') as f:
             f.writelines(
                 self.__preamble
                 + '\\bibliographystyle{%s}\n' % bibstyle
@@ -168,7 +168,7 @@ class LaTeXHandler:
         """
         import subprocess
         cwd = os.getcwd()
-        os.chdir(self.__workdir)
+        os.chdir(self.workdir)
         latexcmd = ' '.join(filter(None, [
             self.__texcmd, self.__texopts,
             self.__targetbasename + '.tex'
@@ -212,7 +212,7 @@ class LaTeXHandler:
     def read_bbl(self):
         """Read .bbl file.
         """
-        with open(self.__workdir / (self.__targetbasename + '.bbl'), 'r') as f:
+        with open(self.workdir / (self.__targetbasename + '.bbl'), 'r') as f:
             self.__bbldata = f.readlines()
 
     def build_conversion_dict(self):
@@ -274,7 +274,7 @@ class LaTeXHandler:
     def parse_aux(self):
         r"""Parse entire .aux file.
         """
-        with open(self.__workdir / (self.__targetbasename + '.aux'), 'r') as f:
+        with open(self.workdir / (self.__targetbasename + '.aux'), 'r') as f:
             self.__auxdata = f.readlines()
         for line in self.__auxdata:
             self.parse_line(line)

@@ -43,7 +43,7 @@ def main():
     args = parser.parse_args()
     wb = wdbibtex.WdBibTeX(args.file)
     wb.compile()
-    wb.close()
+    wb.close(cleanup=not args.keeptmpdir)
     return 0
 
 

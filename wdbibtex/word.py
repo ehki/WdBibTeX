@@ -24,7 +24,7 @@ class WdBibTeX:
         self.__target_file = os.path.join(dn, bn+copy_suffix+ex)
         self.__ltx = wdbibtex.LaTeXHandler(workdir=workdir)
 
-    def close(self):
+    def close(self, cleanup=False):
         """Close file after saving. If applicable, quit Word App too.
         """
 
@@ -37,6 +37,9 @@ class WdBibTeX:
         #  Quit Word application if no other opened document
         if len(self.__ap.Documents) == 0:
             self.__ap.Quit()
+
+        if cleanup:
+            shutil.rmtree(self.__ltx.workdir)
 
     def compile(self):
         """Compile latex-citations-including word file.
@@ -106,7 +109,10 @@ class WdBibTeX:
         try:
             shutil.copy2(self.__origin_file, self.__target_file)
         except PermissionError:
-            self.close_docx_file(self.__target_file, save=True)
+            for d in self.__ap.Documents:
+                if str(os.path.join(d.Path, d.Name)) == str(self.__target_file):
+                    d.Close(SaveChanges=-1)  # wdSaveChanges
+                    break
             shutil.copy2(self.__origin_file, self.__target_file)
 
         self.__dc = self.__ap.Documents.Open(self.__target_file)
