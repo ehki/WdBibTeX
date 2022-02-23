@@ -1,48 +1,49 @@
 import sys
 import argparse
 
+import wdbibtex
 
 def main():
     parser = argparse.ArgumentParser(
         description='WdBibTeX is a BibTeX citation formatter for MS word.'
     )
     parser.add_argument(
-        '--workingdirectory',
-        metavar='Working Directory',
+        'file',
         type=str,
         help=(
-            'Select working directory.'
-            'Default: current working directory.'
+            'File to BibTeX format.'
         )
     )
     parser.add_argument(
         '--bibliographystyle',
-        metavar='BST file',
         type=str,
+        default=None,
         help=(
-            'Select BibTeX style file.'
-            'Default: IEEEtran.bst in current working directory.'
+            'Select BibTeX style file. '
+            'Default: .bst in directory where target file belogns to.'
         )
     )
     parser.add_argument(
-        '--bibliography',
-        metavar='BIB file',
+        '--bibliographyfiles',
         type=str,
+        default=None,
         help=(
-            'Select bibliography file.'
-            'Default: library.bib in current working directory.'
+            'Select bibliography file. '
+            'Default: all .bib in directory where target file belogns to.'
         )
     )
     parser.add_argument(
-        '--keepaux',
-        metavar='Keep AUX files',
+        '--keeptmpdir',
         action='store_true',
         help=(
-            'Keep AUX files after run.'
-            'Default: False(= clean aux files)'
+            'Keep temporary files after run. '
+            'Default: False(= clean temporary directory)'
         )
     )
     args = parser.parse_args()
+    wb = wdbibtex.WdBibTeX(args.file)
+    wb.compile()
+    wb.close()
     return 0
 
 
