@@ -15,21 +15,21 @@ def main():
         )
     )
     parser.add_argument(
-        '--bibliographystyle',
+        '--bibstyle',
         type=str,
         default=None,
         help=(
-            'Select BibTeX style file. '
-            'Default: .bst in directory where target file belogns to.'
+            'BibTeX style file. '
+            'Default: .bst in target file directory'
         )
     )
     parser.add_argument(
-        '--bibliographyfiles',
+        '--bibfile',
         type=str,
         default=None,
         help=(
-            'Select bibliography file. '
-            'Default: all .bib in directory where target file belogns to.'
+            'Bibliography file. '
+            'Default: all .bib in target file directory'
         )
     )
     parser.add_argument(
@@ -42,7 +42,7 @@ def main():
     )
     args = parser.parse_args()
     wb = wdbibtex.WdBibTeX(args.file)
-    wb.compile(bibfile=args.bibliographyfiles, bibstyle=args.bibliographystyle)
+    wb.compile(bibfile=args.bibfile, bibstyle=args.bibstyle)
     wb.close(cleanup=not args.keeptmpdir)
     return 0
 
