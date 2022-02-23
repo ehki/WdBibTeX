@@ -2,19 +2,6 @@ import locale
 import pathlib
 import os
 
-defaultpreamble = (
-    '\\documentclass[10pt, a4paper, dvipdfmx, latex]{article}\n'
-    '\\usepackage{cite}\n'
-)
-
-defaultbegindocument = (
-    '\\begin{document}\n'
-)
-
-defaultenddocument = (
-    '\\end{document}\n'
-)
-
 
 class TeXWrite:
     """TeX contents and commands.
@@ -63,7 +50,10 @@ class TeXWrite:
         if bibtexopts is None:
             bibtexopts = ''
         if preamble is None:
-            preamble = defaultpreamble
+            preamble = (
+                '\\documentclass[latex]{article}\n'
+                '\\usepackage{cite}\n'
+            )
 
         # Store settings in internal attributes.
         self.__cwd = pathlib.Path(os.getcwd())
