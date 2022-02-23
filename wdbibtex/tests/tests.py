@@ -54,6 +54,12 @@ class TestLaTeX(unittest.TestCase):
             print(''.join(f.readlines()))
         with open('.tmp/wdbib.bbl', 'r') as f:
             print(''.join(f.readlines()))
+
+        # Parse test for aux file.
+        ltx.parse_aux()
+        ltx.build_conversion_dict()
+        self.assertEqual(ltx.conversion_dict['enArticle1'], '1')
+
         # Clear working directory
         shutil.rmtree('.tmp')
         os.chdir(cwd)
