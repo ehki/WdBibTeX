@@ -7,15 +7,19 @@ import wdbibtex
 
 class WordBibTeX:
     def __init__(
-            self, target_file, copy_suffix='_bib', language='en',
-            blibfiles=None, temporary_dir=None):
-        self.target_file = os.path.abspath(target_file)
-        dn, fn = os.path.split(self.target_file)
+            self,
+            file,
+            copy_suffix='_bib',
+            workdir='.tmp',
+    ):
+        self.__origin_file = file
+        self.__origin_file = os.path.abspath(self.__origin_file)
+        dn, fn = os.path.split(self.__origin_file)
         bn, ex = os.path.splitext(fn)
-        self.operating_file = os.path.join(dn, bn+copy_suffix+ex)
-        if temporary_dir is None:
-            temporary_dir = '.tmp'
-        self.temporary_dir = os.path.join(dn, temporary_dir)
+        self.__target_file = os.path.join(dn, bn+copy_suffix+ex)
+        self.workdir = os.path.join(dn, workdir)
+        self.ltx = wdbibtex.LaTeXHandler(workdir=workdir)
+
  
     def close_docx_file(self, fn, save=True):
         for d in self.ap.Documents:
@@ -29,19 +33,18 @@ class WordBibTeX:
         self.thebibliographies = self.find_latex_key('\\\\thebibliography')
 
         # Build latex document
-        ltx = wdbibtex.LaTeXHandler()
         context = '\n'.join([cite for cite, _, _ in self.cites])
-        ltx.write(context)
-        ltx.compile()
+        self.ltx.write(context)
+        self.ltx.compile()
 
         # Replace \thebibliography
         for _, start, end in self.thebibliographies[::-1]:
             rng = self.dc.Range(Start=start, End=end)
             rng.Delete()
-            rng.InsertAfter(ltx.thebibliography_text)
+            rng.InsertAfter(self.ltx.thebibliography_text)
 
         # Replace \cite{*}
-        for key, val in ltx.get_replacer().items():
+        for key, val in self.ltx.get_replacer().items():
             if 'thebibliography' in key:
                 continue
             self.replace_key(key, val)
@@ -68,12 +71,12 @@ class WordBibTeX:
 
         # Copy original file to operatinf file for safety.
         try:
-            shutil.copy2(self.target_file, self.operating_file)
+            shutil.copy2(self.__origin_file, self.__target_file)
         except PermissionError:
-            self.close_docx_file(self.operating_file, save=True)
-            shutil.copy2(self.target_file, self.operating_file)
+            self.close_docx_file(self.__target_file, save=True)
+            shutil.copy2(self.__origin_file, self.__target_file)
 
-        self.dc = self.ap.Documents.Open(self.operating_file)
+        self.dc = self.ap.Documents.Open(self.__target_file)
         self.sl = self.ap.Selection
 
     def replace_key(self, key, val):
