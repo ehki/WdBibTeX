@@ -6,6 +6,8 @@ import wdbibtex
 
 
 class WordBibTeX:
+
+
     def __init__(
             self,
             file,
@@ -20,6 +22,8 @@ class WordBibTeX:
         self.__ltx = wdbibtex.LaTeXHandler(workdir=workdir)
 
     def close(self):
+        """Close file after saving. If applicable, quit Word App too.
+        """
 
         # Save document
         self.__dc.Save()
@@ -32,6 +36,14 @@ class WordBibTeX:
             self.__ap.Quit()
 
     def compile(self):
+        """Compile latex-citations-including word file.
+
+        Firstly, find latex citations and thebibliography key.
+        Secondly, make dummy latex file and build.
+        Thirdly, replace latex citations and thebibliography
+        with latex-processed texts.
+        """
+
         self.open_doc()
         self.cites = self.find_all('\\\\cite\\{*\\}')
         self.thebibliographies = self.find_all('\\\\thebibliography')
