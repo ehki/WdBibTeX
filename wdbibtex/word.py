@@ -19,13 +19,6 @@ class WordBibTeX:
         self.__target_file = os.path.join(dn, bn+copy_suffix+ex)
         self.__ltx = wdbibtex.LaTeXHandler(workdir=workdir)
 
- 
-    def close_docx_file(self, fn, save=True):
-        for d in self.__ap.Documents:
-            if str(os.path.join(d.Path, d.Name)) == str(fn):
-                d.Close(SaveChanges=-1)  # wdSaveChanges
-                break
-
     def compile(self, close=True):
         self.open_doc()
         self.cites = self.find_latex_key('\\\\cite\\{*\\}')
