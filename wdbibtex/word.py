@@ -54,6 +54,14 @@ class WordBibTeX:
             self.replace_all(key, val)
 
     def find_all(self, key):
+        """Find all keys from word file.
+
+        Parameters
+        ----------
+        key : str
+            A text to search in word document.
+        """
+
         self.__fi = self.__sl.Find
         self.__fi.ClearFormatting()
         self.__fi.Highlight = 1
@@ -70,10 +78,16 @@ class WordBibTeX:
         return sorted(found, key=lambda x: x[1])
 
     def open_doc(self):
+        """Open copied word document.
+
+        Copy word file with appending suffix.
+        Then open the file.
+        """
+
         self.__ap = client.Dispatch('Word.Application')
         self.__ap.Visible = True
 
-        # Copy original file to operatinf file for safety.
+        # Copy original file to operating file for safety.
         try:
             shutil.copy2(self.__origin_file, self.__target_file)
         except PermissionError:
@@ -84,6 +98,16 @@ class WordBibTeX:
         self.__sl = self.__ap.Selection
 
     def replace_all(self, key, val):
+        """Replace all key with value.
+
+        Parameters
+        ----------
+        key : str
+            Original text.
+        val : str
+            Replacing text.
+        """
+
         self.__fi = self.__sl.Find
         self.__fi.ClearFormatting()
         self.__fi.Highlight = 1
