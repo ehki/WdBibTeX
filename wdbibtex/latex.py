@@ -208,6 +208,22 @@ class LaTeXHandler:
             ret_text = re.sub('\\\\bibitem{%s}\n' % k, '[%s]\t' % v, ret_text)
         return ret_text
 
+    def get_replacer(self):
+        """Get key and value for replace word document.
+
+        Returns
+        -------
+        dict
+            Search key and replacement value.
+        """
+        replacer = dict()
+        for k, v in self.conversion_dict.items():
+            replacer.update({'\\\\cite\\{%s\\}' % k: v})
+        replacer.update({
+            '\\\\thebibliography': self.get_thebibliography_text()
+        })
+        return replacer
+
     def read_bbl(self):
         """Read .bbl file.
         """

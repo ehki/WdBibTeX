@@ -101,6 +101,9 @@ class TestLaTeX(unittest.TestCase):
         ltx.read_bbl()
         print(ltx.get_thebibliography_text())
         self.assertEqual(len(ltx.get_thebibliography_text()), 318)
+        print(ltx.get_replacer())
+        self.assertEqual(len(str(ltx.get_replacer())), 463)
+
         # Clear working directory
         shutil.rmtree('.tmp')
         os.chdir(cwd)
