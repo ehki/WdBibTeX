@@ -19,7 +19,19 @@ class WordBibTeX:
         self.__target_file = os.path.join(dn, bn+copy_suffix+ex)
         self.__ltx = wdbibtex.LaTeXHandler(workdir=workdir)
 
-    def compile(self, close=True):
+    def close(self):
+
+        # Save document
+        self.__dc.Save()
+
+        # Close document
+        self.__dc.Close()
+
+        #  Quit Word application if no other opened document
+        if len(self.__ap.Documents) == 0:
+            self.__ap.Quit()
+
+    def compile(self):
         self.open_doc()
         self.cites = self.find_latex_key('\\\\cite\\{*\\}')
         self.thebibliographies = self.find_latex_key('\\\\thebibliography')
@@ -40,17 +52,6 @@ class WordBibTeX:
             if 'thebibliography' in key:
                 continue
             self.replace_key(key, val)
-        
-        # Save document
-        self.__dc.Save()
-
-        # Close document
-        if close:
-            self.__dc.Close()
-
-            #  Quit Word application if no other opened document
-            if len(self.__ap.Documents) == 0:
-                self.__ap.Quit()
 
     def find_latex_key(self, key):
         self.__fi = self.__sl.Find
