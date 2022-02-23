@@ -41,7 +41,7 @@ class WdBibTeX:
         if cleanup:
             shutil.rmtree(self.__ltx.workdir)
 
-    def compile(self):
+    def compile(self, bibfile=None, bibstyle=None):
         """Compile latex-citations-including word file.
 
         Firstly, find latex citations and thebibliography key.
@@ -56,7 +56,7 @@ class WdBibTeX:
 
         # Build latex document
         context = '\n'.join([cite for cite, _, _ in self.cites])
-        self.__ltx.write(context)
+        self.__ltx.write(context, bibfile=bibfile, bibstyle=bibstyle)
         self.__ltx.compile()
 
         # Replace \thebibliography

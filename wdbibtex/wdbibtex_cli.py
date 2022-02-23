@@ -42,7 +42,7 @@ def main():
     )
     args = parser.parse_args()
     wb = wdbibtex.WdBibTeX(args.file)
-    wb.compile()
+    wb.compile(bibfile=args.bibliographyfiles, bibstyle=args.bibliographystyle)
     wb.close(cleanup=not args.keeptmpdir)
     return 0
 
