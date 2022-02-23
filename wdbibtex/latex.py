@@ -105,18 +105,55 @@ class LaTeXHandler:
             self.write()
             self.compile()
 
-    def write(self, contents):
+    def write(self, contents, bibfile=None, bibstyle=None):
         """Write .tex file.
 
         Parameters
         ----------
         contents : str
             String data to be written in .tex file.
+        bibfile : str or None
+            Bibliography library file(s). If None, use all .bib files in cwd.
+        bibstyle : str or None
+            Bibliography style. If None, use .bst file in cwd.
+
+        Raises
+        ------
+        ValueError
+            If bibstyle is None and there is no or multiple .bst files in cwd.
         """
+        import glob
+
+        if bibfile is None:
+            # Use only root name (file name without extension).
+            # As .tex, .aux, .bbl are placed in temporary directory,
+            # relative path to .bib is one layer above from .tex file.
+            bibfile = ''.join(
+                ['../' + os.path.splitext(b)[0] for b in glob.glob('*.bib')]
+            )
+            print(bibfile)
+
+        if bibstyle is None:
+            bibstyle = glob.glob('*.bst')
+            if len(bibstyle) > 1:
+                raise ValueError(
+                    'More than two .bst files found in working directory.'
+                )
+            elif len(bibstyle) == 0:
+                raise ValueError(
+                    'No .bst files found in working directory.'
+                )
+            else:
+                bibstyle = '../' + bibstyle[0]
+
         with open(self.__workdir / (self.__targetbasename + '.tex'), 'w') as f:
             f.writelines(
-                self.__preamble + '\\begin{document}\n'
-                + contents + '\\end{document}\n'
+                self.__preamble
+                + '\\bibliographystyle{%s}\n' % bibstyle
+                + '\\begin{document}\n'
+                + contents
+                + '\\bibliography{%s}\n' % bibfile
+                + '\\end{document}\n'
             )
 
     def compile(self):
