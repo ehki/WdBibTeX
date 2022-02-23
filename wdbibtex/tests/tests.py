@@ -98,7 +98,9 @@ class TestLaTeX(unittest.TestCase):
         self.assertEqual(ltx.conversion_dict['enArticle1'], '1')
         self.assertEqual(ltx.conversion_dict['enArticle2'], '2')
         self.assertEqual(ltx.conversion_dict['enArticle1,enArticle3'], '1,3')
-
+        ltx.read_bbl()
+        print(ltx.get_thebibliography_text())
+        self.assertEqual(len(ltx.get_thebibliography_text()), 318)
         # Clear working directory
         shutil.rmtree('.tmp')
         os.chdir(cwd)

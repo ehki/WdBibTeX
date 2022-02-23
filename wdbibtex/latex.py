@@ -182,11 +182,10 @@ class LaTeXHandler:
         subprocess.call(latexcmd, shell=True)
         os.chdir(cwd)
 
-    def reference_text(self, replacer=None):
-        """Returns reference plain text to incert word file.
+    def get_thebibliography_text(self):
+        """Returns thebibliography plain text to incert word file.
         """
-        if replacer is None:
-            replacer = {}
+        replacer = {}
         replacer.update({
             r'\n  ': ' ',
             r'\{\\em (.*)\}': r'\1',
@@ -205,6 +204,8 @@ class LaTeXHandler:
         ret_text = ''.join(self.__bbldata[thebib_begin: thebib_end])
         for k, v in replacer.items():
             ret_text = re.sub(k, v, ret_text)
+        for k, v in self.bibcite.items():
+            ret_text = re.sub('\\\\bibitem{%s}\n' % k, '[%s]\t' % v, ret_text)
         return ret_text
 
     def read_bbl(self):
