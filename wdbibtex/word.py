@@ -21,7 +21,7 @@ class WordBibTeX:
 
  
     def close_docx_file(self, fn, save=True):
-        for d in self.ap.Documents:
+        for d in self.__ap.Documents:
             if str(os.path.join(d.Path, d.Name)) == str(fn):
                 d.Close(SaveChanges=-1)  # wdSaveChanges
                 break
@@ -38,7 +38,7 @@ class WordBibTeX:
 
         # Replace \thebibliography
         for _, start, end in self.thebibliographies[::-1]:
-            rng = self.dc.Range(Start=start, End=end)
+            rng = self.__dc.Range(Start=start, End=end)
             rng.Delete()
             rng.InsertAfter(self.__ltx.thebibliography_text)
 
@@ -49,24 +49,24 @@ class WordBibTeX:
             self.replace_key(key, val)
 
     def find_latex_key(self, key):
-        self.fi = self.sl.Find
-        self.fi.ClearFormatting()
-        self.fi.Highlight = 1
-        self.fi.MatchFuzzy = False
+        self.__fi = self.__sl.Find
+        self.__fi.ClearFormatting()
+        self.__fi.Highlight = 1
+        self.__fi.MatchFuzzy = False
         found = []
         while True:
-            self.fi.Execute(
+            self.__fi.Execute(
                 key, False, False, True, False, False, True, 1, False, '', False
             )
-            line = [str(self.sl.Range), self.sl.Range.Start, self.sl.Range.End]
+            line = [str(self.__sl.Range), self.__sl.Range.Start, self.__sl.Range.End]
             if line in found:
                 break
             found.append(line)
         return sorted(found, key=lambda x: x[1])
 
     def open_doc(self):
-        self.ap = client.Dispatch('Word.Application')
-        self.ap.Visible = True
+        self.__ap = client.Dispatch('Word.Application')
+        self.__ap.Visible = True
 
         # Copy original file to operatinf file for safety.
         try:
@@ -75,14 +75,14 @@ class WordBibTeX:
             self.close_docx_file(self.__target_file, save=True)
             shutil.copy2(self.__origin_file, self.__target_file)
 
-        self.dc = self.ap.Documents.Open(self.__target_file)
-        self.sl = self.ap.Selection
+        self.__dc = self.__ap.Documents.Open(self.__target_file)
+        self.__sl = self.__ap.Selection
 
     def replace_key(self, key, val):
-        self.fi = self.sl.Find
-        self.fi.ClearFormatting()
-        self.fi.Highlight = 1
-        self.fi.MatchFuzzy = False
-        self.fi.Execute(
+        self.__fi = self.__sl.Find
+        self.__fi.ClearFormatting()
+        self.__fi.Highlight = 1
+        self.__fi.MatchFuzzy = False
+        self.__fi.Execute(
             key, False, False, True, False, False, True, 1, False, val, 2
         )
