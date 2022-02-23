@@ -6,7 +6,8 @@ import wdbibtex
 
 
 class WordBibTeX:
-
+    """Word wrapper for BibTeX citation conversion.
+    """
 
     def __init__(
             self,
@@ -14,6 +15,8 @@ class WordBibTeX:
             copy_suffix='_bib',
             workdir='.tmp',
     ):
+        """Costructor of WordBibTeX.
+        """
         self.__origin_file = file
         self.__origin_file = os.path.abspath(self.__origin_file)
         dn, fn = os.path.split(self.__origin_file)
