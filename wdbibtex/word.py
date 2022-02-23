@@ -2,6 +2,8 @@ import os
 import shutil
 import win32com.client as client
 
+import wdbibtex
+
 
 class WordBibTeX:
     def __init__(
@@ -22,10 +24,29 @@ class WordBibTeX:
                 break
 
     def compile(self):
-        os.mkdir(os.path.basename(self.operating_file))
         self.open_doc()
         self.cites = self.find_latex_key('\\\\cite\\{*\\}')
         self.thebibliographies = self.find_latex_key('\\\\thebibliography')
+
+        # Build latex document
+        ltx = wdbibtex.LaTeXHandler()
+        context = '\n'.join([cite for cite, _, _ in self.cites])
+        ltx.write(context)
+        ltx.compile()
+        ltx.parse_aux()
+        ltx.read_bbl()
+
+        # Replace \thebibliography
+        for _, start, end in self.thebibliographies[::-1]:
+            rng = self.dc.Range(Start=start, End=end)
+            rng.Delete()
+            rng.InsertAfter(ltx.get_thebibliography_text())
+
+        # Replace \cite{*}
+        for key, val in ltx.get_replacer().items():
+            if 'thebibliography' in key:
+                continue
+            self.replace_key(key, val)
 
     def find_latex_key(self, key):
         self.fi = self.sl.Find
