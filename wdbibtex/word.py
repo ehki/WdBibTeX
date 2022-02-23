@@ -5,7 +5,7 @@ import win32com.client as client
 import wdbibtex
 
 
-class WordBibTeX:
+class WdBibTeX:
     """Word wrapper for BibTeX citation conversion.
     """
 
@@ -15,7 +15,7 @@ class WordBibTeX:
             copy_suffix='_bib',
             workdir='.tmp',
     ):
-        """Costructor of WordBibTeX.
+        """Costructor of WdBibTeX.
         """
         self.__origin_file = file
         self.__origin_file = os.path.abspath(self.__origin_file)

@@ -1,9 +1,9 @@
 from .latex import LaTeXHandler
-from .word import WordBibTeX
+from .word import WdBibTeX
 
 __all__ = [
     'LaTeXHandler',
-    'WordBibTeX',
+    'WdBibTeX',
 ]
 
 __copyright__ = 'Copyright (C) 2022 Haruki EJIRI'
