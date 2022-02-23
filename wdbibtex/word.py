@@ -17,8 +17,7 @@ class WordBibTeX:
         dn, fn = os.path.split(self.__origin_file)
         bn, ex = os.path.splitext(fn)
         self.__target_file = os.path.join(dn, bn+copy_suffix+ex)
-        self.workdir = os.path.join(dn, workdir)
-        self.ltx = wdbibtex.LaTeXHandler(workdir=workdir)
+        self.__ltx = wdbibtex.LaTeXHandler(workdir=workdir)
 
  
     def close_docx_file(self, fn, save=True):
@@ -34,17 +33,17 @@ class WordBibTeX:
 
         # Build latex document
         context = '\n'.join([cite for cite, _, _ in self.cites])
-        self.ltx.write(context)
-        self.ltx.compile()
+        self.__ltx.write(context)
+        self.__ltx.compile()
 
         # Replace \thebibliography
         for _, start, end in self.thebibliographies[::-1]:
             rng = self.dc.Range(Start=start, End=end)
             rng.Delete()
-            rng.InsertAfter(self.ltx.thebibliography_text)
+            rng.InsertAfter(self.__ltx.thebibliography_text)
 
         # Replace \cite{*}
-        for key, val in self.ltx.get_replacer().items():
+        for key, val in self.__ltx.get_replacer().items():
             if 'thebibliography' in key:
                 continue
             self.replace_key(key, val)
