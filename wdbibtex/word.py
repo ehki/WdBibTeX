@@ -68,19 +68,20 @@ class WdBibTeX:
         bibfile : str | None, default None
             Bibliography file to be used. If None, all .bib files placed in the same directory of target .docx file.
         bibstyle : str | None, default None
+            Bibliography style. If None, .bst file placed in the same directory of target .docx file is used.
         """
 
         self.open_doc()
-        self.cites = self.find_all('\\\\cite\\{*\\}')
-        self.thebibliographies = self.find_all('\\\\thebibliography')
+        self.__cites = self.find_all('\\\\cite\\{*\\}')
+        self.__thebibliographies = self.find_all('\\\\thebibliography')
 
         # Build latex document
-        context = '\n'.join([cite for cite, _, _ in self.cites])
+        context = '\n'.join([cite for cite, _, _ in self.__cites])
         self.__ltx.write(context, bibfile=bibfile, bibstyle=bibstyle)
         self.__ltx.compile()
 
         # Replace \thebibliography
-        for _, start, end in self.thebibliographies[::-1]:
+        for _, start, end in self.__thebibliographies[::-1]:
             rng = self.__dc.Range(Start=start, End=end)
             rng.Delete()
             rng.InsertAfter(self.__ltx.thebibliography_text)
