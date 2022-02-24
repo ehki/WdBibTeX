@@ -7,6 +7,15 @@ import wdbibtex
 
 class WdBibTeX:
     """Word wrapper for BibTeX citation conversion.
+
+    Parameters
+    ----------
+    file : str
+        Target word file with .docx extension.
+    copy_suffix : str, default '_bib'
+        Appended text to a copied word file.
+    workdir : '.tmp'
+        Working directory of latex process.
     """
 
     def __init__(
@@ -26,6 +35,11 @@ class WdBibTeX:
 
     def close(self, cleanup=False):
         """Close file after saving. If applicable, quit Word App too.
+
+        Parameters
+        ----------
+        cleanup : bool, default False
+            If True, remove working directory of latex process.
         """
 
         # Save document
@@ -48,6 +62,12 @@ class WdBibTeX:
         Secondly, make dummy latex file and build.
         Thirdly, replace latex citations and thebibliography
         with latex-processed texts.
+
+        Parameters
+        ----------
+        bibfile : str | None, default None
+            Bibliography file to be used. If None, all .bib files placed in the same directory of target .docx file.
+        bibstyle : str | None, default None
         """
 
         self.open_doc()
