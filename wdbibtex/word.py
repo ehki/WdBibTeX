@@ -98,6 +98,11 @@ class WdBibTeX:
         ----------
         key : str
             A text to search in word document.
+
+        Returns
+        -------
+        list
+            A list of list whose values are found text, start place, and end place.
         """
 
         self.__fi = self.__sl.Find
