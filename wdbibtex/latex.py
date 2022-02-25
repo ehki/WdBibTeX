@@ -9,7 +9,7 @@ class LaTeXHandler:
 
     Parameters
     ----------
-    workdir : str, default .tmp
+    workdir : str | pathlib.Path, default '.tmp'
         Temporal working directory to store LaTeX contents.
     targetbasename : str, default wdbib
         Base name of LaTeX related files.
@@ -83,8 +83,10 @@ class LaTeXHandler:
             )
 
         # Store settings in internal attributes.
-        self.__cwd = pathlib.Path(os.getcwd())
-        self.workdir = self.__cwd / workdir
+        if os.path.abspath(workdir):
+            self.workdir = pathlib.Path(workdir)
+        else:
+            self.workdir = pathlib.Path(os.getcwd()) / workdir
         self.__targetbasename = targetbasename
         self.__texcmd = texcmd
         self.__texopts = texopts

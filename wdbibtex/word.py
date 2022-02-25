@@ -1,4 +1,5 @@
 import os
+import pathlib
 import shutil
 import win32com.client as client
 
@@ -27,11 +28,15 @@ class WdBibTeX:
         """Costructor of WdBibTeX.
         """
         self.__origin_file = file
-        self.__origin_file = os.path.abspath(self.__origin_file)
-        dn, fn = os.path.split(self.__origin_file)
-        bn, ex = os.path.splitext(fn)
-        self.__target_file = os.path.join(dn, bn+copy_suffix+ex)
-        self.__ltx = wdbibtex.LaTeXHandler(workdir=workdir)
+        self.__origin_file = (pathlib.Path.cwd() / file).resolve()
+        self.__docxdir = self.__origin_file.parent
+        self.__target_file = self.__docxdir / (
+            str(self.__origin_file.stem)
+            + copy_suffix
+            + str(self.__origin_file.suffix)
+        )
+        self.__workdir = self.__docxdir / workdir
+        self.__ltx = wdbibtex.LaTeXHandler(workdir=self.__workdir)
 
     def close(self, cleanup=False):
         """Close file after saving. If applicable, quit Word App too.
@@ -141,7 +146,7 @@ class WdBibTeX:
                     break
             shutil.copy2(self.__origin_file, self.__target_file)
 
-        self.__dc = self.__ap.Documents.Open(self.__target_file)
+        self.__dc = self.__ap.Documents.Open(str(self.__target_file))
         self.__sl = self.__ap.Selection
 
     def replace_all(self, key, val):
