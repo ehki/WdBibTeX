@@ -19,8 +19,8 @@ Methods
 .. autosummary::
    :toctree: api
 
+   WdBibTeX.build
    WdBibTeX.close
-   WdBibTeX.compile
    WdBibTeX.find_all
    WdBibTeX.open_doc
    WdBibTeX.replace_all

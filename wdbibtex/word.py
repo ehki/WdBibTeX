@@ -60,19 +60,23 @@ class WdBibTeX:
         if cleanup:
             shutil.rmtree(self.__ltx.workdir)
 
-    def compile(self, bibfile=None, bibstyle=None):
-        """Compile latex-citations-including word file.
+    def build(self, bib=None, bst=None):
+        r"""Build word file with latex citations.
 
-        Firstly, find latex citations and thebibliography key.
-        Secondly, make dummy latex file and build.
-        Thirdly, replace latex citations and thebibliography
-        with latex-processed texts.
+        Build word file with latex citation key of \\cite{} and \\thebibliography.
+        This is realized by the following five steps:
+
+        1. Find latex citations and thebibliography key.
+        2. Generate dummy LaTeX file.
+        3. Build LaTeX project.
+        4. Parse LaTeX artifacts of aux and bbl.
+        5. Replace LaTeX keys in word file.
 
         Parameters
         ----------
-        bibfile : str | None, default None
-            Bibliography file to be used. If None, all .bib files placed in the same directory of target .docx file.
-        bibstyle : str | None, default None
+        bib : str or None, default None
+            Bibliography file to be used. If None, all .bib files placed in the same directory of target .docx file will be used.
+        bst : str or None, default None
             Bibliography style. If None, .bst file placed in the same directory of target .docx file is used.
         """  # noqa E501
 
@@ -82,7 +86,7 @@ class WdBibTeX:
 
         # Build latex document
         context = '\n'.join([cite for cite, _, _ in self.__cites])
-        self.__ltx.write(context, bibfile=bibfile, bibstyle=bibstyle)
+        self.__ltx.write(context, bibfile=bib, bibstyle=bst)
         self.__ltx.compile()
 
         # Replace \thebibliography
