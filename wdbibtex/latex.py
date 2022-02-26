@@ -7,6 +7,8 @@ import re
 class LaTeXHandler:
     """LaTeX related contents and commands.
 
+    Some texts
+
     Parameters
     ----------
     workdir : str | pathlib.Path, default '.tmp'
@@ -23,26 +25,6 @@ class LaTeXHandler:
         LaTeX command. If None, automatically selected.
     texopts : str or None, default None
         LaTeX command options. If None, automatically selected.
-
-    Attributes
-    ----------
-    bibcite : str
-        The mapping of citation-key and citation-number. This field is
-        generated in second latex command of general compile routine
-        of latex -> bibtex -> latex -> latex -> dvipdfmx.
-    bibdata : str
-        The bibliography data given in tex file. Although BibTeX command use
-        this field, AuxParser class does not use.
-    bibstyle : str
-        The bibliographystyle of tex file. Although BibTeX command use this
-        field, AuxParser class does not use.
-    citation : list
-        Citation keys written in tex file. For example, in case two citation
-        commands of \\cite{ref1,ref2,ref3} and \\cite{ref4} are in the Word
-        file, citation will become ['ref1,ref2,ref3', 'ref4'].
-    conversion_dict : dict
-        Conversion mapping from citation keys to numbers. For example,
-        {'ref1,ref2,ref3': '1-3', 'ref4': '4'}
     """
     def __init__(
             self,
@@ -110,6 +92,8 @@ class LaTeXHandler:
 
     def write(self, contents, bibfile=None, bibstyle=None):
         """Write .tex file.
+
+        Some texts
 
         Parameters
         ----------
@@ -192,6 +176,10 @@ class LaTeXHandler:
 
     @property
     def thebibliography_text(self):
+        """Some texts
+
+        Some texts
+        """
         if self.__thebibtext is None:
             raise ValueError(
                 'Thebibliography text is not set yet.'
@@ -200,6 +188,8 @@ class LaTeXHandler:
 
     def get_replacer(self):
         """Get key and value for replace word document.
+
+        Some texts
 
         Returns
         -------
@@ -213,12 +203,15 @@ class LaTeXHandler:
 
     def read_bbl(self):
         """Read .bbl file.
+
+        Some text
         """
         with open(self.workdir / (self.__targetbasename + '.bbl'), 'r') as f:
             self.__bbldata = f.readlines()
 
     def build_conversion_dict(self):
         r"""Prepare replaing citation keys with dashed range strings.
+
         Generate dictionary of such as {'refa,refb,refc,refe,refg': '1-3,5,7'}.
         """
         for cite in self.citation:
@@ -229,6 +222,7 @@ class LaTeXHandler:
 
     def get_dashed_range(self, nums):
         r"""Convert multiple integers to dashed range string.
+
         Multiple integers are such as 1,2,3,6.
         And dashed rang strings are such as 1-3,6.
 
@@ -284,6 +278,7 @@ class LaTeXHandler:
 
     def parse_line(self, line):
         r"""Parse one line of .aux
+
         \\citation{citation_key} will appended to the citation key as
         str(citation_key).
         \\bibstyle{style_file} will be saved as bibstyle attribute.
