@@ -177,7 +177,7 @@ class LaTeX:
         subprocess.call(latexcmd, shell=True)
         subprocess.call(latexcmd, shell=True)
 
-        self.parse_aux()
+        self.read_aux()
         self.read_bbl()
         self.__make_thebibliography_text()
 
@@ -281,8 +281,23 @@ class LaTeX:
         final_str = ','.join(map(str, final))
         return final_str
 
-    def parse_aux(self):
-        r"""Parse entire .aux file.
+    def read_aux(self):
+        r"""Read .aux file.
+
+        Aux file will be read line-by-line.
+        Following four types of the line will be
+        interpreted and stored to the LaTeX attributes.
+
+        - \\citation{keys}
+           Appended to the citation attribute
+           (list object) key as string.
+        - \\bibstyle{s}
+           Stored as bibstyle string attribute.
+        - \\bibdata{d}
+           Stored as bibdata string attribute.
+        - \\bibcite{k}{n}
+           Added to bibcite attribute
+           (dictionary) as {k: n}.
         """
         with open(self.workdir / (self.__targetbasename + '.aux'), 'r') as f:
             self.__auxdata = f.readlines()
