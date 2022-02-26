@@ -79,6 +79,7 @@ class LaTeX:
         self.__preamble = preamble
         self.__dashstarts = dashstarts
         self.__thebibtext = None
+        self.__replacer = None
         self.citation = []
         self.bibstyle = None
         self.bibdata = None
@@ -182,8 +183,24 @@ class LaTeX:
         self.read_aux()
         self.read_bbl()
         self.__make_thebibliography_text()
+        self.__get_replacer()
 
         os.chdir(cwd)  # Back to original working directory.
+
+    @property
+    def cnd(self):
+        r"""Returns citation key to replacement number dictionary.
+
+        Citation to Number Dictionary will be used to replace
+        citation text in word file such as \\cite{key1} to
+        number such ash [1].
+
+        Returns
+        -------
+        dict
+            Search key and replacement value.
+        """
+        return self.__replacer
 
     @property
     def thebibliography_text(self):
@@ -202,20 +219,13 @@ class LaTeX:
             )
         return self.__thebibtext
 
-    def get_replacer(self):
+    def __get_replacer(self):
         """Get key and value for replace word document.
-
-        Some texts
-
-        Returns
-        -------
-        dict
-            Search key and replacement value.
         """
         replacer = dict()
         for k, v in self.conversion_dict.items():
             replacer.update({'\\\\cite\\{%s\\}' % k: '[%s]' % v})
-        return replacer
+        self.__replacer = replacer
 
     def read_bbl(self):
         """Read .bbl file.
