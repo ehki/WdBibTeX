@@ -223,7 +223,7 @@ class LaTeX:
         with open(self.workdir / (self.__targetbasename + '.bbl'), 'r') as f:
             self.__bbldata = f.readlines()
 
-    def build_conversion_dict(self):
+    def __build_conversion_dict(self):
         r"""Prepare replaing citation keys with dashed range strings.
 
         Generate dictionary of such as {'refa,refb,refc,refe,refg': '1-3,5,7'}.
@@ -302,20 +302,11 @@ class LaTeX:
         with open(self.workdir / (self.__targetbasename + '.aux'), 'r') as f:
             self.__auxdata = f.readlines()
         for line in self.__auxdata:
-            self.parse_line(line)
-        self.build_conversion_dict()
+            self.__parse_line(line)
+        self.__build_conversion_dict()
 
-    def parse_line(self, line):
+    def __parse_line(self, line):
         r"""Parse one line of .aux
-
-        \\citation{citation_key} will appended to the citation key as
-        str(citation_key).
-        \\bibstyle{style_file} will be saved as bibstyle attribute.
-        \\bibdata{path_to_data} will be saved as bibdata attribute.
-        \\bibcite{one_citation_key}{citation_number} will be saved as
-        dictionary of {one_citation_key: citation_number} to decide how
-        replace citation_keys of such as 'key1,key2,key3' to dashed citation
-        numbers of such as '2-4'.
 
         Parameters
         ----------
