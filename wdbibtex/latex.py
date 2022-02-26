@@ -43,18 +43,20 @@ class LaTeX:
             'Invalid dashstarts. Only integer 2 or 3 is allowed.'
         )
 
+        self.__locale = self.__default_locale()
+
         # Set automatically selected values
         if texcmd is None:
-            if self.get_locale() == 'en':
+            if self.__locale == 'en':
                 texcmd = 'latex'
-            elif self.get_locale() == 'ja':
+            elif self.__locale == 'ja':
                 texcmd = 'uplatex'
         if texopts is None:
             texopts = '-interaction=nonstopmode -file-line-error'
         if bibtexcmd is None:
-            if self.get_locale() == 'en':
+            if self.__locale == 'en':
                 bibtexcmd = 'bibtex'
-            elif self.get_locale() == 'ja':
+            elif self.__locale == 'ja':
                 bibtexcmd = 'upbibtex'
         if bibtexopts is None:
             bibtexopts = ''
@@ -231,10 +233,10 @@ class LaTeX:
         for cite in self.citation:
             cite_nums = [self.bibcite[c] for c in cite.split(',')]
             self.conversion_dict.update(
-                {cite: self.get_dashed_range(cite_nums)}
+                {cite: self.__get_dashed_range(cite_nums)}
                 )
 
-    def get_dashed_range(self, nums):
+    def __get_dashed_range(self, nums):
         r"""Convert multiple integers to dashed range string.
 
         Multiple integers are such as 1,2,3,6.
@@ -324,26 +326,32 @@ class LaTeX:
             value = int(value)
             self.bibcite.update({key: value})
 
-    def get_locale(self):
-        """Get system locale
+    @property
+    def locale(self):
+        """Returns system locale
 
-        Raise
-        -----
-        ValueError
-            If no locale detected.
+        Locale string to decide which latex commands used.
+        Currently english(en) and japanese(ja) are supported.
+        If locale is manually set, returns the local as is.
+        Else, determined using locale.getlocale().
+
+        Returns
+        -------
+        str
+            Locale text in two characters for example 'en' or 'ja'.
         """
 
-        loca, locb = locale.getlocale()
-        if 'en' in loca or 'en' in locb:
-            return 'en'
-        elif 'English' in loca or 'English' in locb:
-            return 'en'
-        elif 'ja' in loca or 'ja' in locb:
-            return 'ja'
-        elif 'Japanese' in loca or 'Japanese' in locb:
-            return 'ja'
+        return self.__locale
+
+    @locale.setter
+    def locale(self, s):
+        if isinstance(s, str) and len(s) == 2:
+            self.__locale = s
         else:
-            raise ValueError('Unhandled locale %s' % locale.getlocale())
+            raise ValueError(
+                'Invalid locale string. '
+                'Only 2-characters string is allowed.'
+            )
 
     def __make_thebibliography_text(self):
         """Generate thebibliography plain text to incert word file.
@@ -374,3 +382,16 @@ class LaTeX:
                 '\\\\bibitem{%s}\n' % k, '[%s]\t' % v, thebibtext
             )
         self.__thebibtext = thebibtext
+
+    def __default_locale(self):
+        loca, locb = locale.getlocale()
+        if 'en' in loca or 'en' in locb:
+            return 'en'
+        elif 'English' in loca or 'English' in locb:
+            return 'en'
+        elif 'ja' in loca or 'ja' in locb:
+            return 'ja'
+        elif 'Japanese' in loca or 'Japanese' in locb:
+            return 'ja'
+        else:
+            raise ValueError('Unhandled locale %s' % locale.getlocale())
