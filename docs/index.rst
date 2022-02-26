@@ -10,7 +10,7 @@ Welcome to wdbibtex's documentation!
    :maxdepth: 4
    :caption: Contents:
 
-   wdbibtex
+   reference
 
 
 Indices and tables
