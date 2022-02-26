@@ -203,7 +203,7 @@ class LaTeX:
         return self.__replacer
 
     @property
-    def thebibliography_text(self):
+    def tbt(self):
         r"""Plain text for replacement of bibliography list.
 
         A plain text of LaTeX-processed bibliography list.
@@ -212,6 +212,11 @@ class LaTeX:
 
         | [1]\\tF. Author, S. Author, "Paper Title," Journal Name, vol. 1, no. 1, p. 1, march 2022.
         | [2]\\tG. Name, F. Name, "Title," Journal, vol. 2, no. 2, pp. 1-10, 2020.
+
+        Returns
+        -------
+        str
+            Plain text of the thebibliography.
         """
         if self.__thebibtext is None:
             raise ValueError(
