@@ -143,36 +143,45 @@ class LaTeX:
                 + '\\end{document}\n'
             )
 
-    def compile(self):
-        """Compile LaTeX related files.
+    def build(self):
+        """Build LaTeX related files.
 
-        Compile LaTeX files in old-style four steps (without PDF generation).
+        Build LaTeX files in old-style four steps (without PDF generation).
+        
         1. latex: to generate .aux from .tex
+        
         2. bibtex: to generate .bbl and update .aux from .aux and .bst.
+        
         3. latex: to update .aux.
+        
         4. latex: to complete .aux.
+        
         """
         import subprocess
-        cwd = os.getcwd()
+        cwd = os.getcwd()  # Save original working directory.
         os.chdir(self.workdir)
         latexcmd = ' '.join(filter(None, [
-            self.__texcmd, self.__texopts,
+            self.__texcmd,
+            self.__texopts,
             self.__targetbasename + '.tex'
         ]))
         bibtexcmd = ' '.join(filter(None, [
-            self.__bibtexcmd, self.__bibtexopts,
+            self.__bibtexcmd,
+            self.__bibtexopts,
             self.__targetbasename,
         ]))
-        print(latexcmd)
+
+        # Four steps to complete build LaTeX project.
         subprocess.call(latexcmd, shell=True)
         subprocess.call(bibtexcmd, shell=True)
         subprocess.call(latexcmd, shell=True)
         subprocess.call(latexcmd, shell=True)
-        self.parse_aux()
 
+        self.parse_aux()
         self.read_bbl()
         self.__make_thebibliography_text()
-        os.chdir(cwd)
+
+        os.chdir(cwd)  # Back to original working directory.
 
     @property
     def thebibliography_text(self):

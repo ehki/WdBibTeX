@@ -104,7 +104,7 @@ class WdBibTeX:
         # Build latex document
         context = '\n'.join([cite for cite, _, _ in self.__cites])
         self.__ltx.write(context, bibfile=bib, bibstyle=bst)
-        self.__ltx.compile()
+        self.__ltx.build()
 
         # Replace \thebibliography
         for _, start, end in self.__thebibliographies[::-1]:
