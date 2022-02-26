@@ -7,7 +7,9 @@ import wdbibtex
 
 
 class WdBibTeX:
-    """Word wrapper for BibTeX citation conversion.
+    """MS Word's BibTeX toolkit.
+    
+    WdBibTeX is a MS Word wrapper for BibTeX citation conversion.
 
     Parameters
     ----------
@@ -15,8 +17,10 @@ class WdBibTeX:
         Target word file with .docx extension.
     copy_suffix : str, default '_bib'
         Appended text to a copied word file.
+        WdBibTeX operates the copied file.
     workdir : '.tmp'
         Working directory of latex process.
+        The working directory will be removed by WdBibTeX.clean().
     """
 
     def __init__(
@@ -39,7 +43,10 @@ class WdBibTeX:
         self.__ltx = wdbibtex.LaTeX(workdir=self.__workdir)
 
     def close(self, cleanup=False):
-        """Close file after saving. If applicable, quit Word App too.
+        """Close word file and word application.
+
+        Close word file after saving.
+        If no other file opened, quit Word application too.
 
         Parameters
         ----------
