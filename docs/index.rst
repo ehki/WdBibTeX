@@ -1,20 +1,12 @@
-.. wdbibtex documentation master file, created by
-   sphinx-quickstart on Sun Feb 20 10:02:13 2022.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+WdBibTeX documentation
+======================
 
-Welcome to wdbibtex's documentation!
-====================================
+WdBibTeX is a MS Word's BibTeX toolkit.
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
+   installation
+   examples
    reference/index
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
