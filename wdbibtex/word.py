@@ -111,6 +111,11 @@ class WdBibTeX:
     def find_all(self, key):
         """Find all keys from word file.
 
+        Find all keys in word document.
+        Searching starts from current selection and wrapped
+        if reach document end.
+        MatchFuzzy search is disabled.
+
         Parameters
         ----------
         key : str
@@ -119,27 +124,32 @@ class WdBibTeX:
         Returns
         -------
         list
-            A list of list whose values are found text, start place, and end place.
-        """  # noqa E501
+            A list of list. Each list element is
+            [found text in str, start place in int, end place in int].
+            The list is sorted by second key (i.e. start place).
+
+        See Also
+        --------
+        replace_all : Replace found keys.
+        """
 
         self.__fi = self.__sl.Find
         self.__fi.ClearFormatting()
-        self.__fi.Highlight = 1
         self.__fi.MatchFuzzy = False
         found = []
         while True:
             self.__fi.Execute(
-                key,
-                False,
-                False,
-                True,
-                False,
-                False,
-                True,
-                1,
-                False,
-                '',
-                False, #
+                key,  # FindText
+                False,  # MatchCase
+                False,  # MatchWholeWord
+                True,  # MatchWildcards
+                False,  # MatchSoundsLike
+                False,  # MatchAllWordForms
+                True,  # Forward
+                1,  # Wrap
+                False,  # Format
+                '',  # ReplaceWith
+                0,  # Replace, 0: wdReplaceNone
             )
             line = [
                 str(self.__sl.Range),
@@ -189,6 +199,10 @@ class WdBibTeX:
             Original text.
         val : str
             Replacing text.
+
+        See Also
+        --------
+        find_all : Find all keys in the document.
         """
 
         self.__fi = self.__sl.Find
