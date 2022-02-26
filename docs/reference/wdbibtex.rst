@@ -10,14 +10,14 @@ Constructor
 -----------
 
 .. autosummary::
-   :toctree: api/
+   :toctree: api
 
    WdBibTeX
 
 Methods
 -------
 .. autosummary::
-   :toctree: api/
+   :toctree: api
 
    WdBibTeX.close
    WdBibTeX.compile

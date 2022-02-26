@@ -7,21 +7,21 @@ Constructor
 -----------
 
 .. autosummary::
-   :toctree: api/
+   :toctree: api
 
    LaTeX
 
 Attributes
 ----------
 .. autosummary::
-   :toctree: api/
+   :toctree: api
    
    LaTeX.thebibliography_text
 
 Methods
 -------
 .. autosummary::
-   :toctree: api/
+   :toctree: api
 
    LaTeX.build_conversion_dict
    LaTeX.compile
