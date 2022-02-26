@@ -7,11 +7,10 @@ Welcome to wdbibtex's documentation!
 ====================================
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
    :caption: Contents:
 
-   reference
-
+   reference/index
 
 Indices and tables
 ==================

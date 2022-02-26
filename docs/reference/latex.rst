@@ -1,32 +1,3 @@
-#############
-API Reference
-#############
-
-WdBibTeX
-========
-
-.. currentmodule:: wdbibtex
-
-Constructor
------------
-
-.. autosummary::
-   :toctree: _api
-
-   WdBibTeX
-
-Methods
--------
-.. autosummary::
-   :toctree: _api
-
-   WdBibTeX.close
-   WdBibTeX.compile
-   WdBibTeX.find_all
-   WdBibTeX.open_doc
-   WdBibTeX.replace_all
-
-
 LaTeXHandler
 ============
 
@@ -36,21 +7,21 @@ Constructor
 -----------
 
 .. autosummary::
-   :toctree: _api
+   :toctree: api/
 
    LaTeXHandler
 
 Attributes
 ----------
 .. autosummary::
-   :toctree: _api
+   :toctree: api/
    
    LaTeXHandler.thebibliography_text
 
 Methods
 -------
 .. autosummary::
-   :toctree: _api
+   :toctree: api/
 
    LaTeXHandler.build_conversion_dict
    LaTeXHandler.compile
