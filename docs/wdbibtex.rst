@@ -1,34 +1,19 @@
 wdbibtex package
 ================
 
-wdbibtex.aux
+
+wdbibtex.latex
 -------------------
 
-.. automodule:: wdbibtex.aux
+.. automodule:: wdbibtex.latex
    :members:
    :undoc-members:
    :show-inheritance:
 
-wdbibtex.bbl
--------------------
-
-.. automodule:: wdbibtex.bbl
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-wdbibtex.tex
--------------------
-
-.. automodule:: wdbibtex.tex
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-wdbibtex.wdbibtex\_cli
+wdbibtex.word
 -----------------------------
 
-.. automodule:: wdbibtex.wdbibtex_cli
+.. automodule:: wdbibtex.word
    :members:
    :undoc-members:
    :show-inheritance:
