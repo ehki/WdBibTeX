@@ -20,7 +20,8 @@ Methods
    :toctree: api
 
    WdBibTeX.build
+   WdBibTeX.clear
    WdBibTeX.close
    WdBibTeX.find_all
-   WdBibTeX.open_doc
+   WdBibTeX.open
    WdBibTeX.replace_all

@@ -15,20 +15,17 @@ Attributes
 ----------
 .. autosummary::
    :toctree: api
-   
-   LaTeX.thebibliography_text
+
+   LaTeX.cnd
+   LaTeX.locale
+   LaTeX.tbt
 
 Methods
 -------
 .. autosummary::
    :toctree: api
 
-   LaTeX.build_conversion_dict
-   LaTeX.compile
-   LaTeX.get_dashed_range
-   LaTeX.get_locale
-   LaTeX.get_replacer
-   LaTeX.parse_aux
-   LaTeX.parse_line
+   LaTeX.build
+   LaTeX.read_aux
    LaTeX.read_bbl
    LaTeX.write
