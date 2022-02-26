@@ -52,6 +52,10 @@ class WdBibTeX:
         ----------
         cleanup : bool, default False
             If True, remove working directory of latex process.
+        
+        See also
+        --------
+        open : Open word file.
         """
 
         # Save document
@@ -87,7 +91,7 @@ class WdBibTeX:
             Bibliography style. If None, .bst file placed in the same directory of target .docx file is used.
         """  # noqa E501
 
-        self.open_doc()
+        self.open()
         self.__cites = self.find_all('\\\\cite\\{*\\}')
         self.__thebibliographies = self.find_all('\\\\thebibliography')
 
@@ -161,11 +165,15 @@ class WdBibTeX:
             found.append(line)
         return sorted(found, key=lambda x: x[1])
 
-    def open_doc(self):
+    def open(self):
         """Open copied word document.
 
-        Copy word file with appending suffix.
+        Firstly copy word file with appending suffix.
         Then open the file.
+
+        See also
+        --------
+        close : Close document and application.
         """
 
         self.__ap = client.Dispatch('Word.Application')
