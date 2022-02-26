@@ -139,7 +139,7 @@ class WdBibTeX:
                 1,
                 False,
                 '',
-                False,
+                False, #
             )
             line = [
                 str(self.__sl.Range),
@@ -176,7 +176,12 @@ class WdBibTeX:
         self.__sl = self.__ap.Selection
 
     def replace_all(self, key, val):
-        """Replace all key with value.
+        """Replace all keys in document with value.
+
+        Replace all keys in word document with value.
+        Searching starts from current selection and wrapped
+        if reach document end.
+        MatchFuzzy search is disabled.
 
         Parameters
         ----------
@@ -188,18 +193,17 @@ class WdBibTeX:
 
         self.__fi = self.__sl.Find
         self.__fi.ClearFormatting()
-        self.__fi.Highlight = 1
         self.__fi.MatchFuzzy = False
         self.__fi.Execute(
-            key,
-            False,
-            False,
-            True,
-            False,
-            False,
-            True,
-            1,
-            False,
-            val,
-            2,
+            key,  # FindText
+            False,  # MatchCase
+            False,  # MatchWholeWord
+            True,  # MatchWildcards
+            False,  # MatchSoundsLike
+            False,  # MatchAllWordForms
+            True,  # Forward
+            1,  # Wrap, 1: wdFindContinue
+            False,  # Format
+            val,  # ReplaceWith
+            2,  # Replace, 2: wdReplaceAll
         )
