@@ -3,6 +3,7 @@ import argparse
 
 import wdbibtex
 
+
 def main():
     parser = argparse.ArgumentParser(
         description='WdBibTeX is a BibTeX citation formatter for MS word.'

@@ -45,16 +45,16 @@ class LaTeX:
 
         # Set automatically selected values
         if texcmd is None:
-            if self.get_locale() is 'en':
+            if self.get_locale() == 'en':
                 texcmd = 'latex'
-            elif self.get_locale() is 'ja':
+            elif self.get_locale() == 'ja':
                 texcmd = 'uplatex'
         if texopts is None:
             texopts = '-interaction=nonstopmode -file-line-error'
         if bibtexcmd is None:
-            if self.get_locale() is 'en':
+            if self.get_locale() == 'en':
                 bibtexcmd = 'bibtex'
-            elif self.get_locale() is 'ja':
+            elif self.get_locale() == 'ja':
                 bibtexcmd = 'upbibtex'
         if bibtexopts is None:
             bibtexopts = ''
@@ -350,5 +350,7 @@ class LaTeX:
         for k, v in replacer.items():
             thebibtext = re.sub(k, v, thebibtext)
         for k, v in self.bibcite.items():
-            thebibtext = re.sub('\\\\bibitem{%s}\n' % k, '[%s]\t' % v, thebibtext)
+            thebibtext = re.sub(
+                '\\\\bibitem{%s}\n' % k, '[%s]\t' % v, thebibtext
+            )
         self.__thebibtext = thebibtext

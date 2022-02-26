@@ -74,7 +74,7 @@ class WdBibTeX:
             Bibliography file to be used. If None, all .bib files placed in the same directory of target .docx file.
         bibstyle : str | None, default None
             Bibliography style. If None, .bst file placed in the same directory of target .docx file is used.
-        """
+        """  # noqa E501
 
         self.open_doc()
         self.__cites = self.find_all('\\\\cite\\{*\\}')
@@ -109,7 +109,7 @@ class WdBibTeX:
         -------
         list
             A list of list whose values are found text, start place, and end place.
-        """
+        """  # noqa E501
 
         self.__fi = self.__sl.Find
         self.__fi.ClearFormatting()
@@ -118,9 +118,23 @@ class WdBibTeX:
         found = []
         while True:
             self.__fi.Execute(
-                key, False, False, True, False, False, True, 1, False, '', False
+                key,
+                False,
+                False,
+                True,
+                False,
+                False,
+                True,
+                1,
+                False,
+                '',
+                False,
             )
-            line = [str(self.__sl.Range), self.__sl.Range.Start, self.__sl.Range.End]
+            line = [
+                str(self.__sl.Range),
+                self.__sl.Range.Start,
+                self.__sl.Range.End
+            ]
             if line in found:
                 break
             found.append(line)
@@ -141,7 +155,8 @@ class WdBibTeX:
             shutil.copy2(self.__origin_file, self.__target_file)
         except PermissionError:
             for d in self.__ap.Documents:
-                if str(os.path.join(d.Path, d.Name)) == str(self.__target_file):
+                docpath = str(os.path.join(d.Path, d.Name))
+                if docpath == str(self.__target_file):
                     d.Close(SaveChanges=-1)  # wdSaveChanges
                     break
             shutil.copy2(self.__origin_file, self.__target_file)
@@ -165,5 +180,15 @@ class WdBibTeX:
         self.__fi.Highlight = 1
         self.__fi.MatchFuzzy = False
         self.__fi.Execute(
-            key, False, False, True, False, False, True, 1, False, val, 2
+            key,
+            False,
+            False,
+            True,
+            False,
+            False,
+            True,
+            1,
+            False,
+            val,
+            2,
         )
