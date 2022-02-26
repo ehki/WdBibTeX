@@ -1,3 +1,4 @@
+import glob
 import os
 import pathlib
 import shutil
@@ -98,22 +99,26 @@ class WdBibTeX:
         """  # noqa E501
 
         self.open()
+        for b in glob.glob(os.path.join(self.__docxdir, '*.bst')):
+            shutil.copy(b, self.__workdir)
+        for b in glob.glob(os.path.join(self.__docxdir, '*.bib')):
+            shutil.copy(b, self.__workdir)
         self.__cites = self.find_all('\\\\cite\\{*\\}')
         self.__thebibliographies = self.find_all('\\\\thebibliography')
 
         # Build latex document
         context = '\n'.join([cite for cite, _, _ in self.__cites])
-        self.__ltx.write(context, bibfile=bib, bibstyle=bst)
+        self.__ltx.write(context, bib=bib, bst=bst)
         self.__ltx.build()
 
         # Replace \thebibliography
         for _, start, end in self.__thebibliographies[::-1]:
             rng = self.__dc.Range(Start=start, End=end)
             rng.Delete()
-            rng.InsertAfter(self.__ltx.thebibliography_text)
+            rng.InsertAfter(self.__ltx.tbt)
 
         # Replace \cite{*}
-        for key, val in self.__ltx.get_replacer().items():
+        for key, val in self.__ltx.cnd.items():
             if 'thebibliography' in key:
                 continue
             self.replace_all(key, val)
