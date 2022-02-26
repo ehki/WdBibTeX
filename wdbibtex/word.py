@@ -42,7 +42,12 @@ class WdBibTeX:
         self.__workdir = self.__docxdir / workdir
         self.__ltx = wdbibtex.LaTeX(workdir=self.__workdir)
 
-    def close(self, cleanup=False):
+    def clear(self):
+        """Clear auxiliary files on working directory.
+        """
+        shutil.rmtree(self.__ltx.workdir)
+
+    def close(self, clear=False):
         """Close word file and word application.
 
         Close word file after saving.
@@ -50,7 +55,7 @@ class WdBibTeX:
 
         Parameters
         ----------
-        cleanup : bool, default False
+        clear : bool, default False
             If True, remove working directory of latex process.
         
         See also
@@ -68,8 +73,9 @@ class WdBibTeX:
         if len(self.__ap.Documents) == 0:
             self.__ap.Quit()
 
-        if cleanup:
-            shutil.rmtree(self.__ltx.workdir)
+        # Clean working directory
+        if clear:
+            self.clear()
 
     def build(self, bib=None, bst=None):
         r"""Build word file with latex citations.
