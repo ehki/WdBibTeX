@@ -1,8 +1,8 @@
-from .latex import LaTeXHandler
+from .latex import LaTeX
 from .word import WdBibTeX
 
 __all__ = [
-    'LaTeXHandler',
+    'LaTeX',
     'WdBibTeX',
 ]
 

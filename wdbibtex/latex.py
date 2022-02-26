@@ -4,7 +4,7 @@ import os
 import re
 
 
-class LaTeXHandler:
+class LaTeX:
     """LaTeX related contents and commands.
 
     Some texts

@@ -36,7 +36,7 @@ class WdBibTeX:
             + str(self.__origin_file.suffix)
         )
         self.__workdir = self.__docxdir / workdir
-        self.__ltx = wdbibtex.LaTeXHandler(workdir=self.__workdir)
+        self.__ltx = wdbibtex.LaTeX(workdir=self.__workdir)
 
     def close(self, cleanup=False):
         """Close file after saving. If applicable, quit Word App too.
