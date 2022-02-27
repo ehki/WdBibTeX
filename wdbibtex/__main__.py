@@ -1,12 +1,12 @@
-import sys
 import argparse
+import sys
 
 import wdbibtex
 
 
-def main():
+def getparser():
     parser = argparse.ArgumentParser(
-        description='WdBibTeX is a BibTeX citation formatter for MS word.'
+        description="WdBibTeX is a MS Word's BibTeX toolkit."
     )
     parser.add_argument(
         'file',
@@ -16,7 +16,7 @@ def main():
         )
     )
     parser.add_argument(
-        '--bibstyle',
+        '--bst',
         type=str,
         default=None,
         help=(
@@ -25,7 +25,7 @@ def main():
         )
     )
     parser.add_argument(
-        '--bibfile',
+        '--bib',
         type=str,
         default=None,
         help=(
@@ -41,12 +41,17 @@ def main():
             'Default: False(= clean LaTeX files/directory)'
         )
     )
+    return parser
+
+
+def main():
+    parser = getparser()
     args = parser.parse_args()
     wb = wdbibtex.WdBibTeX(args.file)
-    wb.build(bib=args.bibfile, bst=args.bibstyle)
+    wb.build(bib=args.bib, bst=args.bst)
     wb.close(clear=not args.keeptmpdir)
     return 0
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(wdbibtex.word.main())
