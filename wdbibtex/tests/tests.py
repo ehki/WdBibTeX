@@ -1,3 +1,5 @@
+import itertools
+import glob
 import os
 import shutil
 import sys
@@ -13,23 +15,76 @@ class TestLaTeX(unittest.TestCase):
     """
 
     def test_write(self):
-        ltx = wdbibtex.LaTeXHandler()
-        ltx.write('Test contents', bibstyle='ieeetr')
-        # The size will 137 B
-        self.assertEqual(os.path.getsize('.tmp/wdbib.tex'), 137)
-        # Clear working directory
-        shutil.rmtree('.tmp')
+        """Pass if LaTeX class could correctly write .tex file.
+        """
+        cwd = os.getcwd()
+        exampledir = os.path.join(
+            os.path.dirname(__file__), '..', '..', 'examples'
+        )
+        os.chdir(os.path.join(exampledir, 'example1'))
 
-    def test_compile(self):
-        ltx = wdbibtex.LaTeXHandler()
-        ltx.write('Test contents', bibstyle='ieeetr')
-        ltx.compile()
-        # The .tex size will 137 B
-        self.assertEqual(os.path.getsize('.tmp/wdbib.tex'), 137)
-        # The .aux size will 61 B
-        self.assertEqual(os.path.getsize('.tmp/wdbib.aux'), 61)
+        # Copy LaTeX bib and bst files to workdir
+        os.makedirs('.tmp', exist_ok=True)
+        for b in glob.glob('*.bib'):
+            shutil.copy(b, '.tmp')
+
+        ltx = wdbibtex.LaTeX()
+        ltx.write('Test contents\n', bst='ieeetr')
+
+        # File check
+        correct = [
+            '\\documentclass[latex]{article}\n',
+            '\\usepackage{cite}\n',
+            '\\bibliographystyle{ieeetr}\n',
+            '\\begin{document}\n',
+            'Test contents\n',
+            '\\bibliography{library}\n',
+            '\\end{document}\n',
+        ]
+        with open('.tmp/wdbib.tex', 'r') as f:
+            contents = f.readlines()
+
+        for c1, c2 in itertools.zip_longest(correct, contents):
+            self.assertEqual(c1, c2)
+
+        # Clear working directory
+        shutil.rmtree('.tmp/')
+        os.chdir(cwd)
+
+    def test_build(self):
+        """Pass if LaTeX class could build project.
+        """
+        cwd = os.getcwd()
+        exampledir = os.path.join(
+            os.path.dirname(__file__), '..', '..', 'examples'
+        )
+        os.chdir(os.path.join(exampledir, 'example1'))
+
+        # Copy LaTeX bib and bst files to workdir
+        os.makedirs('.tmp', exist_ok=True)
+        for b in glob.glob('*.bib'):
+            shutil.copy(b, '.tmp/')
+
+        ltx = wdbibtex.LaTeX()
+        ltx.write('Test contents\n', bst='ieeetr')
+        ltx.build()
+
+        # File check
+        correct = [
+            '\\relax \n',
+            '\\bibstyle{ieeetr}\n',
+            '\\bibdata{library}\n',
+            '\\gdef \\@abspage@last{1}\n',
+        ]
+        with open('.tmp/wdbib.aux', 'r') as f:
+            contents = f.readlines()
+
+        for c1, c2 in itertools.zip_longest(correct, contents):
+            self.assertEqual(c1, c2)
+
         # Clear working directory
         shutil.rmtree('.tmp')
+        os.chdir(cwd)
 
     def test_compile_citation(self):
         cwd = os.getcwd()
