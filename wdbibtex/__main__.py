@@ -49,9 +49,9 @@ def main():
     args = parser.parse_args()
     wb = wdbibtex.WdBibTeX(args.file)
     wb.build(bib=args.bib, bst=args.bst)
-    wb.close(clear=not args.keeptmpdir)
+    wb.close(clear=not args.keeptexdir)
     return 0
 
 
 if __name__ == '__main__':
-    sys.exit(wdbibtex.word.main())
+    sys.exit(main())
