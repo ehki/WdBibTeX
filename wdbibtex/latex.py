@@ -14,32 +14,40 @@ class LaTeX:
 
     Parameters
     ----------
-    workdir : str | pathlib.Path, default '.tmp'
-        Temporal working directory to store LaTeX contents.
+    bibtexcmd : str or None, default None
+        BibTeX command.
+        If None, automatically selected accorting to system locale.
+    bibtexopts : str or None, default None
+        BibTeX command options.
+        If None, automatically selected according to system locale.
+    dashstarts : int, default 3
+        Only 2 or 3,
+        If dashstarts is 2, '1 and 2' turns 1-2.
+        If dashstarts is 3, '1 and 2' turns 1,2.
+    preamble : str or None, default None
+        Preamble of .tex file.
+        If None, automatically selected.
     targetbasename : str, default wdbib
         Base name of LaTeX related files.
-    bibtexcmd : str or None, default None
-        BibTeX command. If None, automatically selected.
-    bibtexopts : str or None, default None
-        BibTeX command options. If None, automatically selected.
-    preamble : str or None, default None
-        Preamble of .tex file. if None, automatically selected.
     texcmd : str or None, default None
-        LaTeX command. If None, automatically selected.
+        LaTeX command.
+        If None, automatically selected according to system locale.
     texopts : str or None, default None
-        LaTeX command options. If None, automatically selected.
+        LaTeX command options.
+        If None, automatically selected accorgin to system locale.
+    workdir : str | pathlib.Path, default '.tmp'
+        Temporal working directory to store LaTeX contents.
     """
     def __init__(
             self,
-            workdir='.tmp',
+            bibtexcmd=None,
+            bibtexopts=None,
+            dashstarts=3,
+            preamble=None,
             targetbasename='wdbib',
             texcmd=None,
             texopts=None,
-            bibtexcmd=None,
-            bibtexopts=None,
-            preamble=None,
-            autostart=False,
-            dashstarts=3,
+            workdir='.tmp',
     ):
         # Argument check
         assert dashstarts in (2, 3), (
@@ -89,14 +97,10 @@ class LaTeX:
         self.bibstyle = None
         self.bibdata = None
         self.bibcite = {}
-        self.conversion_dict = {}
+        self.__conversion_dict = {}
 
         # Makedir working directory if not exist.
         self.workdir.mkdir(exist_ok=True)
-
-        if autostart:
-            self.write()
-            self.compile()
 
     def write(self, c, bib=None, bst=None):
         r"""Write .tex file.
@@ -234,7 +238,7 @@ class LaTeX:
         """Get key and value for replace word document.
         """
         replacer = dict()
-        for k, v in self.conversion_dict.items():
+        for k, v in self.__conversion_dict.items():
             replacer.update({'\\\\cite\\{%s\\}' % k: '[%s]' % v})
         self.__replacer = replacer
 
@@ -254,7 +258,7 @@ class LaTeX:
         """
         for cite in self.citation:
             cite_nums = [self.bibcite[c] for c in cite.split(',')]
-            self.conversion_dict.update(
+            self.__conversion_dict.update(
                 {cite: self.__get_dashed_range(cite_nums)}
                 )
 
