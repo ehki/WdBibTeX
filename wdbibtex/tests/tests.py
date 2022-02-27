@@ -87,34 +87,84 @@ class TestLaTeX(unittest.TestCase):
         os.chdir(cwd)
 
     def test_compile_citation(self):
+        """Pass if LaTeX could build .tex with citation.
+        """
         cwd = os.getcwd()
         exampledir = os.path.join(
             os.path.dirname(__file__), '..', '..', 'examples'
         )
         os.chdir(os.path.join(exampledir, 'example1'))
-        ltx = wdbibtex.LaTeXHandler()
+
+        # Copy LaTeX bib and bst files to workdir
+        os.makedirs('.tmp', exist_ok=True)
+        for b in glob.glob('*.bib'):
+            shutil.copy(b, '.tmp/')
+
+        ltx = wdbibtex.LaTeX()
         ltx.write(
             'Test contents with one citation \\cite{enArticle1}.\n',
-            bibstyle='ieeetr')
-        ltx.compile()
-        # The .tex size will 185 B
-        self.assertEqual(os.path.getsize('.tmp/wdbib.tex'), 185)
-        # The .aux size will 117 B
-        self.assertEqual(os.path.getsize('.tmp/wdbib.aux'), 117)
-        # The .bbl size will 191 B
-        self.assertEqual(os.path.getsize('.tmp/wdbib.bbl'), 191)
+            bst='ieeetr')
+        ltx.build()
+
+        # File check
+        correct = [
+            '\\documentclass[latex]{article}\n',
+            '\\usepackage{cite}\n',
+            '\\bibliographystyle{ieeetr}\n',
+            '\\begin{document}\n',
+            'Test contents with one citation \\cite{enArticle1}.\n',
+            '\\bibliography{library}\n',
+            '\\end{document}\n',
+        ]
         with open('.tmp/wdbib.tex', 'r') as f:
-            print(''.join(f.readlines()))
+            contents = f.readlines()
+
+        for c1, c2 in itertools.zip_longest(correct, contents):
+            self.assertEqual(c1, c2)
+
+        # File check
+        correct = [
+            '\\relax \n',
+            '\\bibstyle{ieeetr}\n',
+            '\\citation{enArticle1}\n',
+            '\\bibdata{library}\n',
+            '\\bibcite{enArticle1}{1}\n',
+            '\\gdef \\@abspage@last{1}\n',
+        ]
         with open('.tmp/wdbib.aux', 'r') as f:
-            print(''.join(f.readlines()))
+            contents = f.readlines()
+
+        for c1, c2 in itertools.zip_longest(correct, contents):
+            self.assertEqual(c1, c2)
+
+        # File check
+        correct = [
+            '\\begin{thebibliography}{1}\n',
+            '\n',
+            '\\bibitem{enArticle1}\n',
+            "I.~Yamada, J.~Yamada, S.~Yamada, and S.~Yamada, ``Title1,'' {\\em Japanese\n",
+            '  Journal}, vol.~15, pp.~20--30, march 2019.\n',
+            '\n',
+            '\\end{thebibliography}\n',
+        ]
         with open('.tmp/wdbib.bbl', 'r') as f:
-            print(''.join(f.readlines()))
+            contents = f.readlines()
+
+        for c1, c2 in itertools.zip_longest(correct, contents):
+            self.assertEqual(c1, c2)
 
         # Parse test for aux file.
-        ltx.parse_aux()
-        ltx.build_conversion_dict()
-        self.assertEqual(ltx.conversion_dict['enArticle1'], '1')
-
+        ltx.read_aux()
+        self.assertEqual(
+            ltx.cnd['\\\\cite\\{enArticle1\\}'],
+            '[1]'
+        )
+        self.assertEqual(
+            ltx.tbt,
+            u"[1]\tI. Yamada, J. Yamada, S. Yamada, and S. Yamada, "
+            u"“Title1,” Japanese Journal, vol. 15, pp. 20\u201430, "
+            u"march 2019.\n"
+        )
         # Clear working directory
         shutil.rmtree('.tmp')
         os.chdir(cwd)
