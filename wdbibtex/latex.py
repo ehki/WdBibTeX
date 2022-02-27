@@ -67,10 +67,12 @@ class LaTeX:
             )
 
         # Store settings in internal attributes.
-        if os.path.abspath(workdir):
+        if os.path.isabs(workdir):
             self.workdir = pathlib.Path(workdir)
         else:
-            self.workdir = pathlib.Path(os.getcwd()) / workdir
+            self.workdir = (
+                pathlib.Path(os.getcwd()) / workdir
+            ).resolve()
         self.__targetbasename = targetbasename
         self.__texcmd = texcmd
         self.__texopts = texopts
