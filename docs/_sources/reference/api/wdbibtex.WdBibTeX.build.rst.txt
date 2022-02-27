@@ -1,0 +1,6 @@
+﻿wdbibtex.WdBibTeX.build
+=======================
+
+.. currentmodule:: wdbibtex
+
+.. automethod:: WdBibTeX.build

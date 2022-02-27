@@ -1,0 +1,6 @@
+﻿wdbibtex.WdBibTeX.open
+======================
+
+.. currentmodule:: wdbibtex
+
+.. automethod:: WdBibTeX.open

@@ -1,0 +1,6 @@
+﻿wdbibtex.WdBibTeX.find\_all
+===========================
+
+.. currentmodule:: wdbibtex
+
+.. automethod:: WdBibTeX.find_all
