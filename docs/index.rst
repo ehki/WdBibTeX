@@ -1,7 +1,7 @@
 WdBibTeX documentation
 ======================
 
-WdBibTeX is a MS Word's BibTeX toolkit.
+WdBibTeX is a BibTeX toolkit for MS Word.
 
 .. toctree::
    :maxdepth: 2

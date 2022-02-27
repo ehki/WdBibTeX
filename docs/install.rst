@@ -18,7 +18,7 @@ Dependencies
 ------------
 
 - Windows OS, for pywin32
-- pywin32, for operating MS Word
+- pywin32>=302, for operating MS Word
 - TeX Live 2021, for building LaTeX file.
 
 
@@ -29,21 +29,19 @@ Let target Word file name be ``file.docx``.
 
 0. Confirm you can build LaTeX project with basic ``latex->bibtex->latex->latex`` scheme. (This is out of scope of this project.)
 
-1. Copy your ``.bib`` to same directory with ``file.docx``.
+1. Copy your ``.bib`` and ``.bst`` to same directory with ``file.docx``.
 
-2. Copy your ``.bst`` to same directory with ``file.docx``.
+2. Write your docx file with LaTeX citations keys of ``\cite{key}`` and ``\thebibliography`` label.
 
-3. Write your docx file with LaTeX citations keys of ``\cite{key}`` and ``\thebibliography`` label.
+3. On the shell, change directory to the ``file.docx``'s directory.
 
-4. On the shell, change directory to the ``file.docx``'s directory.
-
-5. Execute:
+4. Execute:
 
 .. code-block:: sh
 
    $ python -m wdbibtex file.docx
 
-6. If wdbibtex works correctly, you can see ``file_bib.docx``. LaTeX citation keys of ``\cite{key}`` and ``\thebibliography`` will be converted to ``[1]`` and ``[1] A. Name, "Title", Journal, vol...`` (for example).
+5. If wdbibtex works correctly, you can see ``file_bib.docx``. LaTeX citation keys of ``\cite{key}`` and ``\thebibliography`` will be converted to ``[1]`` and ``[1] A. Name, "Title", Journal, vol...`` (for example).
 
 
 Command line options

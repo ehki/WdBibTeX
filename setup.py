@@ -12,7 +12,7 @@ setup(
     url='http://pypi.python.org/pypi/pyjjy/',
     author='Haruki EJIRI',
     author_email='0y35.ejiri.vmqewyhw@gmail.com',
-    description='WdBibTeX is a BibTeX citation formatter for MS word.',
+    description='WdBibTeX is a BibTeX toolkit for MS Word.',
     license='MIT',
     python_requires='>=3.6',
     packages=find_packages(),

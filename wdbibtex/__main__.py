@@ -6,7 +6,7 @@ import wdbibtex
 
 def getparser():
     parser = argparse.ArgumentParser(
-        description="WdBibTeX is a MS Word's BibTeX toolkit."
+        description="WdBibTeX is a BibTeX toolkit for MS Word."
     )
     parser.add_argument(
         'file',
