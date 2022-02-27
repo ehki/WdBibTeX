@@ -1,0 +1,6 @@
+﻿wdbibtex.WdBibTeX.clear
+=======================
+
+.. currentmodule:: wdbibtex
+
+.. automethod:: WdBibTeX.clear

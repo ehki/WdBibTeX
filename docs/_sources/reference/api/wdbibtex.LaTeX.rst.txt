@@ -1,0 +1,31 @@
+﻿wdbibtex.LaTeX
+==============
+
+.. currentmodule:: wdbibtex
+
+.. autoclass:: LaTeX
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LaTeX.cnd
+      ~LaTeX.locale
+      ~LaTeX.tbt
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LaTeX.build
+      ~LaTeX.read_aux
+      ~LaTeX.read_bbl
+      ~LaTeX.write
+   
+   

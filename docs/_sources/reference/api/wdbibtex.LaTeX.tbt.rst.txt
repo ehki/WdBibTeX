@@ -1,0 +1,6 @@
+﻿wdbibtex.LaTeX.tbt
+==================
+
+.. currentmodule:: wdbibtex
+
+.. autoproperty:: LaTeX.tbt

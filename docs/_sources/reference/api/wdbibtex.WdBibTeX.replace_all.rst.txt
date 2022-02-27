@@ -1,0 +1,6 @@
+﻿wdbibtex.WdBibTeX.replace\_all
+==============================
+
+.. currentmodule:: wdbibtex
+
+.. automethod:: WdBibTeX.replace_all

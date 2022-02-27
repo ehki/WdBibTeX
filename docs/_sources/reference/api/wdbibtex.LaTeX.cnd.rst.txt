@@ -1,0 +1,6 @@
+﻿wdbibtex.LaTeX.cnd
+==================
+
+.. currentmodule:: wdbibtex
+
+.. autoproperty:: LaTeX.cnd
