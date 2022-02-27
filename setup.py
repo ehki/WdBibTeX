@@ -14,7 +14,7 @@ setup(
     author_email='0y35.ejiri.vmqewyhw@gmail.com',
     description='WdBibTeX is a BibTeX toolkit for MS Word.',
     license='MIT',
-    python_requires='>=3.6',
+    python_requires='>=3.8',
     packages=find_packages(),
     include_package_data=True,
     install_requires=['pywin32>=302'],
