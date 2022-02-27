@@ -8,7 +8,9 @@ import re
 class LaTeX:
     """LaTeX related contents and commands.
 
-    Some texts
+    Run LaTeX and BibTeX commands. Write .tex files.
+    Read and parse .aux and .bbl files.
+    Prepare conversion LaTeX keys in Word file into BibTeX processed texts.
 
     Parameters
     ----------
@@ -154,15 +156,15 @@ class LaTeX:
         """Build LaTeX related files.
 
         Build LaTeX files in old-style four steps (without PDF generation).
-        
+
         1. latex: to generate .aux from .tex
-        
+
         2. bibtex: to generate .bbl and update .aux from .aux and .bst.
-        
+
         3. latex: to update .aux.
-        
+
         4. latex: to complete .aux.
-        
+
         """
         import subprocess
         cwd = os.getcwd()  # Save original working directory.
@@ -221,7 +223,7 @@ class LaTeX:
         -------
         str
             Plain text of the thebibliography.
-        """
+        """  # noqa E501
         if self.__thebibtext is None:
             raise ValueError(
                 'Thebibliography text is not set yet.'
@@ -239,7 +241,7 @@ class LaTeX:
     def read_bbl(self):
         """Read .bbl file.
 
-        Some text
+        Read .bbl file to extract formatted thebibliography text.
         """
         fn = self.workdir / (self.__targetbasename + '.bbl')
         with codecs.open(fn, 'r', 'utf-8') as f:
