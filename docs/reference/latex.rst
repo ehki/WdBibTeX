@@ -1,6 +1,7 @@
 LaTeX
 =====
 
+
 .. currentmodule:: wdbibtex
 
 Constructor
