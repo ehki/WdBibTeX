@@ -7,6 +7,6 @@ WdBibTeX is a MS Word's BibTeX toolkit.
    :maxdepth: 2
    :caption: Contents:
 
-   installation
-   examples
+   install
+   example
    reference/index

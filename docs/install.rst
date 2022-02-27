@@ -7,6 +7,8 @@ Installation
 
 Binary installers for the latest released version are available at the Python Package Index (PyPI): https://pypi.org/project/wdbibtex
 
+You can install wdbibtex package via pip command.
+
 .. code-block:: sh
 
    pip install -U wdbibtex
@@ -23,7 +25,7 @@ Dependencies
 Usage
 -----
 
-Let target Word file name is ``file.docx``.
+Let target Word file name be ``file.docx``.
 
 0. Confirm you can build LaTeX project with basic ``latex->bibtex->latex->latex`` scheme. (This is out of scope of this project.)
 
@@ -41,7 +43,7 @@ Let target Word file name is ``file.docx``.
 
    $ python -m wdbibtex file.docx
 
-6. If works correctly, you can see ``file_bib.docx``. LaTeX citation keys of ``\cite{key}`` and ``\thebibliography`` will be converted to ``[1]`` and ``[1] A. Name, "Title", Journal, vol...`` (for example).
+6. If wdbibtex works correctly, you can see ``file_bib.docx``. LaTeX citation keys of ``\cite{key}`` and ``\thebibliography`` will be converted to ``[1]`` and ``[1] A. Name, "Title", Journal, vol...`` (for example).
 
 
 Command line options
