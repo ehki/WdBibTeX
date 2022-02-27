@@ -9,7 +9,7 @@ import wdbibtex
 
 class WdBibTeX:
     """MS Word's BibTeX toolkit.
-    
+
     WdBibTeX is a MS Word wrapper for BibTeX citation conversion.
 
     Parameters
@@ -58,7 +58,7 @@ class WdBibTeX:
         ----------
         clear : bool, default False
             If True, remove working directory of latex process.
-        
+
         See also
         --------
         open : Open word file.
