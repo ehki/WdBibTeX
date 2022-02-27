@@ -1,0 +1,6 @@
+﻿wdbibtex.LaTeX.write
+====================
+
+.. currentmodule:: wdbibtex
+
+.. automethod:: LaTeX.write

@@ -73,7 +73,7 @@ docsrc/_build/
 docsrc/_api/
 docsrc/reference/api
 
-docs/
+# docs/
 
 # PyBuilder
 target/

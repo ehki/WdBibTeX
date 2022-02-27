@@ -1,0 +1,6 @@
+﻿wdbibtex.LaTeX.read\_aux
+========================
+
+.. currentmodule:: wdbibtex
+
+.. automethod:: LaTeX.read_aux

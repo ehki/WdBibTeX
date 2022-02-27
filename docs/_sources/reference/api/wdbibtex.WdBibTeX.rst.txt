@@ -1,0 +1,25 @@
+﻿wdbibtex.WdBibTeX
+=================
+
+.. currentmodule:: wdbibtex
+
+.. autoclass:: WdBibTeX
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~WdBibTeX.build
+      ~WdBibTeX.clear
+      ~WdBibTeX.close
+      ~WdBibTeX.find_all
+      ~WdBibTeX.open
+      ~WdBibTeX.replace_all
+   
+   

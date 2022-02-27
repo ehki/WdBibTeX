@@ -1,0 +1,6 @@
+﻿wdbibtex.WdBibTeX.close
+=======================
+
+.. currentmodule:: wdbibtex
+
+.. automethod:: WdBibTeX.close
