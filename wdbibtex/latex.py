@@ -1,3 +1,4 @@
+import codecs
 import locale
 import pathlib
 import os
@@ -138,7 +139,8 @@ class LaTeX:
             else:
                 bst = bst[0]
 
-        with open(self.workdir / (self.__targetbasename + '.tex'), 'w') as f:
+        fn = self.workdir / (self.__targetbasename + '.tex')
+        with codecs.open(fn, 'w', 'utf-8') as f:
             f.writelines(
                 self.__preamble
                 + '\\bibliographystyle{%s}\n' % bst
@@ -239,7 +241,8 @@ class LaTeX:
 
         Some text
         """
-        with open(self.workdir / (self.__targetbasename + '.bbl'), 'r') as f:
+        fn = self.workdir / (self.__targetbasename + '.bbl')
+        with codecs.open(fn, 'r', 'utf-8') as f:
             self.__bbldata = f.readlines()
 
     def __build_conversion_dict(self):
@@ -318,7 +321,8 @@ class LaTeX:
            Added to bibcite attribute
            (dictionary) as {k: n}.
         """
-        with open(self.workdir / (self.__targetbasename + '.aux'), 'r') as f:
+        fn = self.workdir / (self.__targetbasename + '.aux')
+        with codecs.open(fn, 'r', 'utf-8') as f:
             self.__auxdata = f.readlines()
         for line in self.__auxdata:
             self.__parse_line(line)
