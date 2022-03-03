@@ -27,7 +27,7 @@ class LaTeX:
     preamble : str or None, default None
         Preamble of .tex file.
         If None, automatically selected.
-    targetbasename : str, default wdbib
+    targetbasename : str, default 'wdbib'
         Base name of LaTeX related files.
     texcmd : str or None, default None
         LaTeX command.
@@ -35,7 +35,7 @@ class LaTeX:
     texopts : str or None, default None
         LaTeX command options.
         If None, automatically selected accorgin to system locale.
-    workdir : str | pathlib.Path, default '.tmp'
+    workdir : str or path object, default '.tmp'
         Temporal working directory to store LaTeX contents.
     """
     def __init__(
@@ -114,9 +114,9 @@ class LaTeX:
         ----------
         c : str
             String data to be written in .tex file.
-        bib : str or None
+        bib : str or None, default None
             Bibliography library file(s). If None, use all .bib files in cwd.
-        bst : str or None
+        bst : str or None, default None
             Bibliography style. If None, use .bst file in cwd.
 
         Raises
@@ -162,13 +162,15 @@ class LaTeX:
         Build LaTeX files in old-style four steps (without PDF generation).
 
         1. latex: to generate .aux from .tex
-
         2. bibtex: to generate .bbl and update .aux from .aux and .bst.
-
         3. latex: to update .aux.
-
         4. latex: to complete .aux.
 
+        Firstly the current directory is switched to the working directory.
+        Secondly the above four steps are invoked.
+        Thirdly read .bbl and .aux files are parsed.
+        Finally, the current directory is switched
+        to the original working directory.
         """
         import subprocess
         cwd = os.getcwd()  # Save original working directory.
@@ -199,34 +201,44 @@ class LaTeX:
 
     @property
     def cnd(self):
-        r"""Returns citation key to replacement number dictionary.
+        r"""Returns a dictionary of citation-key/number pair maps.
 
-        Citation to Number Dictionary will be used to replace
+        CND(Citation to Number Dictionary) will be used to replace
         citation text in word file such as \\cite{key1} to
         number such ash [1].
+        WdBibTeX.cnd could be return the following dictionary.
+
+        .. code-block:: python
+
+            {'\\\\cite\\{key1\\}': '[1]',
+             '\\\\cite\\{key1,key2,key3\\}': '[1-3]'}
 
         Returns
         -------
-        dict
+        dict or None
             Search key and replacement value.
+            None if LaTeX compile is not done.
         """
         return self.__replacer
 
     @property
     def tbt(self):
-        r"""Plain text for replacement of bibliography list.
+        r"""Plain text to replace \\thebibliography in word file.
 
         A plain text of LaTeX-processed bibliography list.
         An tab string is inserted between each citenum and citation string.
-        For example in IEEE format:
+        Example in IEEE format follows:
 
-        | [1]\\tF. Author, S. Author, "Paper Title," Journal Name, vol. 1, no. 1, p. 1, march 2022.
-        | [2]\\tG. Name, F. Name, "Title," Journal, vol. 2, no. 2, pp. 1-10, 2020.
+        .. code-block:: text
+
+            [1]\\tF. Author, S. Author, "Paper Title," Journal Name, vol. 1, no. 1, p. 1, march 2022.
+            [2]\\tG. Name, F. Name, "Title," Journal, vol. 2, no. 2, pp. 1-10, 2020.
 
         Returns
         -------
-        str
+        str or None
             Plain text of the thebibliography.
+            None if LaTeX compile is not done.
         """  # noqa E501
         if self.__thebibtext is None:
             raise ValueError(
