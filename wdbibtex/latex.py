@@ -223,19 +223,22 @@ class LaTeX:
 
     @property
     def tbt(self):
-        r"""Plain text for replacement of bibliography list.
+        r"""Plain text to replace \\thebibliography in word file.
 
         A plain text of LaTeX-processed bibliography list.
         An tab string is inserted between each citenum and citation string.
-        For example in IEEE format:
+        Example in IEEE format follows:
 
-        | [1]\\tF. Author, S. Author, "Paper Title," Journal Name, vol. 1, no. 1, p. 1, march 2022.
-        | [2]\\tG. Name, F. Name, "Title," Journal, vol. 2, no. 2, pp. 1-10, 2020.
+        .. code-block:: text
+
+            [1]\\tF. Author, S. Author, "Paper Title," Journal Name, vol. 1, no. 1, p. 1, march 2022.
+            [2]\\tG. Name, F. Name, "Title," Journal, vol. 2, no. 2, pp. 1-10, 2020.
 
         Returns
         -------
-        str
+        str or None
             Plain text of the thebibliography.
+            None if LaTeX compile is not done.
         """  # noqa E501
         if self.__thebibtext is None:
             raise ValueError(
