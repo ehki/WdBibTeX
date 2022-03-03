@@ -266,20 +266,23 @@ class LaTeX:
         for cite in self.__citation:
             cite_nums = [self.__bibcite[c] for c in cite.split(',')]
             self.__conversion_dict.update(
-                {cite: self.__get_dashed_range(cite_nums)}
+                {cite: self.__compress(cite_nums)}
                 )
 
-    def __get_dashed_range(self, nums):
-        r"""Convert multiple integers to dashed range string.
+    def __compress(self, nums, sep=u'\u2014'):
+        r"""Compress groups of three or more consecutive numbers into a range.
 
-        Multiple integers are such as 1,2,3,6.
-        And dashed rang strings are such as 1-3,6.
+        Compress poor list of positive integers with three or more
+        consecutive numbers into a range using a separating character.
+        For example, a list ``[1,2,3,6]`` will be converted into ``[1-3,6]``.
 
         Parameters
         ----------
-        nums : list
+        nums : list of positive integers
             Multiple integers to convert dashed range string.
             A list of single element integer is also allowd.
+        sep : str, default en-dash(U+2013)
+            A character inserted betwen start and end of range.
         """
         seq = []
         final = []
