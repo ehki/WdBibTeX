@@ -8,9 +8,17 @@ import wdbibtex
 
 
 class WdBibTeX:
-    """MS Word's BibTeX toolkit.
+    """BibTeX toolkit for MS Word.
 
     WdBibTeX is a MS Word wrapper for BibTeX citation conversion.
+    WdBibTeX extracts LaTeX and BibTeX commands from a Word file,
+    and copies them to dummy .tex file in working directory.
+    By building LaTeX project with old-style LaTeX+BibTeX process,
+    WdBibTeX obtain BibTeX-processed bibliography texts
+    and citation numbers.
+    Finally, WdBibTeX replaces original LaTeX and BibTeX commands
+    in Word file with BibTeX-processed bibliography textx
+    and citation numbers.
 
     Parameters
     ----------
@@ -21,7 +29,7 @@ class WdBibTeX:
         WdBibTeX operates the copied file.
     workdir : '.tmp'
         Working directory of latex process.
-        The working directory will be removed by WdBibTeX.clean().
+        The working directory will be removed by WdBibTeX.clear().
     """
 
     def __init__(
