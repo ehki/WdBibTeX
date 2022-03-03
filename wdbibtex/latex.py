@@ -199,16 +199,23 @@ class LaTeX:
 
     @property
     def cnd(self):
-        r"""Returns citation key to replacement number dictionary.
+        r"""Returns a dictionary of citation-key/number pair maps.
 
-        Citation to Number Dictionary will be used to replace
+        CND(Citation to Number Dictionary) will be used to replace
         citation text in word file such as \\cite{key1} to
         number such ash [1].
+        WdBibTeX.cnd could be return the following dictionary.
+
+        .. code-block:: python
+
+            {'\\\\cite\\{key1\\}': '[1]',
+             '\\\\cite\\{key1,key2,key3\\}': '[1-3]'}
 
         Returns
         -------
-        dict
+        dict or None
             Search key and replacement value.
+            None if LaTeX compile is not done.
         """
         return self.__replacer
 
