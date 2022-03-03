@@ -162,13 +162,15 @@ class LaTeX:
         Build LaTeX files in old-style four steps (without PDF generation).
 
         1. latex: to generate .aux from .tex
-
         2. bibtex: to generate .bbl and update .aux from .aux and .bst.
-
         3. latex: to update .aux.
-
         4. latex: to complete .aux.
 
+        Firstly the current directory is switched to the working directory.
+        Secondly the above four steps are invoked.
+        Thirdly read .bbl and .aux files are parsed.
+        Finally, the current directory is switched
+        to the original working directory.
         """
         import subprocess
         cwd = os.getcwd()  # Save original working directory.
