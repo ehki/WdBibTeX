@@ -22,14 +22,21 @@ class WdBibTeX:
 
     Parameters
     ----------
-    file : str
+    file : str or path object
         Target word file with .docx extension.
     copy_suffix : str, default '_bib'
         Appended text to a copied word file.
-        WdBibTeX operates the copied file.
-    workdir : '.tmp'
+        WdBibTeX operates the copied file for safety.
+    workdir : str or path object, default '.tmp'
         Working directory of latex process.
         The working directory will be removed by WdBibTeX.clear().
+
+    Examples
+    --------
+    >>> from wdbibtex import WdBiBTeX
+    >>> wd = WdBibTeX('sample.docx')
+    >>> wd.build()
+    >>> wd.close()
     """
 
     def __init__(
