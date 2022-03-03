@@ -27,7 +27,7 @@ class LaTeX:
     preamble : str or None, default None
         Preamble of .tex file.
         If None, automatically selected.
-    targetbasename : str, default wdbib
+    targetbasename : str, default 'wdbib'
         Base name of LaTeX related files.
     texcmd : str or None, default None
         LaTeX command.
@@ -35,7 +35,7 @@ class LaTeX:
     texopts : str or None, default None
         LaTeX command options.
         If None, automatically selected accorgin to system locale.
-    workdir : str | pathlib.Path, default '.tmp'
+    workdir : str or path object, default '.tmp'
         Temporal working directory to store LaTeX contents.
     """
     def __init__(
@@ -114,9 +114,9 @@ class LaTeX:
         ----------
         c : str
             String data to be written in .tex file.
-        bib : str or None
+        bib : str or None, default None
             Bibliography library file(s). If None, use all .bib files in cwd.
-        bst : str or None
+        bst : str or None, default None
             Bibliography style. If None, use .bst file in cwd.
 
         Raises
