@@ -17,6 +17,10 @@ Attributes
 .. autosummary::
    :toctree: api
 
+   LaTeX.bibcite
+   LaTeX.bibdata
+   LaTeX.bibstyle
+   LaTeX.citation
    LaTeX.cnd
    LaTeX.locale
    LaTeX.tbt

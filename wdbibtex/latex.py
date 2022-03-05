@@ -93,10 +93,10 @@ class LaTeX:
         self.__dashstarts = dashstarts
         self.__thebibtext = None
         self.__replacer = None
-        self.citation = []
-        self.bibstyle = None
-        self.bibdata = None
-        self.bibcite = {}
+        self.__citation = []
+        self.__bibstyle = None
+        self.__bibdata = None
+        self.__bibcite = {}
         self.__conversion_dict = {}
 
         # Makedir working directory if not exist.
@@ -268,8 +268,8 @@ class LaTeX:
 
         Generate dictionary of such as {'refa,refb,refc,refe,refg': '1-3,5,7'}.
         """
-        for cite in self.citation:
-            cite_nums = [self.bibcite[c] for c in cite.split(',')]
+        for cite in self.__citation:
+            cite_nums = [self.__bibcite[c] for c in cite.split(',')]
             self.__conversion_dict.update(
                 {cite: self.__get_dashed_range(cite_nums)}
                 )
@@ -355,15 +355,39 @@ class LaTeX:
             One line of .aux file to parse.
         """
         if line.startswith('\\citation'):
-            self.citation.append(line[len('\\citation{'): -len('}\n')])
+            self.__citation.append(line[len('\\citation{'): -len('}\n')])
         elif line.startswith('\\bibstyle'):
-            self.bibstyle = line[len('\\bibstyle{'): -len('}\n')]
+            self.__bibstyle = line[len('\\bibstyle{'): -len('}\n')]
         elif line.startswith('\\bibdata'):
-            self.bibdata = line[len('\\bibdata{'): -len('}\n')]
+            self.__bibdata = line[len('\\bibdata{'): -len('}\n')]
         elif line.startswith('\\bibcite'):
             key, value = line[len('\\bibcite{'): -len('}\n')].split('}{')
             value = int(value)
-            self.bibcite.update({key: value})
+            self.__bibcite.update({key: value})
+
+    @property
+    def citation(self):
+        """Returns citation key(s) found in aux file.
+        """
+        return self.__citation
+
+    @property
+    def bibstyle(self):
+        """Returns bibliography style string written in aux file.
+        """
+        return self.__bibstyle
+
+    @property
+    def bibdata(self):
+        """Returns bibliography data file(s) written in aux file.
+        """
+        return self.__bibdata
+
+    @property
+    def bibcite(self):
+        """Returns citation key and citation number dictionary
+        """
+        return self.__bibcite
 
     @property
     def locale(self):
@@ -416,7 +440,7 @@ class LaTeX:
         thebibtext = ''.join(self.__bbldata[thebib_begin: thebib_end])
         for k, v in replacer.items():
             thebibtext = re.sub(k, v, thebibtext)
-        for k, v in self.bibcite.items():
+        for k, v in self.__bibcite.items():
             thebibtext = re.sub(
                 '\\\\bibitem{%s}\n' % k, '[%s]\t' % v, thebibtext
             )
