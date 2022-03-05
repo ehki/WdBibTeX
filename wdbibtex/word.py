@@ -58,6 +58,24 @@ class WdBibTeX:
         self.__workdir = self.__docxdir / workdir
         self.__ltx = wdbibtex.LaTeX(workdir=self.__workdir)
 
+    @property
+    def original_file(self):
+        """[Read only] Returns original word file.
+        """
+        return self.__target_file
+
+    @property
+    def target_file(self):
+        """[Read only] Returns operating word file.
+        """
+        return self.__target_file
+
+    @property
+    def workdir(self):
+        """[Read only] Returns LaTeX working directory.
+        """
+        return self.__workdir
+
     def clear(self):
         """Clear auxiliary files on working directory.
         """

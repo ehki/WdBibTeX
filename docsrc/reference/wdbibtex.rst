@@ -14,6 +14,15 @@ Constructor
 
    WdBibTeX
 
+Attributes
+----------
+.. autosummary::
+   :toctree: api
+
+   WdBibTeX.target_file
+   WdBibTeX.original_file
+   WdBibTeX.workdir
+
 Methods
 -------
 .. autosummary::
