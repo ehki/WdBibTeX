@@ -142,7 +142,7 @@ class TestLaTeX(unittest.TestCase):
             '\\begin{thebibliography}{1}\n',
             '\n',
             '\\bibitem{enArticle1}\n',
-            "I.~Yamada, J.~Yamada, S.~Yamada, and S.~Yamada, ``Title1,'' {\\em Japanese\n",
+            "I.~Yamada, J.~Yamada, S.~Yamada, and S.~Yamada, ``Title1,'' {\\em Japanese\n",   # noqa #E501
             '  Journal}, vol.~15, pp.~20--30, march 2019.\n',
             '\n',
             '\\end{thebibliography}\n',
@@ -200,7 +200,7 @@ class TestLaTeX(unittest.TestCase):
             '\\begin{document}\n',
             'Test contents with one citation \\cite{enArticle1}.\n',
             'Another citation \\cite{enArticle2}.\n',
-            'Multiple citations in one citecommand \\cite{enArticle1,enArticle3}\n',
+            'Multiple citations in one citecommand \\cite{enArticle1,enArticle3}\n',   # noqa #E501
             '\\bibliography{library}\n',
             '\\end{document}\n',
         ]
@@ -234,15 +234,15 @@ class TestLaTeX(unittest.TestCase):
             "\\begin{thebibliography}{1}\n",
             "\n",
             "\\bibitem{enArticle1}\n",
-            "I.~Yamada, J.~Yamada, S.~Yamada, and S.~Yamada, ``Title1,'' {\em Japanese\n",
+            "I.~Yamada, J.~Yamada, S.~Yamada, and S.~Yamada, ``Title1,'' {\em Japanese\n",  # noqa #E501
             "  Journal}, vol.~15, pp.~20--30, march 2019.\n",
             "\n",
             "\\bibitem{enArticle2}\n",
-            "G.~Yamada and R.~Yamada, ``Title2,'' {\\em Japanese Journal}, vol.~15, p.~21,\n",
+            "G.~Yamada and R.~Yamada, ``Title2,'' {\\em Japanese Journal}, vol.~15, p.~21,\n",   # noqa #E501
             "  dec. 2019.\n",
             "\n",
             "\\bibitem{enArticle3}\n",
-            "G.~Yamada and R.~Yamada, ``Title2 is true?,'' {\\em IEEE Transactions on Pattern\n",
+            "G.~Yamada and R.~Yamada, ``Title2 is true?,'' {\\em IEEE Transactions on Pattern\n",   # noqa #E501
             "  Analysis and Machine Intelligence}, nov 2018.\n",
             "\n",
             "\\end{thebibliography}\n",
@@ -273,7 +273,8 @@ class TestLaTeX(unittest.TestCase):
              u"Japanese Journal, vol. 15, pp. 20—30, march 2019.\n"
              u"[2]\tG. Yamada and R. Yamada, “Title2,” Japanese Journal, "
              u"vol. 15, p. 21, dec. 2019.\n"
-             u"[3]\tG. Yamada and R. Yamada, “Title2 is true?,” IEEE Transactions "
+             u"[3]\tG. Yamada and R. Yamada, “Title2 is true?,” "
+             u"IEEE Transactions "
              u"on Pattern Analysis and Machine Intelligence, nov 2018.\n")
         )
         # Clear working directory
