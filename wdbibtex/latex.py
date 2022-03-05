@@ -438,9 +438,6 @@ class LaTeX:
 
     @preamble.setter
     def preamble(self, s):
-        print(s)
-        print(type(s))
-        print(str(s))
         if s is None:
             self.__preamble = (
                 '\\documentclass[latex]{article}\n'
