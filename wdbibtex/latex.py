@@ -367,25 +367,25 @@ class LaTeX:
 
     @property
     def citation(self):
-        """Returns citation key(s) found in aux file.
+        """[Read only] Returns citation key(s) found in aux file.
         """
         return self.__citation
 
     @property
     def bibstyle(self):
-        """Returns bibliography style string written in aux file.
+        """[Read only] Returns bibliography style string written in aux file.
         """
         return self.__bibstyle
 
     @property
     def bibdata(self):
-        """Returns bibliography data file(s) written in aux file.
+        """[Read only] Returns bibliography data file(s) written in aux file.
         """
         return self.__bibdata
 
     @property
     def bibcite(self):
-        """Returns citation key and citation number dictionary
+        """[Read only] Returns citation key and citation number dictionary
         """
         return self.__bibcite
 
