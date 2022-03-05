@@ -136,6 +136,7 @@ class WdBibTeX:
             shutil.copy(b, self.__workdir)
         for b in glob.glob(os.path.join(self.__docxdir, '*.bib')):
             shutil.copy(b, self.__workdir)
+        self.__ltx.preamble = self.read_preamble()
         self.__cites = self.find_all('\\\\cite\\{*\\}')
         self.__thebibliographies = self.find_all('\\\\thebibliography')
 
@@ -155,6 +156,13 @@ class WdBibTeX:
             if 'thebibliography' in key:
                 continue
             self.replace_all(key, val)
+
+        # Replace from \begin{preamble} to \end{preamble}^13
+        # Note ^13 corresponds carriage return.
+        self.replace_all(
+            '\\\\begin\\{preamble\\}*\\\\end\\{preamble\\}^13',
+            ''
+        )
 
     def find_all(self, key):
         """Find all keys from word file.
