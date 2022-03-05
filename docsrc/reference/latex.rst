@@ -23,6 +23,7 @@ Attributes
    LaTeX.citation
    LaTeX.cnd
    LaTeX.locale
+   LaTeX.preamble
    LaTeX.tbt
 
 Methods

@@ -33,4 +33,5 @@ Methods
    WdBibTeX.close
    WdBibTeX.find_all
    WdBibTeX.open
+   WdBibTeX.read_preamble
    WdBibTeX.replace_all

@@ -71,11 +71,6 @@ class LaTeX:
                 bibtexcmd = 'upbibtex'
         if bibtexopts is None:
             bibtexopts = ''
-        if preamble is None:
-            preamble = (
-                '\\documentclass[latex]{article}\n'
-                '\\usepackage{cite}\n'
-            )
 
         # Store settings in internal attributes.
         if os.path.isabs(workdir):
@@ -89,7 +84,7 @@ class LaTeX:
         self.__texopts = texopts
         self.__bibtexcmd = bibtexcmd
         self.__bibtexopts = bibtexopts
-        self.__preamble = preamble
+        self.preamble = preamble
         self.__dashstarts = dashstarts
         self.__thebibtext = None
         self.__replacer = None
@@ -148,7 +143,7 @@ class LaTeX:
         fn = self.workdir / (self.__targetbasename + '.tex')
         with codecs.open(fn, 'w', 'utf-8') as f:
             f.writelines(
-                self.__preamble
+                self.preamble
                 + '\\bibliographystyle{%s}\n' % bst
                 + '\\begin{document}\n'
                 + c
@@ -414,6 +409,46 @@ class LaTeX:
             raise ValueError(
                 'Invalid locale string. '
                 'Only 2-characters string is allowed.'
+            )
+
+    @property
+    def preamble(self):
+        r"""Returns latex preamble text.
+
+        A text to be used as LaTeX preamble. Note that not all latex-compatible
+        preamble is used in WdBibTeX package. LaTeX class accepts None
+        for preamble attribute. In this case, the following default preamble
+        text is used.
+
+        .. code-block:: text
+
+            \documentclass[latex]{article}
+            \usepackage{cite}
+
+        Returns
+        -------
+        str
+            Preamble text.
+        """
+
+        return self.__preamble
+
+    @preamble.setter
+    def preamble(self, s):
+        print(s)
+        print(type(s))
+        print(str(s))
+        if s is None:
+            self.__preamble = (
+                '\\documentclass[latex]{article}\n'
+                '\\usepackage{cite}\n'
+            )
+        elif isinstance(s, str):
+            self.__preamble = s
+        else:
+            raise ValueError(
+                'Invalid preamble. '
+                'Only None or str is allowed.'
             )
 
     def __make_thebibliography_text(self):
