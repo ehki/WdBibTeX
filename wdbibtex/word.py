@@ -237,6 +237,48 @@ class WdBibTeX:
         self.__dc = self.__ap.Documents.Open(str(self.__target_file))
         self.__sl = self.__ap.Selection
 
+    def read_preamble(self):
+        r"""Read preamble contents if exists.
+
+        WdBibTeX detects special command of \begin{preamble} and \end{preamble}
+        commands from target .docx file. Contents written in the two commands
+        will be copied to the preamble of .tex file. If these commands did not
+        be found, the following default preamble is used.
+
+        .. code-block:: text
+
+            \documentclass[latex]{article}
+            \usepackage{cite}
+
+        Returns
+        -------
+        None or str
+            None if no preamble texts exists, str if preamble exists.
+
+        Raises
+        ------
+        ValueError
+            If only one of \begin{preamble} or \end{preamble} found in file.
+            Or, if two or more \begin{preamble} or \end{preamble} found.
+        """
+        bgn_pa = self.find_all("\\\\begin\\{preamble\\}")
+        end_pa = self.find_all("\\\\end\\{preamble\\}")
+        if bgn_pa == [['', 0, 0]] and end_pa == [['', 0, 0]]:
+            return None
+        elif bgn_pa == [['', 0, 0]] or end_pa == [['', 0, 0]]:
+            raise ValueError(
+                'One of \\begin{preamble} or \\end{preamble} not found.'
+            )
+        elif (len(bgn_pa) > 1 or len(end_pa) > 1):
+            raise ValueError(
+                'Two or more \\begin{preamble} or \\end{preamble} found.'
+            )
+        pa = self.__dc.Range(
+            Start=bgn_pa[0][2],
+            End=end_pa[0][1]
+        )
+        return str(pa)
+
     def replace_all(self, key, val):
         """Replace all keys in document with value.
 
