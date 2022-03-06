@@ -20,3 +20,10 @@ Attributes
    Cite.citation_labels
    Cite.citeleft
    Cite.citeright
+
+Methods
+-------
+.. autosummary::
+   :toctree: api
+
+   Cite.cite

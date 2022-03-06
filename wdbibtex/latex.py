@@ -735,6 +735,54 @@ class Cite:
                 '%s object given.' % type(d))
         self.__citation_labels = d
 
+    def cite(self, s):
+        r"""Do \cite command formatting.
+
+        Returns formated text from citation commands such as
+        \cite{key1} and \cite{key1,key2,key3}, etc.
+        By default, if there are three or more consecutive numbers,
+        they are compressed into a range using an en-dash.
+        Citation numbers are also sorted in the default condition.
+
+        Parameters
+        ----------
+        s : str
+            Raw string to be formatted.
+            For example, \cite{key1} or \\cite{key2,key3}.
+
+        Examples
+        --------
+        >>> c = wdbibtex.Cite()
+        >>> c.bibcite = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> c.cite('\cite{key1}')
+        '[1]'
+        >>> c.cite('\cite{key1,key2}')
+        '[1,2]'
+        >>> c.cite('\cite{key1,key2,key3}')
+        '[1-3]'
+        """
+        p = re.compile(r'\\+cite\{(.*)\}')
+        if p.match(s):
+            keys = p.match(s).group(1).split(',')
+            if len(keys) == 1:
+                key = keys[0]
+                return (
+                    self.__citeleft
+                    + str(self.__citation_labels[key])
+                    + self.__citeright
+                )
+            if len(keys) > 1:
+                nums = sorted([self.__citation_labels[key] for key in keys])
+                return (
+                    self.__citeleft
+                    + self.__compress(nums)
+                    + self.__citeright
+                )
+        else:
+            ValueError(
+                'no citation pattern matched.'
+            )
+
     def __compress(self, nums, sep=u'\u2013'):
         r"""Compress groups of three or more consecutive numbers into a range.
 
