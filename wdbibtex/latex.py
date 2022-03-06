@@ -458,6 +458,7 @@ class LaTeX:
         for line in self.__auxdata:
             self.__parse_line(line)
         self.__build_conversion_dict()
+        self.__cite.citation_labels = self.__bibcite
 
     def __parse_line(self, line):
         r"""Parse one line of .aux
@@ -673,6 +674,7 @@ class Cite:
     def __init__(self, citeleft='[', citeright=']'):
         """Costructor of Cite.
         """
+        self.__citation_labels = dict()
         self.__citeleft = citeleft
         self.__citeright = citeright
 
@@ -713,3 +715,22 @@ class Cite:
                 'expected string object but '
                 '%s object given.' % type(s))
         self.__citeright = s
+
+    @property
+    def citation_labels(self):
+        """Key to number map of citations.
+
+        Returns
+        -------
+        dict
+            Citation key to citation number map.
+        """
+        return self.__citation_labels
+
+    @citation_labels.setter
+    def citation_labels(self, d):
+        if not isinstance(d, str):
+            TypeError(
+                'expected dictionary object but '
+                '%s object given.' % type(d))
+        self.__citation_labels = d
