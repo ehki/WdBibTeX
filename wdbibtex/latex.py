@@ -54,6 +54,9 @@ class LaTeX:
             'Invalid dashstarts. Only integer 2 or 3 is allowed.'
         )
 
+        # Citation handler
+        self.__cite = Cite()
+
         self.__locale = self.__default_locale()
 
         # Set automatically selected values
@@ -655,3 +658,58 @@ class LaTeX:
             return 'ja'
         else:
             raise ValueError('Unhandled locale %s' % locale.getlocale())
+
+
+class Cite:
+    """Citation package emurating contents and commands.
+
+    Parameters
+    ----------
+    citeleft : str, default '['
+        Left delimiter of list.
+    citeright : str, default ']'
+        Right delimiter of list.
+    """
+    def __init__(self, citeleft='[', citeright=']'):
+        """Costructor of Cite.
+        """
+        self.__citeleft = citeleft
+        self.__citeright = citeright
+
+    @property
+    def citeleft(self):
+        """Left delimiter of list. Default '['.
+
+        Returns
+        -------
+        str
+            Left delimiter of list.
+        """
+        return self.__citeleft
+
+    @citeleft.setter
+    def citeleft(self, s):
+        if not isinstance(s, str):
+            TypeError(
+                'expected string object but '
+                '%s object given.' % type(s))
+        self.__citeleft = s
+
+    @property
+    def citeright(self):
+        """Right delimiter of list. Default ']'.
+
+        Returns
+        -------
+        str
+            Right delimiter of list.
+        """
+        return self.__citeright
+
+    @citeright.setter
+    def citeright(self, s):
+        if not isinstance(s, str):
+            TypeError(
+                'expected string object but '
+                '%s object given.' % type(s))
+        self.__citeright = s
