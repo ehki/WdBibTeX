@@ -734,3 +734,49 @@ class Cite:
                 'expected dictionary object but '
                 '%s object given.' % type(d))
         self.__citation_labels = d
+
+    def __compress(self, nums, sep=u'\u2013'):
+        r"""Compress groups of three or more consecutive numbers into a range.
+
+        Compress poor list of positive integers with three or more
+        consecutive numbers into a range using a separating character.
+        For example, a list ``[1,2,3,6]`` will be converted into ``[1-3,6]``.
+
+        Parameters
+        ----------
+        nums : list of positive integers
+            Multiple integers to convert dashed range string.
+            A list of single element integer is also allowd.
+        sep : str, default en-dash(U+2013)
+            A character inserted betwen start and end of range.
+        """
+        seq = []
+        final = []
+        last = 0
+
+        for index, val in enumerate(nums):
+
+            if last + 1 == val or index == 0:
+                seq.append(val)
+                last = val
+            else:
+                if len(seq) > 2:
+                    final.append(str(seq[0]) + sep + str(seq[len(seq)-1]))
+                elif len(seq) == 2:
+                    final.append(str(seq[0]) + ',' + str(seq[len(seq)-1]))
+                else:
+                    final.append(str(seq[0]))
+                    seq = []
+                    seq.append(val)
+                    last = val
+
+            if index == len(nums) - 1:
+                if len(seq) > 2:
+                    final.append(str(seq[0]) + sep + str(seq[len(seq)-1]))
+                elif len(seq) == 2:
+                    final.append(str(seq[0]) + ',' + str(seq[len(seq)-1]))
+                else:
+                    final.append(str(seq[0]))
+
+        final_str = ','.join(map(str, final))
+        return final_str
