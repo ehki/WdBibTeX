@@ -20,6 +20,7 @@ Attributes
    LaTeX.bibcite
    LaTeX.bibdata
    LaTeX.bibstyle
+   LaTeX.bibliographystyle
    LaTeX.citation
    LaTeX.cnd
    LaTeX.documentclass
@@ -35,5 +36,6 @@ Methods
    LaTeX.build
    LaTeX.read_aux
    LaTeX.read_bbl
+   LaTeX.set_bibliographystyle
    LaTeX.set_documentclass
    LaTeX.write

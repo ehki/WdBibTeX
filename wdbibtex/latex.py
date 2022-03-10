@@ -93,6 +93,7 @@ class LaTeX:
         self.__bibdata = None
         self.__bibcite = {}
         self.__conversion_dict = {}
+        self.__bibliographystyle = None
         self.__documentclass = None
 
         # Makedir working directory if not exist.
@@ -128,6 +129,25 @@ class LaTeX:
                 opts = '[%s]' % ','.join(options)
             self.__documentclass = \
                 '\\documentclass%s{%s}' % (opts, documentclass)
+
+    @property
+    def bibliographystyle(self):
+        """Bibliographystyle string."""
+        return self.__bibliographystyle
+
+    @bibliographystyle.setter
+    def bibliographystyle(self, bibliographystyle):
+        self.__bibliographystyle = bibliographystyle
+
+    def set_bibliographystyle(self, bst):
+        """Bibliographystyle setter.
+
+        Parameters
+        ----------
+        bst : str
+            Bibliography style
+        """
+        self.__bibliographystyle = '\\bibliographystyle{%s}' % bst
 
     def write(self, c, bib=None, bst=None):
         r"""Write .tex file.
