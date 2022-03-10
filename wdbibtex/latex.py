@@ -421,11 +421,20 @@ class LaTeX:
         A text to be used as LaTeX preamble. Note that not all latex-compatible
         preamble is used in WdBibTeX package. LaTeX class accepts None
         for preamble attribute. In this case, the following default preamble
-        text is used.
+        text is used according to system locale.
 
         .. code-block:: text
 
+            % WdBibTeX version 0.1
+            % English default preamble
             \documentclass[latex]{article}
+            \usepackage{cite}
+
+        .. code-block:: text
+
+            % WdBibTeX version 0.1
+            % Japanese default preamble
+            \documentclass[uplatex]{jsarticle}
             \usepackage{cite}
 
         Returns
@@ -439,10 +448,20 @@ class LaTeX:
     @preamble.setter
     def preamble(self, s):
         if s is None:
-            self.__preamble = (
-                '\\documentclass[latex]{article}\n'
-                '\\usepackage{cite}\n'
-            )
+            if self.__locale == 'en':
+                self.__preamble = (
+                    '% WdBibTeX version 0.1\n'
+                    '% English default preamble\n'
+                    '\\documentclass{article}\n'
+                    '\\usepackage{cite}\n'
+                )
+            elif self.__locale == 'ja':
+                self.__preamble = (
+                    '% WdBibTeX version 0.1\n'
+                    '% Japanese default preamble\n'
+                    '\\documentclass[uplatex]{jsarticle}\n'
+                    '\\usepackage{cite}\n'
+                )
         elif isinstance(s, str):
             self.__preamble = s
         else:

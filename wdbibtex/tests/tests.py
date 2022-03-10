@@ -33,7 +33,6 @@ class TestLaTeX(unittest.TestCase):
 
         # File check
         correct = [
-            '\\documentclass[latex]{article}\n',
             '\\usepackage{cite}\n',
             '\\bibliographystyle{ieeetr}\n',
             '\\begin{document}\n',
@@ -44,7 +43,7 @@ class TestLaTeX(unittest.TestCase):
         with open('.tmp/wdbib.tex', 'r') as f:
             contents = f.readlines()
 
-        for c1, c2 in itertools.zip_longest(correct, contents):
+        for c1, c2 in itertools.zip_longest(correct, contents[3:]):
             self.assertEqual(c1, c2)
 
         # Clear working directory
@@ -108,7 +107,6 @@ class TestLaTeX(unittest.TestCase):
 
         # File check
         correct = [
-            '\\documentclass[latex]{article}\n',
             '\\usepackage{cite}\n',
             '\\bibliographystyle{ieeetr}\n',
             '\\begin{document}\n',
@@ -119,7 +117,7 @@ class TestLaTeX(unittest.TestCase):
         with open('.tmp/wdbib.tex', 'r') as f:
             contents = f.readlines()
 
-        for c1, c2 in itertools.zip_longest(correct, contents):
+        for c1, c2 in itertools.zip_longest(correct, contents[3:]):
             self.assertEqual(c1, c2)
 
         # File check
@@ -194,7 +192,6 @@ class TestLaTeX(unittest.TestCase):
 
         # File check
         correct = [
-            '\\documentclass[latex]{article}\n',
             '\\usepackage{cite}\n',
             '\\bibliographystyle{ieeetr}\n',
             '\\begin{document}\n',
@@ -207,7 +204,7 @@ class TestLaTeX(unittest.TestCase):
         with open('.tmp/wdbib.tex', 'r') as f:
             contents = f.readlines()
 
-        for c1, c2 in itertools.zip_longest(correct, contents):
+        for c1, c2 in itertools.zip_longest(correct, contents[3:]):
             self.assertEqual(c1, c2)
 
         # File check
