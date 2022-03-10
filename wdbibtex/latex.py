@@ -93,8 +93,10 @@ class LaTeX:
         self.__bibdata = None
         self.__bibcite = {}
         self.__conversion_dict = {}
+        self.__package_list = []
         self.__bibliographystyle = None
         self.__documentclass = None
+        self.__packages = None
 
         # Makedir working directory if not exist.
         self.workdir.mkdir(exist_ok=True)
@@ -148,6 +150,48 @@ class LaTeX:
             Bibliography style
         """
         self.__bibliographystyle = '\\bibliographystyle{%s}' % bst
+
+    @property
+    def packages(self):
+        """Used LaTeX packages."""
+        return self.__packages
+
+    def __update_packages(self):
+        pkgs = []
+        for pkg, *opts in self.__package_list:
+            if bool(opts):
+                pkgs.append('\\usepackage[%s]{%s}' % (','.join(opts), pkg))
+            else:
+                pkgs.append('\\usepackage{%s}' % pkg)
+
+        self.__packages = '\n'.join(pkgs)
+
+    def add_package(self, package, *options):
+        """Add a package to the package list
+
+        Add a package to the package list of package_list.
+        The package can have option.
+        The package will used in the preamble attribute.
+
+        Parameters
+        ----------
+        package : str
+            Package name.
+        *options
+            Options of the package.
+        """
+
+        # Overwrite duplicated package
+        for i, (p, *o) in enumerate(self.__package_list):
+            if p == package:
+                self.__package_list.pop(i)
+                break
+        self.__package_list.append(
+            [package, *options]
+        )
+
+        # Update package string.
+        self.__update_packages()
 
     def write(self, c, bib=None, bst=None):
         r"""Write .tex file.
