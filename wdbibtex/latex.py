@@ -93,9 +93,41 @@ class LaTeX:
         self.__bibdata = None
         self.__bibcite = {}
         self.__conversion_dict = {}
+        self.__documentclass = None
 
         # Makedir working directory if not exist.
         self.workdir.mkdir(exist_ok=True)
+
+    @property
+    def documentclass(self):
+        """LaTeX documentclass string."""
+        return self.__documentclass
+
+    @documentclass.setter
+    def documentclass(self, documentclass):
+        if not documentclass.startswith('\\'):
+            raise ValueError(
+                'Invalid documentclass.'
+            )
+        self.__documentclass = documentclass
+
+    def set_documentclass(self, documentclass, *options):
+        """Documentclass setter.
+
+        Parameters
+        ----------
+        documentclass
+            Documentclass
+        *options
+            Documentclass options.
+        """
+        if documentclass.startswith('\\'):
+            self.__documentclass = documentclass
+        else:
+            if bool(options):
+                opts = '[%s]' % ','.join(options)
+            self.__documentclass = \
+                '\\documentclass%s{%s}' % (opts, documentclass)
 
     def write(self, c, bib=None, bst=None):
         r"""Write .tex file.

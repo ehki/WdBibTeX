@@ -22,6 +22,7 @@ Attributes
    LaTeX.bibstyle
    LaTeX.citation
    LaTeX.cnd
+   LaTeX.documentclass
    LaTeX.locale
    LaTeX.preamble
    LaTeX.tbt
@@ -34,4 +35,5 @@ Methods
    LaTeX.build
    LaTeX.read_aux
    LaTeX.read_bbl
+   LaTeX.set_documentclass
    LaTeX.write
