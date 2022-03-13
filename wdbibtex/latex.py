@@ -670,13 +670,17 @@ class Cite:
         Left delimiter of list.
     citeright : str, default ']'
         Right delimiter of list.
+    use_cite_package : bool, default False
+        If False, emulate LaTeX's use_cite_package citation handling.
+        If True, emulate cite package's behavior.
     """
-    def __init__(self, citeleft='[', citeright=']'):
+    def __init__(self, citeleft='[', citeright=']', use_cite_package=False):
         """Costructor of Cite.
         """
         self.__citation_labels = dict()
         self.__citeleft = citeleft
         self.__citeright = citeright
+        self.use_cite_package = use_cite_package
 
     @property
     def citeleft(self):
@@ -735,6 +739,32 @@ class Cite:
                 '%s object given.' % type(d))
         self.__citation_labels = d
 
+    @property
+    def use_cite_package(self):
+        """If Cite class emulate cite package's behavior.
+
+        Returns
+        -------
+        bool
+            If True, emulate cite package's behavior.
+            If False, emulrate LaTeX's original citation mechanism.
+
+        Raises
+        ------
+        TypeError
+            If non-bool value is given to setter.
+        """
+        return self.__use_cite_package
+
+    @use_cite_package.setter
+    def use_cite_package(self, b):
+        if isinstance(b, bool):
+            self.__use_cite_package = b
+        else:
+            raise TypeError(
+                'use_cite_package attribute must be bool.'
+            )
+
     def cite(self, s):
         r"""Do \cite command formatting.
 
@@ -752,7 +782,7 @@ class Cite:
 
         Examples
         --------
-        >>> c = wdbibtex.Cite()
+        >>> c = wdbibtex.Cite(use_cite_package=True)
         >>> c.bibcite = {'key1': 1, 'key2': 2, 'key3': 3}
         >>> c.cite('\cite{key1}')
         '[1]'
