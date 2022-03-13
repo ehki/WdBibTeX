@@ -84,7 +84,6 @@ class LaTeX:
         self.__texopts = texopts
         self.__bibtexcmd = bibtexcmd
         self.__bibtexopts = bibtexopts
-        self.__preamble_given_as_str = False
         self.__packages = None
         self.__bibliographystyle = None
         self.__documentclass = None
@@ -564,8 +563,7 @@ class LaTeX:
                 self.set_documentclass('jsarticle', 'uplatex')
                 self.add_package('cite')
         elif isinstance(s, str):
-            self.__preamble = s
-            self.__preamble_given_as_str = True
+            self.__parse_preamble(s)
         else:
             raise ValueError(
                 'Invalid preamble. '
@@ -573,8 +571,6 @@ class LaTeX:
             )
 
     def __update_preamble(self):
-        if self.__preamble_given_as_str:
-            return None
 
         contents = [
             self.documentclass,
@@ -584,6 +580,38 @@ class LaTeX:
         self.__preamble = '\n'.join(
             [c for c in contents if c is not None]
         )
+
+    def __parse_preamble(self, preamble):
+        detect_documentclass = False
+        for ln in preamble.split('\n'):
+            if ln.startswith('%') and not detect_documentclass:
+                pass
+
+            elif re.match(r'.*documentclass.*', ln):
+                detect_documentclass = True
+                m = re.match(r'.*documentclass(\[(.*)\])*\{(.*)\}', ln)
+                if m.group(1) is not None:
+                    documentclass_opt = m.group(2).replace(' ', '').split(',')
+                documentclsass = m.group(3)
+
+                self.set_documentclass(documentclsass, *documentclass_opt)
+
+            elif re.match(r'.*usepackage.*', ln):
+                m = re.match(r'.*usepackage(\[(.*)\])*\{(.*)\}', ln)
+                if m.group(1) is not None:
+                    package = m.group(2).replace(' ', '').split(',')
+                package = m.group(3)
+
+                self.add_package(package, *package)
+
+            elif re.match(r'.*bibliographystyle.*', ln):
+                m = re.match(r'.*bibliographystyle\{(.*)\}', ln)
+                bibliographystyle = m.group(1)
+
+                self.set_bibliographystyle(bibliographystyle)
+
+            else:
+                pass
 
     def __make_thebibliography_text(self):
         """Generate thebibliography plain text to incert word file.
