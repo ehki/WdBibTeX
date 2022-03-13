@@ -84,6 +84,11 @@ class LaTeX:
         self.__texopts = texopts
         self.__bibtexcmd = bibtexcmd
         self.__bibtexopts = bibtexopts
+        self.__preamble_given_as_str = False
+        self.__packages = None
+        self.__bibliographystyle = None
+        self.__documentclass = None
+        self.__package_list = []
         self.preamble = preamble
         self.__dashstarts = dashstarts
         self.__thebibtext = None
@@ -93,10 +98,6 @@ class LaTeX:
         self.__bibdata = None
         self.__bibcite = {}
         self.__conversion_dict = {}
-        self.__package_list = []
-        self.__bibliographystyle = None
-        self.__documentclass = None
-        self.__packages = None
 
         # Makedir working directory if not exist.
         self.workdir.mkdir(exist_ok=True)
@@ -113,6 +114,9 @@ class LaTeX:
                 'Invalid documentclass.'
             )
         self.__documentclass = documentclass
+
+        # Update preamble
+        self.__update_preamble()
 
     def set_documentclass(self, documentclass, *options):
         """Documentclass setter.
@@ -132,6 +136,9 @@ class LaTeX:
             self.__documentclass = \
                 '\\documentclass%s{%s}' % (opts, documentclass)
 
+        # Update preamble
+        self.__update_preamble()
+
     @property
     def bibliographystyle(self):
         """Bibliographystyle string."""
@@ -150,6 +157,9 @@ class LaTeX:
             Bibliography style
         """
         self.__bibliographystyle = '\\bibliographystyle{%s}' % bst
+
+        # Update preamble
+        self.__update_preamble()
 
     @property
     def packages(self):
@@ -192,6 +202,9 @@ class LaTeX:
 
         # Update package string.
         self.__update_packages()
+
+        # Update preamble
+        self.__update_preamble()
 
     def write(self, c, bib=None, bst=None):
         r"""Write .tex file.
@@ -545,26 +558,32 @@ class LaTeX:
     def preamble(self, s):
         if s is None:
             if self.__locale == 'en':
-                self.__preamble = (
-                    '% WdBibTeX version 0.1\n'
-                    '% English default preamble\n'
-                    '\\documentclass{article}\n'
-                    '\\usepackage{cite}\n'
-                )
+                self.set_documentclass('article')
+                self.add_package('cite')
             elif self.__locale == 'ja':
-                self.__preamble = (
-                    '% WdBibTeX version 0.1\n'
-                    '% Japanese default preamble\n'
-                    '\\documentclass[uplatex]{jsarticle}\n'
-                    '\\usepackage{cite}\n'
-                )
+                self.set_documentclass('jsarticle', 'uplatex')
+                self.add_package('cite')
         elif isinstance(s, str):
             self.__preamble = s
+            self.__preamble_given_as_str = True
         else:
             raise ValueError(
                 'Invalid preamble. '
                 'Only None or str is allowed.'
             )
+
+    def __update_preamble(self):
+        if self.__preamble_given_as_str:
+            return None
+
+        contents = [
+            self.documentclass,
+            self.packages,
+            self.bibliographystyle,
+        ]
+        self.__preamble = '\n'.join(
+            [c for c in contents if c is not None]
+        )
 
     def __make_thebibliography_text(self):
         """Generate thebibliography plain text to incert word file.
