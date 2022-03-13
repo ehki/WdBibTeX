@@ -20,10 +20,6 @@ class LaTeX:
     bibtexopts : str or None, default None
         BibTeX command options.
         If None, automatically selected according to system locale.
-    dashstarts : int, default 3
-        Only 2 or 3,
-        If dashstarts is 2, '1 and 2' turns 1-2.
-        If dashstarts is 3, '1 and 2' turns 1,2.
     preamble : str or None, default None
         Preamble of .tex file.
         If None, automatically selected.
@@ -42,17 +38,12 @@ class LaTeX:
             self,
             bibtexcmd=None,
             bibtexopts=None,
-            dashstarts=3,
             preamble=None,
             targetbasename='wdbib',
             texcmd=None,
             texopts=None,
             workdir='.tmp',
     ):
-        # Argument check
-        assert dashstarts in (2, 3), (
-            'Invalid dashstarts. Only integer 2 or 3 is allowed.'
-        )
 
         # Citation handler
         self.__cite = Cite()
@@ -92,7 +83,6 @@ class LaTeX:
         self.__documentclass = None
         self.__package_list = []
         self.preamble = preamble
-        self.__dashstarts = dashstarts
         self.__thebibtext = None
         self.__replacer = None
         self.__citation = []
