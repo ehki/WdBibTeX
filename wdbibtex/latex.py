@@ -530,20 +530,17 @@ class LaTeX:
         preamble is used in WdBibTeX package. LaTeX class accepts None
         for preamble attribute. In this case, the following default preamble
         text is used according to system locale.
+        Note BST is replaced a bibliography style file placed in the project directory.
 
         .. code-block:: text
 
-            % WdBibTeX version 0.1
-            % English default preamble
             \documentclass[latex]{article}
-            \usepackage{cite}
+            \bibliographystyle{BST}
 
         .. code-block:: text
 
-            % WdBibTeX version 0.1
-            % Japanese default preamble
             \documentclass[uplatex]{jsarticle}
-            \usepackage{cite}
+            \bibliographystyle{BST}
 
         Returns
         -------
@@ -558,10 +555,8 @@ class LaTeX:
         if s is None:
             if self.__locale == 'en':
                 self.set_documentclass('article')
-                self.add_package('cite')
             elif self.__locale == 'ja':
                 self.set_documentclass('jsarticle', 'uplatex')
-                self.add_package('cite')
         elif isinstance(s, str):
             self.__parse_preamble(s)
         else:
