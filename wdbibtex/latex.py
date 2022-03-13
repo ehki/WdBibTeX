@@ -228,6 +228,10 @@ class LaTeX:
             [package, *options]
         )
 
+        for p in self.__package_list:
+            if p[0] == 'cite':
+                self.__cite.use_cite_package = True
+
         # Update package string.
         self.__update_packages()
 
