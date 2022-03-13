@@ -84,6 +84,10 @@ class LaTeX:
         self.__texopts = texopts
         self.__bibtexcmd = bibtexcmd
         self.__bibtexopts = bibtexopts
+        self.__packages = None
+        self.__bibliographystyle = None
+        self.__documentclass = None
+        self.__package_list = []
         self.preamble = preamble
         self.__dashstarts = dashstarts
         self.__thebibtext = None
@@ -96,6 +100,110 @@ class LaTeX:
 
         # Makedir working directory if not exist.
         self.workdir.mkdir(exist_ok=True)
+
+    @property
+    def documentclass(self):
+        """LaTeX documentclass string."""
+        return self.__documentclass
+
+    @documentclass.setter
+    def documentclass(self, documentclass):
+        if not documentclass.startswith('\\'):
+            raise ValueError(
+                'Invalid documentclass.'
+            )
+        self.__documentclass = documentclass
+
+        # Update preamble
+        self.__update_preamble()
+
+    def set_documentclass(self, documentclass, *options):
+        """Documentclass setter.
+
+        Parameters
+        ----------
+        documentclass
+            Documentclass
+        *options
+            Documentclass options.
+        """
+        if documentclass.startswith('\\'):
+            self.__documentclass = documentclass
+        else:
+            if bool(options):
+                opts = '[%s]' % ','.join(options)
+            self.__documentclass = \
+                '\\documentclass%s{%s}' % (opts, documentclass)
+
+        # Update preamble
+        self.__update_preamble()
+
+    @property
+    def bibliographystyle(self):
+        """Bibliographystyle string."""
+        return self.__bibliographystyle
+
+    @bibliographystyle.setter
+    def bibliographystyle(self, bibliographystyle):
+        self.__bibliographystyle = bibliographystyle
+
+    def set_bibliographystyle(self, bst):
+        """Bibliographystyle setter.
+
+        Parameters
+        ----------
+        bst : str
+            Bibliography style
+        """
+        self.__bibliographystyle = '\\bibliographystyle{%s}' % bst
+
+        # Update preamble
+        self.__update_preamble()
+
+    @property
+    def packages(self):
+        """Used LaTeX packages."""
+        return self.__packages
+
+    def __update_packages(self):
+        pkgs = []
+        for pkg, *opts in self.__package_list:
+            if bool(opts):
+                pkgs.append('\\usepackage[%s]{%s}' % (','.join(opts), pkg))
+            else:
+                pkgs.append('\\usepackage{%s}' % pkg)
+
+        self.__packages = '\n'.join(pkgs)
+
+    def add_package(self, package, *options):
+        """Add a package to the package list
+
+        Add a package to the package list of package_list.
+        The package can have option.
+        The package will used in the preamble attribute.
+
+        Parameters
+        ----------
+        package : str
+            Package name.
+        *options
+            Options of the package.
+        """
+
+        # Overwrite duplicated package
+        for i, (p, *o) in enumerate(self.__package_list):
+            if p == package:
+                self.__package_list.pop(i)
+                break
+        self.__package_list.append(
+            [package, *options]
+        )
+
+        # Update package string.
+        self.__update_packages()
+
+        # Update preamble
+        self.__update_preamble()
 
     def write(self, c, bib=None, bst=None):
         r"""Write .tex file.
@@ -449,26 +557,61 @@ class LaTeX:
     def preamble(self, s):
         if s is None:
             if self.__locale == 'en':
-                self.__preamble = (
-                    '% WdBibTeX version 0.1\n'
-                    '% English default preamble\n'
-                    '\\documentclass{article}\n'
-                    '\\usepackage{cite}\n'
-                )
+                self.set_documentclass('article')
+                self.add_package('cite')
             elif self.__locale == 'ja':
-                self.__preamble = (
-                    '% WdBibTeX version 0.1\n'
-                    '% Japanese default preamble\n'
-                    '\\documentclass[uplatex]{jsarticle}\n'
-                    '\\usepackage{cite}\n'
-                )
+                self.set_documentclass('jsarticle', 'uplatex')
+                self.add_package('cite')
         elif isinstance(s, str):
-            self.__preamble = s
+            self.__parse_preamble(s)
         else:
             raise ValueError(
                 'Invalid preamble. '
                 'Only None or str is allowed.'
             )
+
+    def __update_preamble(self):
+
+        contents = [
+            self.documentclass,
+            self.packages,
+            self.bibliographystyle,
+        ]
+        self.__preamble = '\n'.join(
+            [c for c in contents if c is not None]
+        )
+
+    def __parse_preamble(self, preamble):
+        detect_documentclass = False
+        for ln in preamble.split('\n'):
+            if ln.startswith('%') and not detect_documentclass:
+                pass
+
+            elif re.match(r'.*documentclass.*', ln):
+                detect_documentclass = True
+                m = re.match(r'.*documentclass(\[(.*)\])*\{(.*)\}', ln)
+                if m.group(1) is not None:
+                    documentclass_opt = m.group(2).replace(' ', '').split(',')
+                documentclsass = m.group(3)
+
+                self.set_documentclass(documentclsass, *documentclass_opt)
+
+            elif re.match(r'.*usepackage.*', ln):
+                m = re.match(r'.*usepackage(\[(.*)\])*\{(.*)\}', ln)
+                if m.group(1) is not None:
+                    package = m.group(2).replace(' ', '').split(',')
+                package = m.group(3)
+
+                self.add_package(package, *package)
+
+            elif re.match(r'.*bibliographystyle.*', ln):
+                m = re.match(r'.*bibliographystyle\{(.*)\}', ln)
+                bibliographystyle = m.group(1)
+
+                self.set_bibliographystyle(bibliographystyle)
+
+            else:
+                pass
 
     def __make_thebibliography_text(self):
         """Generate thebibliography plain text to incert word file.
