@@ -29,11 +29,12 @@ class TestLaTeX(unittest.TestCase):
             shutil.copy(b, '.tmp')
 
         ltx = wdbibtex.LaTeX()
-        ltx.write('Test contents\n', bst='ieeetr')
+        ltx.set_bibliographystyle('ieeetr')
+
+        ltx.write('Test contents')
 
         # File check
         correct = [
-            '\\usepackage{cite}\n',
             '\\bibliographystyle{ieeetr}\n',
             '\\begin{document}\n',
             'Test contents\n',
@@ -43,7 +44,7 @@ class TestLaTeX(unittest.TestCase):
         with open('.tmp/wdbib.tex', 'r') as f:
             contents = f.readlines()
 
-        for c1, c2 in itertools.zip_longest(correct, contents[3:]):
+        for c1, c2 in itertools.zip_longest(correct, contents[1:]):
             self.assertEqual(c1, c2)
 
         # Clear working directory
@@ -65,7 +66,9 @@ class TestLaTeX(unittest.TestCase):
             shutil.copy(b, '.tmp/')
 
         ltx = wdbibtex.LaTeX()
-        ltx.write('Test contents\n', bst='ieeetr')
+        ltx.set_bibliographystyle('ieeetr')
+
+        ltx.write('Test contents')
         ltx.build()
 
         # File check
@@ -100,14 +103,15 @@ class TestLaTeX(unittest.TestCase):
             shutil.copy(b, '.tmp/')
 
         ltx = wdbibtex.LaTeX()
+        ltx.set_bibliographystyle('ieeetr')
+
         ltx.write(
-            'Test contents with one citation \\cite{enArticle1}.\n',
-            bst='ieeetr')
+            'Test contents with one citation \\cite{enArticle1}.'
+        )
         ltx.build()
 
         # File check
         correct = [
-            '\\usepackage{cite}\n',
             '\\bibliographystyle{ieeetr}\n',
             '\\begin{document}\n',
             'Test contents with one citation \\cite{enArticle1}.\n',
@@ -117,7 +121,7 @@ class TestLaTeX(unittest.TestCase):
         with open('.tmp/wdbib.tex', 'r') as f:
             contents = f.readlines()
 
-        for c1, c2 in itertools.zip_longest(correct, contents[3:]):
+        for c1, c2 in itertools.zip_longest(correct, contents[1:]):
             self.assertEqual(c1, c2)
 
         # File check
@@ -182,12 +186,15 @@ class TestLaTeX(unittest.TestCase):
             shutil.copy(b, '.tmp/')
 
         ltx = wdbibtex.LaTeX()
+        ltx.set_bibliographystyle('ieeetr')
+        ltx.add_package('cite')
+
         ltx.write(
-            ('Test contents with one citation \\cite{enArticle1}.\n'
-             'Another citation \\cite{enArticle2}.\n'
-             'Multiple citations in one citecommand '
-             '\\cite{enArticle1,enArticle3}\n'),
-            bst='ieeetr')
+            'Test contents with one citation \\cite{enArticle1}.\n'
+            'Another citation \\cite{enArticle2}.\n'
+            'Multiple citations in one citecommand '
+            '\\cite{enArticle1,enArticle3}'
+        )
         ltx.build()
 
         # File check
@@ -204,7 +211,7 @@ class TestLaTeX(unittest.TestCase):
         with open('.tmp/wdbib.tex', 'r') as f:
             contents = f.readlines()
 
-        for c1, c2 in itertools.zip_longest(correct, contents[3:]):
+        for c1, c2 in itertools.zip_longest(correct, contents[1:]):
             self.assertEqual(c1, c2)
 
         # File check

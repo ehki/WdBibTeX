@@ -140,12 +140,34 @@ class LaTeX:
 
     @property
     def bibliographystyle(self):
-        """Bibliographystyle string."""
+        """Bibliographystyle string.
+
+        Raises
+        ------
+        ValueError
+            If bst is None and there is no or multiple .bst files in cwd.
+        """
         return self.__bibliographystyle
 
     @bibliographystyle.setter
     def bibliographystyle(self, bibliographystyle):
-        self.__bibliographystyle = bibliographystyle
+        import glob
+        if bibliographystyle:
+            self.__bibliographystyle = bibliographystyle
+
+        else:
+            bibliographystile = glob.glob('*.bst')
+            if len(bibliographystile) > 1:
+                raise ValueError(
+                    'More than two .bst files found in working directory.'
+                )
+            elif len(bibliographystile) == 0:
+                raise ValueError(
+                    'No .bst files found in working directory.'
+                )
+            else:
+                bibliographystile = bibliographystile[0]
+                self.set_bibliographystyle(bibliographystile)
 
     def set_bibliographystyle(self, bst):
         """Bibliographystyle setter.
@@ -205,7 +227,7 @@ class LaTeX:
         # Update preamble
         self.__update_preamble()
 
-    def write(self, c, bib=None, bst=None):
+    def write(self, c, bib=None):
         r"""Write .tex file.
 
         Write minimal .tex file into workdir.
@@ -219,13 +241,6 @@ class LaTeX:
             String data to be written in .tex file.
         bib : str or None, default None
             Bibliography library file(s). If None, use all .bib files in cwd.
-        bst : str or None, default None
-            Bibliography style. If None, use .bst file in cwd.
-
-        Raises
-        ------
-        ValueError
-            If bst is None and there is no or multiple .bst files in cwd.
         """
         import glob
 
@@ -235,28 +250,17 @@ class LaTeX:
                 [os.path.splitext(b)[0] for b in glob.glob('*.bib')]
             )
 
-        if bst is None:
-            bst = glob.glob('*.bst')
-            if len(bst) > 1:
-                raise ValueError(
-                    'More than two .bst files found in working directory.'
-                )
-            elif len(bst) == 0:
-                raise ValueError(
-                    'No .bst files found in working directory.'
-                )
-            else:
-                bst = bst[0]
-
         fn = self.workdir / (self.__targetbasename + '.tex')
         with codecs.open(fn, 'w', 'utf-8') as f:
             f.writelines(
-                self.preamble
-                + '\\bibliographystyle{%s}\n' % bst
-                + '\\begin{document}\n'
-                + c
-                + '\\bibliography{%s}\n' % bib
-                + '\\end{document}\n'
+                '\n'.join([
+                    self.preamble,
+                    '\\begin{document}',
+                    c,
+                    '\\bibliography{%s}' % bib,
+                    '\\end{document}',
+                    '',
+                ])
             )
 
     def build(self):
@@ -530,20 +534,18 @@ class LaTeX:
         preamble is used in WdBibTeX package. LaTeX class accepts None
         for preamble attribute. In this case, the following default preamble
         text is used according to system locale.
+        Note BST is replaced a bibliography style file
+        placed in the project directory.
 
         .. code-block:: text
 
-            % WdBibTeX version 0.1
-            % English default preamble
             \documentclass[latex]{article}
-            \usepackage{cite}
+            \bibliographystyle{BST}
 
         .. code-block:: text
 
-            % WdBibTeX version 0.1
-            % Japanese default preamble
             \documentclass[uplatex]{jsarticle}
-            \usepackage{cite}
+            \bibliographystyle{BST}
 
         Returns
         -------
@@ -558,10 +560,8 @@ class LaTeX:
         if s is None:
             if self.__locale == 'en':
                 self.set_documentclass('article')
-                self.add_package('cite')
             elif self.__locale == 'ja':
                 self.set_documentclass('jsarticle', 'uplatex')
-                self.add_package('cite')
         elif isinstance(s, str):
             self.__parse_preamble(s)
         else:

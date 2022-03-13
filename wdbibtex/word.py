@@ -137,12 +137,17 @@ class WdBibTeX:
         for b in glob.glob(os.path.join(self.__docxdir, '*.bib')):
             shutil.copy(b, self.__workdir)
         self.__ltx.preamble = self.read_preamble()
+
+        if bst:
+            # Overwrite preamble in docx with given command line artument.
+            self.__ltx.bibliographystyle = bst
+
         self.__cites = self.find_all('\\\\cite\\{*\\}')
         self.__thebibliographies = self.find_all('\\\\thebibliography')
 
         # Build latex document
         context = '\n'.join([cite for cite, _, _ in self.__cites])
-        self.__ltx.write(context, bib=bib, bst=bst)
+        self.__ltx.write(context, bib=bib)
         self.__ltx.build()
 
         # Replace \thebibliography
