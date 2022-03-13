@@ -290,7 +290,7 @@ class WdBibTeX:
             Start=bgn_pa[0][2],
             End=end_pa[0][1]
         )
-        return str(pa)
+        return str(pa).replace('\r', '\n')
 
     def replace_all(self, key, val):
         """Replace all keys in document with value.
