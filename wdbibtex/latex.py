@@ -269,6 +269,7 @@ class LaTeX:
                     '',
                 ])
             )
+        self.__cite.parse_context(c)
 
     def build(self):
         """Build LaTeX related files.
@@ -386,6 +387,11 @@ class LaTeX:
             cite_nums = [self.__bibcite[c] for c in cite.split(',')]
             self.__conversion_dict.update(
                 {cite: self.__compress(cite_nums)}
+                )
+        for cite in self.__cite.citation_keys_in_context:
+            cite_nums = [str(self.__bibcite[c]) for c in cite.split(',')]
+            self.__conversion_dict.update(
+                {cite: ','.join(cite_nums)}
                 )
 
     def __compress(self, nums, sep=u'\u2014'):
@@ -685,6 +691,7 @@ class Cite:
         self.__citeleft = citeleft
         self.__citeright = citeright
         self.use_cite_package = use_cite_package
+        self.citation_keys_in_context = []
 
     @property
     def citeleft(self):
@@ -767,6 +774,34 @@ class Cite:
         else:
             raise TypeError(
                 'use_cite_package attribute must be bool.'
+            )
+
+    def parse_context(self, c):
+        r"""Find all citation keys from context written to .tex file.
+
+        Find all citation keys from context written to .tex file.
+        Found keys are stores to citation_keys_in_context attribute.
+
+        Parameters
+        ----------
+        c : str
+            Parsed texts.
+        """
+        found_keys = re.findall(r'\\+cite\{(.*?)\}', c)
+        for k in found_keys:
+            self.citation_keys_in_context.append(k)
+
+    @property
+    def citation_keys_in_context(self):
+        return self.__citation_keys_in_context
+
+    @citation_keys_in_context.setter
+    def citation_keys_in_context(self, lis):
+        if isinstance(lis, list):
+            self.__citation_keys_in_context == lis
+        else:
+            raise TypeError(
+                'citation_keys_in_context must be a list.'
             )
 
     def cite(self, s):
