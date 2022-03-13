@@ -228,6 +228,10 @@ class LaTeX:
             [package, *options]
         )
 
+        for p in self.__package_list:
+            if p[0] == 'cite':
+                self.__cite.use_cite_package = True
+
         # Update package string.
         self.__update_packages()
 
@@ -389,10 +393,15 @@ class LaTeX:
                 {cite: self.__compress(cite_nums)}
                 )
         for cite in self.__cite.citation_keys_in_context:
-            cite_nums = [str(self.__bibcite[c]) for c in cite.split(',')]
-            self.__conversion_dict.update(
-                {cite: ','.join(cite_nums)}
+            cite_nums = [self.__bibcite[c] for c in cite.split(',')]
+            if self.__cite.use_cite_package:
+                self.__conversion_dict.update(
+                    {cite: self.__compress(sorted(cite_nums))}
                 )
+            else:
+                self.__conversion_dict.update(
+                    {cite: ','.join(str(c) for c in cite_nums)}
+                    )
 
     def __compress(self, nums, sep=u'\u2014'):
         r"""Compress groups of three or more consecutive numbers into a range.
@@ -798,7 +807,7 @@ class Cite:
     @citation_keys_in_context.setter
     def citation_keys_in_context(self, lis):
         if isinstance(lis, list):
-            self.__citation_keys_in_context == lis
+            self.__citation_keys_in_context = lis
         else:
             raise TypeError(
                 'citation_keys_in_context must be a list.'
