@@ -101,6 +101,10 @@ class LaTeX:
         self.__bibcite = {}
         self.__conversion_dict = {}
 
+        for p in self.__package_list:
+            if p[0] == 'cite':
+                self.__cite.use_cite_package = True
+
         # Makedir working directory if not exist.
         self.workdir.mkdir(exist_ok=True)
 
@@ -802,12 +806,22 @@ class Cite:
                     + self.__citeright
                 )
             if len(keys) > 1:
-                nums = sorted([self.__citation_labels[key] for key in keys])
-                return (
-                    self.__citeleft
-                    + self.__compress(nums)
-                    + self.__citeright
-                )
+                if self.use_cite_package:
+                    nums = sorted(
+                        [self.__citation_labels[key] for key in keys]
+                    )
+                    return (
+                        self.__citeleft
+                        + self.__compress(nums)
+                        + self.__citeright
+                    )
+                else:
+                    nums = [str(self.__citation_labels[key]) for key in keys]
+                    return (
+                        self.__citeleft
+                        + ','.join(nums)
+                        + self.__citeright
+                    )
         else:
             ValueError(
                 'no citation pattern matched.'
