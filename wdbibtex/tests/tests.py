@@ -187,7 +187,7 @@ class TestLaTeX(unittest.TestCase):
 
         ltx = wdbibtex.LaTeX()
         ltx.set_bibliographystyle('ieeetr')
-        ltx.add_package('cite')
+        # ltx.add_package('cite')
 
         ltx.write(
             'Test contents with one citation \\cite{enArticle1}.\n'
@@ -199,7 +199,7 @@ class TestLaTeX(unittest.TestCase):
 
         # File check
         correct = [
-            '\\usepackage{cite}\n',
+            # '\\usepackage{cite}\n',
             '\\bibliographystyle{ieeetr}\n',
             '\\begin{document}\n',
             'Test contents with one citation \\cite{enArticle1}.\n',
@@ -220,7 +220,8 @@ class TestLaTeX(unittest.TestCase):
             '\\bibstyle{ieeetr}\n',
             '\\citation{enArticle1}\n',
             '\\citation{enArticle2}\n',
-            '\\citation{enArticle1,enArticle3}\n',
+            '\\citation{enArticle1}\n',
+            '\\citation{enArticle3}\n',
             '\\bibdata{library}\n',
             '\\bibcite{enArticle1}{1}\n',
             '\\bibcite{enArticle2}{2}\n',

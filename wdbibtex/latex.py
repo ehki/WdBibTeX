@@ -54,6 +54,9 @@ class LaTeX:
             'Invalid dashstarts. Only integer 2 or 3 is allowed.'
         )
 
+        # Citation handler
+        self.__cite = Cite()
+
         self.__locale = self.__default_locale()
 
         # Set automatically selected values
@@ -97,6 +100,10 @@ class LaTeX:
         self.__bibdata = None
         self.__bibcite = {}
         self.__conversion_dict = {}
+
+        for p in self.__package_list:
+            if p[0] == 'cite':
+                self.__cite.use_cite_package = True
 
         # Makedir working directory if not exist.
         self.workdir.mkdir(exist_ok=True)
@@ -262,6 +269,7 @@ class LaTeX:
                     '',
                 ])
             )
+        self.__cite.parse_context(c)
 
     def build(self):
         """Build LaTeX related files.
@@ -380,6 +388,11 @@ class LaTeX:
             self.__conversion_dict.update(
                 {cite: self.__compress(cite_nums)}
                 )
+        for cite in self.__cite.citation_keys_in_context:
+            cite_nums = [str(self.__bibcite[c]) for c in cite.split(',')]
+            self.__conversion_dict.update(
+                {cite: ','.join(cite_nums)}
+                )
 
     def __compress(self, nums, sep=u'\u2014'):
         r"""Compress groups of three or more consecutive numbers into a range.
@@ -455,6 +468,7 @@ class LaTeX:
         for line in self.__auxdata:
             self.__parse_line(line)
         self.__build_conversion_dict()
+        self.__cite.citation_labels = self.__bibcite
 
     def __parse_line(self, line):
         r"""Parse one line of .aux
@@ -655,3 +669,241 @@ class LaTeX:
             return 'ja'
         else:
             raise ValueError('Unhandled locale %s' % locale.getlocale())
+
+
+class Cite:
+    """Citation package emurating contents and commands.
+
+    Parameters
+    ----------
+    citeleft : str, default '['
+        Left delimiter of list.
+    citeright : str, default ']'
+        Right delimiter of list.
+    use_cite_package : bool, default False
+        If False, emulate LaTeX's use_cite_package citation handling.
+        If True, emulate cite package's behavior.
+    """
+    def __init__(self, citeleft='[', citeright=']', use_cite_package=False):
+        """Costructor of Cite.
+        """
+        self.__citation_labels = dict()
+        self.__citeleft = citeleft
+        self.__citeright = citeright
+        self.use_cite_package = use_cite_package
+        self.citation_keys_in_context = []
+
+    @property
+    def citeleft(self):
+        """Left delimiter of list. Default '['.
+
+        Returns
+        -------
+        str
+            Left delimiter of list.
+        """
+        return self.__citeleft
+
+    @citeleft.setter
+    def citeleft(self, s):
+        if not isinstance(s, str):
+            TypeError(
+                'expected string object but '
+                '%s object given.' % type(s))
+        self.__citeleft = s
+
+    @property
+    def citeright(self):
+        """Right delimiter of list. Default ']'.
+
+        Returns
+        -------
+        str
+            Right delimiter of list.
+        """
+        return self.__citeright
+
+    @citeright.setter
+    def citeright(self, s):
+        if not isinstance(s, str):
+            TypeError(
+                'expected string object but '
+                '%s object given.' % type(s))
+        self.__citeright = s
+
+    @property
+    def citation_labels(self):
+        """Key to number map of citations.
+
+        Returns
+        -------
+        dict
+            Citation key to citation number map.
+        """
+        return self.__citation_labels
+
+    @citation_labels.setter
+    def citation_labels(self, d):
+        if not isinstance(d, str):
+            TypeError(
+                'expected dictionary object but '
+                '%s object given.' % type(d))
+        self.__citation_labels = d
+
+    @property
+    def use_cite_package(self):
+        """If Cite class emulate cite package's behavior.
+
+        Returns
+        -------
+        bool
+            If True, emulate cite package's behavior.
+            If False, emulrate LaTeX's original citation mechanism.
+
+        Raises
+        ------
+        TypeError
+            If non-bool value is given to setter.
+        """
+        return self.__use_cite_package
+
+    @use_cite_package.setter
+    def use_cite_package(self, b):
+        if isinstance(b, bool):
+            self.__use_cite_package = b
+        else:
+            raise TypeError(
+                'use_cite_package attribute must be bool.'
+            )
+
+    def parse_context(self, c):
+        r"""Find all citation keys from context written to .tex file.
+
+        Find all citation keys from context written to .tex file.
+        Found keys are stores to citation_keys_in_context attribute.
+
+        Parameters
+        ----------
+        c : str
+            Parsed texts.
+        """
+        found_keys = re.findall(r'\\+cite\{(.*?)\}', c)
+        for k in found_keys:
+            self.citation_keys_in_context.append(k)
+
+    @property
+    def citation_keys_in_context(self):
+        return self.__citation_keys_in_context
+
+    @citation_keys_in_context.setter
+    def citation_keys_in_context(self, lis):
+        if isinstance(lis, list):
+            self.__citation_keys_in_context == lis
+        else:
+            raise TypeError(
+                'citation_keys_in_context must be a list.'
+            )
+
+    def cite(self, s):
+        r"""Do \cite command formatting.
+
+        Returns formated text from citation commands such as
+        \cite{key1} and \cite{key1,key2,key3}, etc.
+        By default, if there are three or more consecutive numbers,
+        they are compressed into a range using an en-dash.
+        Citation numbers are also sorted in the default condition.
+
+        Parameters
+        ----------
+        s : str
+            Raw string to be formatted.
+            For example, \cite{key1} or \\cite{key2,key3}.
+
+        Examples
+        --------
+        >>> c = wdbibtex.Cite(use_cite_package=True)
+        >>> c.bibcite = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> c.cite('\cite{key1}')
+        '[1]'
+        >>> c.cite('\cite{key1,key2}')
+        '[1,2]'
+        >>> c.cite('\cite{key1,key2,key3}')
+        '[1-3]'
+        """
+        p = re.compile(r'\\+cite\{(.*)\}')
+        if p.match(s):
+            keys = p.match(s).group(1).split(',')
+            if len(keys) == 1:
+                key = keys[0]
+                return (
+                    self.__citeleft
+                    + str(self.__citation_labels[key])
+                    + self.__citeright
+                )
+            if len(keys) > 1:
+                if self.use_cite_package:
+                    nums = sorted(
+                        [self.__citation_labels[key] for key in keys]
+                    )
+                    return (
+                        self.__citeleft
+                        + self.__compress(nums)
+                        + self.__citeright
+                    )
+                else:
+                    nums = [str(self.__citation_labels[key]) for key in keys]
+                    return (
+                        self.__citeleft
+                        + ','.join(nums)
+                        + self.__citeright
+                    )
+        else:
+            ValueError(
+                'no citation pattern matched.'
+            )
+
+    def __compress(self, nums, sep=u'\u2013'):
+        r"""Compress groups of three or more consecutive numbers into a range.
+
+        Compress poor list of positive integers with three or more
+        consecutive numbers into a range using a separating character.
+        For example, a list ``[1,2,3,6]`` will be converted into ``[1-3,6]``.
+
+        Parameters
+        ----------
+        nums : list of positive integers
+            Multiple integers to convert dashed range string.
+            A list of single element integer is also allowd.
+        sep : str, default en-dash(U+2013)
+            A character inserted betwen start and end of range.
+        """
+        seq = []
+        final = []
+        last = 0
+
+        for index, val in enumerate(nums):
+
+            if last + 1 == val or index == 0:
+                seq.append(val)
+                last = val
+            else:
+                if len(seq) > 2:
+                    final.append(str(seq[0]) + sep + str(seq[len(seq)-1]))
+                elif len(seq) == 2:
+                    final.append(str(seq[0]) + ',' + str(seq[len(seq)-1]))
+                else:
+                    final.append(str(seq[0]))
+                    seq = []
+                    seq.append(val)
+                    last = val
+
+            if index == len(nums) - 1:
+                if len(seq) > 2:
+                    final.append(str(seq[0]) + sep + str(seq[len(seq)-1]))
+                elif len(seq) == 2:
+                    final.append(str(seq[0]) + ',' + str(seq[len(seq)-1]))
+                else:
+                    final.append(str(seq[0]))
+
+        final_str = ','.join(map(str, final))
+        return final_str
