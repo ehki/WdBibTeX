@@ -45,9 +45,6 @@ class LaTeX:
             workdir='.tmp',
     ):
 
-        # Citation handler
-        self.__cite = Cite()
-
         self.__locale = self.__default_locale()
 
         # Set automatically selected values
@@ -83,17 +80,6 @@ class LaTeX:
         self.__documentclass = None
         self.__package_list = []
         self.preamble = preamble
-        self.__thebibtext = None
-        self.__replacer = None
-        self.__citation = []
-        self.__bibstyle = None
-        self.__bibdata = None
-        self.__bibcite = {}
-        self.__conversion_dict = {}
-
-        for p in self.__package_list:
-            if p[0] == 'cite':
-                self.__cite.use_cite_package = True
 
         # Makedir working directory if not exist.
         self.workdir.mkdir(exist_ok=True)
@@ -218,10 +204,6 @@ class LaTeX:
             [package, *options]
         )
 
-        for p in self.__package_list:
-            if p[0] == 'cite':
-                self.__cite.use_cite_package = True
-
         # Update package string.
         self.__update_packages()
 
@@ -263,7 +245,6 @@ class LaTeX:
                     '',
                 ])
             )
-        self.__cite.parse_context(c)
 
     def build(self):
         """Build LaTeX related files.
@@ -301,243 +282,7 @@ class LaTeX:
         subprocess.call(latexcmd, shell=True)
         subprocess.call(latexcmd, shell=True)
 
-        self.read_aux()
-        self.read_bbl()
-        self.__make_thebibliography_text()
-        self.__get_replacer()
-
         os.chdir(cwd)  # Back to original working directory.
-
-    @property
-    def cnd(self):
-        r"""Returns a dictionary of citation-key/number pair maps.
-
-        CND(Citation to Number Dictionary) will be used to replace
-        citation text in word file such as \\cite{key1} to
-        number such ash [1].
-        WdBibTeX.cnd could be return the following dictionary.
-
-        .. code-block:: python
-
-            {'\\\\cite\\{key1\\}': '[1]',
-             '\\\\cite\\{key1,key2,key3\\}': '[1-3]'}
-
-        Returns
-        -------
-        dict or None
-            Search key and replacement value.
-            None if LaTeX compile is not done.
-        """
-        return self.__replacer
-
-    @property
-    def tbt(self):
-        r"""Plain text to replace \\thebibliography in word file.
-
-        A plain text of LaTeX-processed bibliography list.
-        An tab string is inserted between each citenum and citation string.
-        Example in IEEE format follows:
-
-        .. code-block:: text
-
-            [1]\\tF. Author, S. Author, "Paper Title," Journal Name, vol. 1, no. 1, p. 1, march 2022.
-            [2]\\tG. Name, F. Name, "Title," Journal, vol. 2, no. 2, pp. 1-10, 2020.
-
-        Returns
-        -------
-        str or None
-            Plain text of the thebibliography.
-            None if LaTeX compile is not done.
-        """  # noqa E501
-        if self.__thebibtext is None:
-            raise ValueError(
-                'Thebibliography text is not set yet.'
-            )
-        return self.__thebibtext
-
-    def __get_replacer(self):
-        """Get key and value for replace word document.
-        """
-        replacer = dict()
-        for k, v in self.__conversion_dict.items():
-            replacer.update({'\\\\cite\\{%s\\}' % k: '[%s]' % v})
-        self.__replacer = replacer
-
-    def read_bbl(self):
-        """Read .bbl file.
-
-        Read .bbl file to extract formatted thebibliography text.
-        """
-        fn = self.workdir / (self.__targetbasename + '.bbl')
-        with codecs.open(fn, 'r', 'utf-8') as f:
-            self.__bbldata = f.readlines()
-
-    def __build_conversion_dict(self):
-        r"""Prepare replaing citation keys with dashed range strings.
-
-        Generate dictionary of such as {'refa,refb,refc,refe,refg': '1-3,5,7'}.
-        """
-        for cite in self.__citation:
-            cite_nums = [self.__bibcite[c] for c in cite.split(',')]
-            self.__conversion_dict.update(
-                {cite: self.__compress(cite_nums)}
-                )
-        for cite in self.__cite.citation_keys_in_context:
-            cite_nums = [self.__bibcite[c] for c in cite.split(',')]
-            if self.__cite.use_cite_package:
-                self.__conversion_dict.update(
-                    {cite: self.__compress(sorted(cite_nums))}
-                )
-            else:
-                self.__conversion_dict.update(
-                    {cite: ','.join(str(c) for c in cite_nums)}
-                    )
-
-    def __compress(self, nums, sep=u'\u2014'):
-        r"""Compress groups of three or more consecutive numbers into a range.
-
-        Compress poor list of positive integers with three or more
-        consecutive numbers into a range using a separating character.
-        For example, a list ``[1,2,3,6]`` will be converted into ``[1-3,6]``.
-
-        Parameters
-        ----------
-        nums : list of positive integers
-            Multiple integers to convert dashed range string.
-            A list of single element integer is also allowd.
-        sep : str, default en-dash(U+2013)
-            A character inserted betwen start and end of range.
-        """
-        seq = []
-        final = []
-        last = 0
-
-        for index, val in enumerate(nums):
-
-            if last + 1 == val or index == 0:
-                seq.append(val)
-                last = val
-            else:
-                if len(seq) > 2 and self.__dashstarts == 3:
-                    final.append(str(seq[0]) + '-' + str(seq[len(seq)-1]))
-                elif len(seq) == 2 and self.__dashstarts == 3:
-                    final.append(str(seq[0]) + ',' + str(seq[len(seq)-1]))
-                elif len(seq) > 1 and self.__dashstarts == 2:
-                    final.append(str(seq[0]) + '-' + str(seq[len(seq)-1]))
-                else:
-                    final.append(str(seq[0]))
-                    seq = []
-                    seq.append(val)
-                    last = val
-
-            if index == len(nums) - 1:
-                if len(seq) > 2 and self.__dashstarts == 3:
-                    final.append(str(seq[0]) + '-' + str(seq[len(seq)-1]))
-                elif len(seq) == 2 and self.__dashstarts == 3:
-                    final.append(str(seq[0]) + ',' + str(seq[len(seq)-1]))
-                elif len(seq) > 1 and self.__dashstarts == 2:
-                    final.append(str(seq[0]) + '-' + str(seq[len(seq)-1]))
-                else:
-                    final.append(str(seq[0]))
-
-        final_str = ','.join(map(str, final))
-        return final_str
-
-    def read_aux(self):
-        r"""Read .aux file.
-
-        Aux file will be read line-by-line.
-        Following four types of the line will be
-        interpreted and stored to the LaTeX attributes.
-
-        - \\citation{keys}
-           Appended to the citation attribute
-           (list object) key as string.
-        - \\bibstyle{s}
-           Stored as bibstyle string attribute.
-        - \\bibdata{d}
-           Stored as bibdata string attribute.
-        - \\bibcite{k}{n}
-           Added to bibcite attribute
-           (dictionary) as {k: n}.
-        """
-        fn = self.workdir / (self.__targetbasename + '.aux')
-        with codecs.open(fn, 'r', 'utf-8') as f:
-            self.__auxdata = f.readlines()
-        for line in self.__auxdata:
-            self.__parse_line(line)
-        self.__build_conversion_dict()
-        self.__cite.citation_labels = self.__bibcite
-
-    def __parse_line(self, line):
-        r"""Parse one line of .aux
-
-        Parameters
-        ----------
-        line : str
-            One line of .aux file to parse.
-        """
-        if line.startswith('\\citation'):
-            self.__citation.append(line[len('\\citation{'): -len('}\n')])
-        elif line.startswith('\\bibstyle'):
-            self.__bibstyle = line[len('\\bibstyle{'): -len('}\n')]
-        elif line.startswith('\\bibdata'):
-            self.__bibdata = line[len('\\bibdata{'): -len('}\n')]
-        elif line.startswith('\\bibcite'):
-            key, value = line[len('\\bibcite{'): -len('}\n')].split('}{')
-            value = int(value)
-            self.__bibcite.update({key: value})
-
-    @property
-    def citation(self):
-        """[Read only] Returns citation key(s) found in aux file.
-        """
-        return self.__citation
-
-    @property
-    def bibstyle(self):
-        """[Read only] Returns bibliography style string written in aux file.
-        """
-        return self.__bibstyle
-
-    @property
-    def bibdata(self):
-        """[Read only] Returns bibliography data file(s) written in aux file.
-        """
-        return self.__bibdata
-
-    @property
-    def bibcite(self):
-        """[Read only] Returns citation key and citation number dictionary
-        """
-        return self.__bibcite
-
-    @property
-    def locale(self):
-        """Returns system locale
-
-        Locale string to decide which latex commands used.
-        Currently english(en) and japanese(ja) are supported.
-        If locale is manually set, returns the local as is.
-        Else, determined using locale.getlocale().
-
-        Returns
-        -------
-        str
-            Locale text in two characters for example 'en' or 'ja'.
-        """
-
-        return self.__locale
-
-    @locale.setter
-    def locale(self, s):
-        if isinstance(s, str) and len(s) == 2:
-            self.__locale = s
-        else:
-            raise ValueError(
-                'Invalid locale string. '
-                'Only 2-characters string is allowed.'
-            )
 
     @property
     def preamble(self):
@@ -626,35 +371,32 @@ class LaTeX:
             else:
                 pass
 
-    def __make_thebibliography_text(self):
-        """Generate thebibliography plain text to incert word file.
+    @property
+    def locale(self):
+        """Returns system locale
+
+        Locale string to decide which latex commands used.
+        Currently english(en) and japanese(ja) are supported.
+        If locale is manually set, returns the local as is.
+        Else, determined using locale.getlocale().
+
+        Returns
+        -------
+        str
+            Locale text in two characters for example 'en' or 'ja'.
         """
-        replacer = {}
-        replacer.update({
-            r'\n  ': ' ',
-            r'\{\\em (.*)\}': r'\1',
-            r'\\emph\{(.*)\}': r'\1',
-            r'\\BIBforeignlanguage\{(.*)\}\{(.*)\}': r'\2',
-            r'~': ' ',
-            r'--': u'\u2014',
-            r'``': '“',
-            r"''": '”',
-            r'\n\n': '\n'
-            })
-        thebib_begin = None
-        for i, line in enumerate(self.__bbldata):
-            if line.startswith('\\bibitem') and thebib_begin is None:
-                thebib_begin = i
-            if line.startswith('\\end{thebibliography}'):
-                thebib_end = i
-        thebibtext = ''.join(self.__bbldata[thebib_begin: thebib_end])
-        for k, v in replacer.items():
-            thebibtext = re.sub(k, v, thebibtext)
-        for k, v in self.__bibcite.items():
-            thebibtext = re.sub(
-                '\\\\bibitem{%s}\n' % k, '[%s]\t' % v, thebibtext
+
+        return self.__locale
+
+    @locale.setter
+    def locale(self, s):
+        if isinstance(s, str) and len(s) == 2:
+            self.__locale = s
+        else:
+            raise ValueError(
+                'Invalid locale string. '
+                'Only 2-characters string is allowed.'
             )
-        self.__thebibtext = thebibtext
 
     def __default_locale(self):
         loca, locb = locale.getlocale()
@@ -683,9 +425,34 @@ class Cite:
         If False, emulate LaTeX's use_cite_package citation handling.
         If True, emulate cite package's behavior.
     """
-    def __init__(self, citeleft='[', citeright=']', use_cite_package=False):
+    def __init__(
+        self,
+        citeleft='[',
+        citeright=']',
+        targetbasename='wdbib',
+        use_cite_package=False,
+        workdir='.tmp',
+    ):
         """Costructor of Cite.
         """
+
+        # Store settings in internal attributes.
+        if os.path.isabs(workdir):
+            self.workdir = pathlib.Path(workdir)
+        else:
+            self.workdir = (
+                pathlib.Path(os.getcwd()) / workdir
+            ).resolve()
+
+        self.__targetbasename = targetbasename
+
+        self.__replacer = None
+        self.__citation = []
+        self.__bibstyle = None
+        self.__bibdata = None
+        self.__bibcite = {}
+        self.__conversion_dict = {}
+
         self.__citation_labels = dict()
         self.__citeleft = citeleft
         self.__citeright = citeright
@@ -803,6 +570,127 @@ class Cite:
                 'citation_keys_in_context must be a list.'
             )
 
+    @property
+    def cnd(self):
+        r"""Returns a dictionary of citation-key/number pair maps.
+
+        CND(Citation to Number Dictionary) will be used to replace
+        citation text in word file such as \\cite{key1} to
+        number such ash [1].
+        WdBibTeX.cnd could be return the following dictionary.
+
+        .. code-block:: python
+
+            {'\\\\cite\\{key1\\}': '[1]',
+             '\\\\cite\\{key1,key2,key3\\}': '[1-3]'}
+
+        Returns
+        -------
+        dict or None
+            Search key and replacement value.
+            None if LaTeX compile is not done.
+        """
+        return self.__replacer
+
+    @property
+    def citation(self):
+        """[Read only] Returns citation key(s) found in aux file.
+        """
+        return self.__citation
+
+    @property
+    def bibstyle(self):
+        """[Read only] Returns bibliography style string written in aux file.
+        """
+        return self.__bibstyle
+
+    @property
+    def bibdata(self):
+        """[Read only] Returns bibliography data file(s) written in aux file.
+        """
+        return self.__bibdata
+
+    @property
+    def bibcite(self):
+        """[Read only] Returns citation key and citation number dictionary
+        """
+        return self.__bibcite
+
+    def read_aux(self):
+        r"""Read .aux file.
+
+        Aux file will be read line-by-line.
+        Following four types of the line will be
+        interpreted and stored to the LaTeX attributes.
+
+        - \\citation{keys}
+           Appended to the citation attribute
+           (list object) key as string.
+        - \\bibstyle{s}
+           Stored as bibstyle string attribute.
+        - \\bibdata{d}
+           Stored as bibdata string attribute.
+        - \\bibcite{k}{n}
+           Added to bibcite attribute
+           (dictionary) as {k: n}.
+        """
+        fn = self.workdir / (self.__targetbasename + '.aux')
+        with codecs.open(fn, 'r', 'utf-8') as f:
+            self.__auxdata = f.readlines()
+        for line in self.__auxdata:
+            self.__parse_line(line)
+        self.__build_conversion_dict()
+        self.__citation_labels.update(self.__bibcite)
+        self.__get_replacer()
+
+    def __parse_line(self, line):
+        r"""Parse one line of .aux
+
+        Parameters
+        ----------
+        line : str
+            One line of .aux file to parse.
+        """
+        if line.startswith('\\citation'):
+            self.__citation.append(line[len('\\citation{'): -len('}\n')])
+        elif line.startswith('\\bibstyle'):
+            self.__bibstyle = line[len('\\bibstyle{'): -len('}\n')]
+        elif line.startswith('\\bibdata'):
+            self.__bibdata = line[len('\\bibdata{'): -len('}\n')]
+        elif line.startswith('\\bibcite'):
+            key, value = line[len('\\bibcite{'): -len('}\n')].split('}{')
+            value = int(value)
+            self.__bibcite.update({key: value})
+
+    def __get_replacer(self):
+        """Get key and value for replace word document.
+        """
+        replacer = dict()
+        for k, v in self.__conversion_dict.items():
+            replacer.update({'\\\\cite\\{%s\\}' % k: '[%s]' % v})
+        self.__replacer = replacer
+
+    def __build_conversion_dict(self):
+        r"""Prepare replaing citation keys with dashed range strings.
+
+        Generate dictionary of such as {'refa,refb,refc,refe,refg': '1-3,5,7'}.
+        """
+        for cite in self.__citation:
+            cite_nums = [self.__bibcite[c] for c in cite.split(',')]
+            self.__conversion_dict.update(
+                {cite: self.__compress(cite_nums)}
+                )
+        for cite in self.citation_keys_in_context:
+            cite_nums = [self.__bibcite[c] for c in cite.split(',')]
+            if self.use_cite_package:
+                self.__conversion_dict.update(
+                    {cite: self.__compress(sorted(cite_nums))}
+                )
+            else:
+                self.__conversion_dict.update(
+                    {cite: ','.join(str(c) for c in cite_nums)}
+                    )
+
     def cite(self, s):
         r"""Do \cite command formatting.
 
@@ -906,3 +794,97 @@ class Cite:
 
         final_str = ','.join(map(str, final))
         return final_str
+
+
+class Bbl:
+    """LaTeX bbl file related contents and commands.
+
+    Parameters
+    ----------
+    targetbasename : str, default 'wdbib'
+        Base name of LaTeX related files.
+    workdir : str or path object, default '.tmp'
+        Temporal working directory to store LaTeX contents.
+    """
+    def __init__(
+        self,
+        targetbasename='wdbib',
+        workdir='.tmp',
+    ):
+        """Cunstructor of Bbl
+        """
+
+        # Store settings in internal attributes.
+        if os.path.isabs(workdir):
+            self.workdir = pathlib.Path(workdir)
+        else:
+            self.workdir = (
+                pathlib.Path(os.getcwd()) / workdir
+            ).resolve()
+
+        self.__targetbasename = targetbasename
+
+    @property
+    def tbt(self):
+        r"""Plain text to replace \\thebibliography in word file.
+
+        A plain text of LaTeX-processed bibliography list.
+        An tab string is inserted between each citenum and citation string.
+        Example in IEEE format follows:
+
+        .. code-block:: text
+
+            [1]\\tF. Author, S. Author, "Paper Title," Journal Name, vol. 1, no. 1, p. 1, march 2022.
+            [2]\\tG. Name, F. Name, "Title," Journal, vol. 2, no. 2, pp. 1-10, 2020.
+
+        Returns
+        -------
+        str or None
+            Plain text of the thebibliography.
+            None if LaTeX compile is not done.
+        """  # noqa E501
+        if self.__thebibtext is None:
+            raise ValueError(
+                'Thebibliography text is not set yet.'
+            )
+        return self.__thebibtext
+
+    def read_bbl(self):
+        """Read .bbl file.
+
+        Read .bbl file to extract formatted thebibliography text.
+        """
+        fn = self.workdir / (self.__targetbasename + '.bbl')
+        with codecs.open(fn, 'r', 'utf-8') as f:
+            self.__bbldata = f.readlines()
+        self.__make_thebibliography_text()
+
+    def __make_thebibliography_text(self):
+        """Generate thebibliography plain text to incert word file.
+        """
+        replacer = {}
+        replacer.update({
+            r'\n  ': ' ',
+            r'\{\\em (.*)\}': r'\1',
+            r'\\emph\{(.*)\}': r'\1',
+            r'\\BIBforeignlanguage\{(.*)\}\{(.*)\}': r'\2',
+            r'~': ' ',
+            r'--': u'\u2014',
+            r'``': '“',
+            r"''": '”',
+            r'\n\n': '\n'
+            })
+        thebib_begin = None
+        for i, line in enumerate(self.__bbldata):
+            if line.startswith('\\bibitem') and thebib_begin is None:
+                thebib_begin = i
+            if line.startswith('\\end{thebibliography}'):
+                thebib_end = i
+        thebibtext = ''.join(self.__bbldata[thebib_begin: thebib_end])
+        for k, v in replacer.items():
+            thebibtext = re.sub(k, v, thebibtext)
+        for c, m in enumerate(re.findall('\\\\bibitem{(.*)}\n', thebibtext)):
+            thebibtext = re.sub(
+                '\\\\bibitem{%s}\n' % m, '[%s]\t' % (c+1), thebibtext
+            )
+        self.__thebibtext = thebibtext
