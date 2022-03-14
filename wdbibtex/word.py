@@ -147,17 +147,23 @@ class WdBibTeX:
 
         # Build latex document
         context = '\n'.join([cite for cite, _, _ in self.__cites])
+        self.__ltx.add_package('cite')
         self.__ltx.write(context, bib=bib)
+        ct = wdbibtex.Cite(workdir=self.__workdir, use_cite_package=True)
+        ct.parse_context(context)
         self.__ltx.build()
+        ct.read_aux()
+        bb = wdbibtex.Bbl(workdir=self.__workdir)
+        bb.read_bbl()
 
         # Replace \thebibliography
         for _, start, end in self.__thebibliographies[::-1]:
             rng = self.__dc.Range(Start=start, End=end)
             rng.Delete()
-            rng.InsertAfter(self.__ltx.tbt)
+            rng.InsertAfter(bb.tbt)
 
         # Replace \cite{*}
-        for key, val in self.__ltx.cnd.items():
+        for key, val in ct.cnd.items():
             if 'thebibliography' in key:
                 continue
             self.replace_all(key, val)

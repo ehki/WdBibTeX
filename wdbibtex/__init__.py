@@ -1,7 +1,8 @@
-from .latex import Cite, LaTeX
+from .latex import Bbl, Cite, LaTeX
 from .word import WdBibTeX
 
 __all__ = [
+    'Bbl',
     'Cite',
     'LaTeX',
     'WdBibTeX',
