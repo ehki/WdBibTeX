@@ -308,40 +308,6 @@ class LaTeX:
 
         os.chdir(cwd)  # Back to original working directory.
 
-    @property
-    def tbt(self):
-        r"""Plain text to replace \\thebibliography in word file.
-
-        A plain text of LaTeX-processed bibliography list.
-        An tab string is inserted between each citenum and citation string.
-        Example in IEEE format follows:
-
-        .. code-block:: text
-
-            [1]\\tF. Author, S. Author, "Paper Title," Journal Name, vol. 1, no. 1, p. 1, march 2022.
-            [2]\\tG. Name, F. Name, "Title," Journal, vol. 2, no. 2, pp. 1-10, 2020.
-
-        Returns
-        -------
-        str or None
-            Plain text of the thebibliography.
-            None if LaTeX compile is not done.
-        """  # noqa E501
-        if self.__thebibtext is None:
-            raise ValueError(
-                'Thebibliography text is not set yet.'
-            )
-        return self.__thebibtext
-
-    def read_bbl(self):
-        """Read .bbl file.
-
-        Read .bbl file to extract formatted thebibliography text.
-        """
-        fn = self.workdir / (self.__targetbasename + '.bbl')
-        with codecs.open(fn, 'r', 'utf-8') as f:
-            self.__bbldata = f.readlines()
-
     def __compress(self, nums, sep=u'\u2014'):
         r"""Compress groups of three or more consecutive numbers into a range.
 
@@ -505,36 +471,6 @@ class LaTeX:
 
             else:
                 pass
-
-    def __make_thebibliography_text(self):
-        """Generate thebibliography plain text to incert word file.
-        """
-        replacer = {}
-        replacer.update({
-            r'\n  ': ' ',
-            r'\{\\em (.*)\}': r'\1',
-            r'\\emph\{(.*)\}': r'\1',
-            r'\\BIBforeignlanguage\{(.*)\}\{(.*)\}': r'\2',
-            r'~': ' ',
-            r'--': u'\u2014',
-            r'``': '“',
-            r"''": '”',
-            r'\n\n': '\n'
-            })
-        thebib_begin = None
-        for i, line in enumerate(self.__bbldata):
-            if line.startswith('\\bibitem') and thebib_begin is None:
-                thebib_begin = i
-            if line.startswith('\\end{thebibliography}'):
-                thebib_end = i
-        thebibtext = ''.join(self.__bbldata[thebib_begin: thebib_end])
-        for k, v in replacer.items():
-            thebibtext = re.sub(k, v, thebibtext)
-        for k, v in self.__bibcite.items():
-            thebibtext = re.sub(
-                '\\\\bibitem{%s}\n' % k, '[%s]\t' % v, thebibtext
-            )
-        self.__thebibtext = thebibtext
 
     def __default_locale(self):
         loca, locb = locale.getlocale()
@@ -932,3 +868,97 @@ class Cite:
 
         final_str = ','.join(map(str, final))
         return final_str
+
+
+class Bbl:
+    """LaTeX bbl file related contents and commands.
+
+    Parameters
+    ----------
+    targetbasename : str, default 'wdbib'
+        Base name of LaTeX related files.
+    workdir : str or path object, default '.tmp'
+        Temporal working directory to store LaTeX contents.
+    """
+    def __init__(
+        self,
+        targetbasename='wdbib',
+        workdir='.tmp',
+    ):
+        """Cunstructor of Bbl
+        """
+
+        # Store settings in internal attributes.
+        if os.path.isabs(workdir):
+            self.workdir = pathlib.Path(workdir)
+        else:
+            self.workdir = (
+                pathlib.Path(os.getcwd()) / workdir
+            ).resolve()
+
+        self.__targetbasename = targetbasename
+
+    @property
+    def tbt(self):
+        r"""Plain text to replace \\thebibliography in word file.
+
+        A plain text of LaTeX-processed bibliography list.
+        An tab string is inserted between each citenum and citation string.
+        Example in IEEE format follows:
+
+        .. code-block:: text
+
+            [1]\\tF. Author, S. Author, "Paper Title," Journal Name, vol. 1, no. 1, p. 1, march 2022.
+            [2]\\tG. Name, F. Name, "Title," Journal, vol. 2, no. 2, pp. 1-10, 2020.
+
+        Returns
+        -------
+        str or None
+            Plain text of the thebibliography.
+            None if LaTeX compile is not done.
+        """  # noqa E501
+        if self.__thebibtext is None:
+            raise ValueError(
+                'Thebibliography text is not set yet.'
+            )
+        return self.__thebibtext
+
+    def read_bbl(self):
+        """Read .bbl file.
+
+        Read .bbl file to extract formatted thebibliography text.
+        """
+        fn = self.workdir / (self.__targetbasename + '.bbl')
+        with codecs.open(fn, 'r', 'utf-8') as f:
+            self.__bbldata = f.readlines()
+        self.__make_thebibliography_text()
+
+    def __make_thebibliography_text(self):
+        """Generate thebibliography plain text to incert word file.
+        """
+        replacer = {}
+        replacer.update({
+            r'\n  ': ' ',
+            r'\{\\em (.*)\}': r'\1',
+            r'\\emph\{(.*)\}': r'\1',
+            r'\\BIBforeignlanguage\{(.*)\}\{(.*)\}': r'\2',
+            r'~': ' ',
+            r'--': u'\u2014',
+            r'``': '“',
+            r"''": '”',
+            r'\n\n': '\n'
+            })
+        thebib_begin = None
+        for i, line in enumerate(self.__bbldata):
+            if line.startswith('\\bibitem') and thebib_begin is None:
+                thebib_begin = i
+            if line.startswith('\\end{thebibliography}'):
+                thebib_end = i
+        thebibtext = ''.join(self.__bbldata[thebib_begin: thebib_end])
+        for k, v in replacer.items():
+            thebibtext = re.sub(k, v, thebibtext)
+        for c, m in enumerate(re.findall('\\\\bibitem{(.*)}\n', thebibtext)):
+            thebibtext = re.sub(
+                '\\\\bibitem{%s}\n' % m, '[%s]\t' % (c+1), thebibtext
+            )
+        self.__thebibtext = thebibtext
