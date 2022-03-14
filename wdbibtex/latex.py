@@ -285,33 +285,6 @@ class LaTeX:
         os.chdir(cwd)  # Back to original working directory.
 
     @property
-    def locale(self):
-        """Returns system locale
-
-        Locale string to decide which latex commands used.
-        Currently english(en) and japanese(ja) are supported.
-        If locale is manually set, returns the local as is.
-        Else, determined using locale.getlocale().
-
-        Returns
-        -------
-        str
-            Locale text in two characters for example 'en' or 'ja'.
-        """
-
-        return self.__locale
-
-    @locale.setter
-    def locale(self, s):
-        if isinstance(s, str) and len(s) == 2:
-            self.__locale = s
-        else:
-            raise ValueError(
-                'Invalid locale string. '
-                'Only 2-characters string is allowed.'
-            )
-
-    @property
     def preamble(self):
         r"""Returns latex preamble text.
 
@@ -397,6 +370,33 @@ class LaTeX:
 
             else:
                 pass
+
+    @property
+    def locale(self):
+        """Returns system locale
+
+        Locale string to decide which latex commands used.
+        Currently english(en) and japanese(ja) are supported.
+        If locale is manually set, returns the local as is.
+        Else, determined using locale.getlocale().
+
+        Returns
+        -------
+        str
+            Locale text in two characters for example 'en' or 'ja'.
+        """
+
+        return self.__locale
+
+    @locale.setter
+    def locale(self, s):
+        if isinstance(s, str) and len(s) == 2:
+            self.__locale = s
+        else:
+            raise ValueError(
+                'Invalid locale string. '
+                'Only 2-characters string is allowed.'
+            )
 
     def __default_locale(self):
         loca, locb = locale.getlocale()
