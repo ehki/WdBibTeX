@@ -45,9 +45,6 @@ class LaTeX:
             workdir='.tmp',
     ):
 
-        # Citation handler
-        self.__cite = Cite()
-
         self.__locale = self.__default_locale()
 
         # Set automatically selected values
@@ -83,17 +80,6 @@ class LaTeX:
         self.__documentclass = None
         self.__package_list = []
         self.preamble = preamble
-        self.__thebibtext = None
-        self.__replacer = None
-        self.__citation = []
-        self.__bibstyle = None
-        self.__bibdata = None
-        self.__bibcite = {}
-        self.__conversion_dict = {}
-
-        for p in self.__package_list:
-            if p[0] == 'cite':
-                self.__cite.use_cite_package = True
 
         # Makedir working directory if not exist.
         self.workdir.mkdir(exist_ok=True)
@@ -218,10 +204,6 @@ class LaTeX:
             [package, *options]
         )
 
-        for p in self.__package_list:
-            if p[0] == 'cite':
-                self.__cite.use_cite_package = True
-
         # Update package string.
         self.__update_packages()
 
@@ -263,7 +245,6 @@ class LaTeX:
                     '',
                 ])
             )
-        self.__cite.parse_context(c)
 
     def build(self):
         """Build LaTeX related files.
@@ -301,62 +282,7 @@ class LaTeX:
         subprocess.call(latexcmd, shell=True)
         subprocess.call(latexcmd, shell=True)
 
-        self.read_aux()
-        self.read_bbl()
-        self.__make_thebibliography_text()
-        self.__get_replacer()
-
         os.chdir(cwd)  # Back to original working directory.
-
-    def __compress(self, nums, sep=u'\u2014'):
-        r"""Compress groups of three or more consecutive numbers into a range.
-
-        Compress poor list of positive integers with three or more
-        consecutive numbers into a range using a separating character.
-        For example, a list ``[1,2,3,6]`` will be converted into ``[1-3,6]``.
-
-        Parameters
-        ----------
-        nums : list of positive integers
-            Multiple integers to convert dashed range string.
-            A list of single element integer is also allowd.
-        sep : str, default en-dash(U+2013)
-            A character inserted betwen start and end of range.
-        """
-        seq = []
-        final = []
-        last = 0
-
-        for index, val in enumerate(nums):
-
-            if last + 1 == val or index == 0:
-                seq.append(val)
-                last = val
-            else:
-                if len(seq) > 2 and self.__dashstarts == 3:
-                    final.append(str(seq[0]) + '-' + str(seq[len(seq)-1]))
-                elif len(seq) == 2 and self.__dashstarts == 3:
-                    final.append(str(seq[0]) + ',' + str(seq[len(seq)-1]))
-                elif len(seq) > 1 and self.__dashstarts == 2:
-                    final.append(str(seq[0]) + '-' + str(seq[len(seq)-1]))
-                else:
-                    final.append(str(seq[0]))
-                    seq = []
-                    seq.append(val)
-                    last = val
-
-            if index == len(nums) - 1:
-                if len(seq) > 2 and self.__dashstarts == 3:
-                    final.append(str(seq[0]) + '-' + str(seq[len(seq)-1]))
-                elif len(seq) == 2 and self.__dashstarts == 3:
-                    final.append(str(seq[0]) + ',' + str(seq[len(seq)-1]))
-                elif len(seq) > 1 and self.__dashstarts == 2:
-                    final.append(str(seq[0]) + '-' + str(seq[len(seq)-1]))
-                else:
-                    final.append(str(seq[0]))
-
-        final_str = ','.join(map(str, final))
-        return final_str
 
     @property
     def locale(self):
