@@ -56,7 +56,6 @@ class WdBibTeX:
             + str(self.__origin_file.suffix)
         )
         self.__workdir = self.__docxdir / workdir
-        self.__ltx = wdbibtex.LaTeX(workdir=self.__workdir)
 
     @property
     def original_file(self):
@@ -79,7 +78,7 @@ class WdBibTeX:
     def clear(self):
         """Clear auxiliary files on working directory.
         """
-        shutil.rmtree(self.__ltx.workdir)
+        shutil.rmtree(self.workdir)
 
     def close(self, clear=False):
         """Close word file and word application.
@@ -136,22 +135,23 @@ class WdBibTeX:
             shutil.copy(b, self.__workdir)
         for b in glob.glob(os.path.join(self.__docxdir, '*.bib')):
             shutil.copy(b, self.__workdir)
-        self.__ltx.preamble = self.read_preamble()
+        tx = wdbibtex.LaTeX(workdir=self.__workdir)
+        tx.preamble = self.read_preamble()
 
         if bst:
             # Overwrite preamble in docx with given command line artument.
-            self.__ltx.bibliographystyle = bst
+            tx.bibliographystyle = bst
 
         self.__cites = self.find_all('\\\\cite\\{*\\}')
         self.__thebibliographies = self.find_all('\\\\thebibliography')
 
         # Build latex document
         context = '\n'.join([cite for cite, _, _ in self.__cites])
-        self.__ltx.add_package('cite')
-        self.__ltx.write(context, bib=bib)
+        tx.add_package('cite')
+        tx.write(context, bib=bib)
         ct = wdbibtex.Cite(workdir=self.__workdir, use_cite_package=True)
         ct.parse_context(context)
-        self.__ltx.build()
+        tx.build()
         ct.read_aux()
         bb = wdbibtex.Bbl(workdir=self.__workdir)
         bb.read_bbl()
