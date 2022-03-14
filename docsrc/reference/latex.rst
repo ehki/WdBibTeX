@@ -17,17 +17,11 @@ Attributes
 .. autosummary::
    :toctree: api
 
-   LaTeX.bibcite
-   LaTeX.bibdata
-   LaTeX.bibstyle
    LaTeX.bibliographystyle
-   LaTeX.citation
-   LaTeX.cnd
    LaTeX.documentclass
    LaTeX.locale
    LaTeX.packages
    LaTeX.preamble
-   LaTeX.tbt
 
 Methods
 -------
@@ -36,8 +30,7 @@ Methods
 
    LaTeX.add_package
    LaTeX.build
-   LaTeX.read_aux
-   LaTeX.read_bbl
+   LaTeX.is_package_used
    LaTeX.set_bibliographystyle
    LaTeX.set_documentclass
    LaTeX.write

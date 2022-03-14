@@ -8,3 +8,4 @@ API reference
    wdbibtex
    latex
    cite
+   bbl
