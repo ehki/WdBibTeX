@@ -147,9 +147,11 @@ class WdBibTeX:
 
         # Build latex document
         context = '\n'.join([cite for cite, _, _ in self.__cites])
-        tx.add_package('cite')
         tx.write(context, bib=bib)
-        ct = wdbibtex.Cite(workdir=self.__workdir, use_cite_package=True)
+        ct = wdbibtex.Cite(
+            workdir=self.__workdir,
+            use_cite_package=tx.is_package_used('cite'),
+        )
         ct.parse_context(context)
         tx.build()
         ct.read_aux()
