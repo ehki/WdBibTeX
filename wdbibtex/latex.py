@@ -210,6 +210,34 @@ class LaTeX:
         # Update preamble
         self.__update_preamble()
 
+    def is_package_used(self, p):
+        """Returns if the package is used.
+
+        Returns False if the package is not used
+        while True if the package is used without option.
+        If the package is used with option(s), returns List of option(s).
+
+        Parameters
+        ----------
+        p : str
+            Package name to find.
+
+        Returns
+        -------
+        bool or list
+            False if the package is not used.
+            True if the package is used without option.
+            List of option(s) if the package is used with option(s).
+        """
+        for package in self.__package_list:
+            if package[0] == p:
+                if len(package) == 1:
+                    return True
+                else:
+                    return package[1:]
+        else:
+            return False
+
     def write(self, c, bib=None):
         r"""Write .tex file.
 
