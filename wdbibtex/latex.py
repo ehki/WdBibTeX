@@ -309,28 +309,6 @@ class LaTeX:
         os.chdir(cwd)  # Back to original working directory.
 
     @property
-    def cnd(self):
-        r"""Returns a dictionary of citation-key/number pair maps.
-
-        CND(Citation to Number Dictionary) will be used to replace
-        citation text in word file such as \\cite{key1} to
-        number such ash [1].
-        WdBibTeX.cnd could be return the following dictionary.
-
-        .. code-block:: python
-
-            {'\\\\cite\\{key1\\}': '[1]',
-             '\\\\cite\\{key1,key2,key3\\}': '[1-3]'}
-
-        Returns
-        -------
-        dict or None
-            Search key and replacement value.
-            None if LaTeX compile is not done.
-        """
-        return self.__replacer
-
-    @property
     def tbt(self):
         r"""Plain text to replace \\thebibliography in word file.
 
@@ -355,14 +333,6 @@ class LaTeX:
             )
         return self.__thebibtext
 
-    def __get_replacer(self):
-        """Get key and value for replace word document.
-        """
-        replacer = dict()
-        for k, v in self.__conversion_dict.items():
-            replacer.update({'\\\\cite\\{%s\\}' % k: '[%s]' % v})
-        self.__replacer = replacer
-
     def read_bbl(self):
         """Read .bbl file.
 
@@ -371,27 +341,6 @@ class LaTeX:
         fn = self.workdir / (self.__targetbasename + '.bbl')
         with codecs.open(fn, 'r', 'utf-8') as f:
             self.__bbldata = f.readlines()
-
-    def __build_conversion_dict(self):
-        r"""Prepare replaing citation keys with dashed range strings.
-
-        Generate dictionary of such as {'refa,refb,refc,refe,refg': '1-3,5,7'}.
-        """
-        for cite in self.__citation:
-            cite_nums = [self.__bibcite[c] for c in cite.split(',')]
-            self.__conversion_dict.update(
-                {cite: self.__compress(cite_nums)}
-                )
-        for cite in self.__cite.citation_keys_in_context:
-            cite_nums = [self.__bibcite[c] for c in cite.split(',')]
-            if self.__cite.use_cite_package:
-                self.__conversion_dict.update(
-                    {cite: self.__compress(sorted(cite_nums))}
-                )
-            else:
-                self.__conversion_dict.update(
-                    {cite: ','.join(str(c) for c in cite_nums)}
-                    )
 
     def __compress(self, nums, sep=u'\u2014'):
         r"""Compress groups of three or more consecutive numbers into a range.
@@ -442,75 +391,6 @@ class LaTeX:
 
         final_str = ','.join(map(str, final))
         return final_str
-
-    def read_aux(self):
-        r"""Read .aux file.
-
-        Aux file will be read line-by-line.
-        Following four types of the line will be
-        interpreted and stored to the LaTeX attributes.
-
-        - \\citation{keys}
-           Appended to the citation attribute
-           (list object) key as string.
-        - \\bibstyle{s}
-           Stored as bibstyle string attribute.
-        - \\bibdata{d}
-           Stored as bibdata string attribute.
-        - \\bibcite{k}{n}
-           Added to bibcite attribute
-           (dictionary) as {k: n}.
-        """
-        fn = self.workdir / (self.__targetbasename + '.aux')
-        with codecs.open(fn, 'r', 'utf-8') as f:
-            self.__auxdata = f.readlines()
-        for line in self.__auxdata:
-            self.__parse_line(line)
-        self.__build_conversion_dict()
-        self.__cite.citation_labels = self.__bibcite
-
-    def __parse_line(self, line):
-        r"""Parse one line of .aux
-
-        Parameters
-        ----------
-        line : str
-            One line of .aux file to parse.
-        """
-        if line.startswith('\\citation'):
-            self.__citation.append(line[len('\\citation{'): -len('}\n')])
-        elif line.startswith('\\bibstyle'):
-            self.__bibstyle = line[len('\\bibstyle{'): -len('}\n')]
-        elif line.startswith('\\bibdata'):
-            self.__bibdata = line[len('\\bibdata{'): -len('}\n')]
-        elif line.startswith('\\bibcite'):
-            key, value = line[len('\\bibcite{'): -len('}\n')].split('}{')
-            value = int(value)
-            self.__bibcite.update({key: value})
-
-    @property
-    def citation(self):
-        """[Read only] Returns citation key(s) found in aux file.
-        """
-        return self.__citation
-
-    @property
-    def bibstyle(self):
-        """[Read only] Returns bibliography style string written in aux file.
-        """
-        return self.__bibstyle
-
-    @property
-    def bibdata(self):
-        """[Read only] Returns bibliography data file(s) written in aux file.
-        """
-        return self.__bibdata
-
-    @property
-    def bibcite(self):
-        """[Read only] Returns citation key and citation number dictionary
-        """
-        return self.__bibcite
 
     @property
     def locale(self):
@@ -683,9 +563,34 @@ class Cite:
         If False, emulate LaTeX's use_cite_package citation handling.
         If True, emulate cite package's behavior.
     """
-    def __init__(self, citeleft='[', citeright=']', use_cite_package=False):
+    def __init__(
+        self,
+        citeleft='[',
+        citeright=']',
+        targetbasename='wdbib',
+        use_cite_package=False,
+        workdir='.tmp',
+    ):
         """Costructor of Cite.
         """
+
+        # Store settings in internal attributes.
+        if os.path.isabs(workdir):
+            self.workdir = pathlib.Path(workdir)
+        else:
+            self.workdir = (
+                pathlib.Path(os.getcwd()) / workdir
+            ).resolve()
+
+        self.__targetbasename = targetbasename
+
+        self.__replacer = None
+        self.__citation = []
+        self.__bibstyle = None
+        self.__bibdata = None
+        self.__bibcite = {}
+        self.__conversion_dict = {}
+
         self.__citation_labels = dict()
         self.__citeleft = citeleft
         self.__citeright = citeright
@@ -802,6 +707,127 @@ class Cite:
             raise TypeError(
                 'citation_keys_in_context must be a list.'
             )
+
+    @property
+    def cnd(self):
+        r"""Returns a dictionary of citation-key/number pair maps.
+
+        CND(Citation to Number Dictionary) will be used to replace
+        citation text in word file such as \\cite{key1} to
+        number such ash [1].
+        WdBibTeX.cnd could be return the following dictionary.
+
+        .. code-block:: python
+
+            {'\\\\cite\\{key1\\}': '[1]',
+             '\\\\cite\\{key1,key2,key3\\}': '[1-3]'}
+
+        Returns
+        -------
+        dict or None
+            Search key and replacement value.
+            None if LaTeX compile is not done.
+        """
+        return self.__replacer
+
+    @property
+    def citation(self):
+        """[Read only] Returns citation key(s) found in aux file.
+        """
+        return self.__citation
+
+    @property
+    def bibstyle(self):
+        """[Read only] Returns bibliography style string written in aux file.
+        """
+        return self.__bibstyle
+
+    @property
+    def bibdata(self):
+        """[Read only] Returns bibliography data file(s) written in aux file.
+        """
+        return self.__bibdata
+
+    @property
+    def bibcite(self):
+        """[Read only] Returns citation key and citation number dictionary
+        """
+        return self.__bibcite
+
+    def read_aux(self):
+        r"""Read .aux file.
+
+        Aux file will be read line-by-line.
+        Following four types of the line will be
+        interpreted and stored to the LaTeX attributes.
+
+        - \\citation{keys}
+           Appended to the citation attribute
+           (list object) key as string.
+        - \\bibstyle{s}
+           Stored as bibstyle string attribute.
+        - \\bibdata{d}
+           Stored as bibdata string attribute.
+        - \\bibcite{k}{n}
+           Added to bibcite attribute
+           (dictionary) as {k: n}.
+        """
+        fn = self.workdir / (self.__targetbasename + '.aux')
+        with codecs.open(fn, 'r', 'utf-8') as f:
+            self.__auxdata = f.readlines()
+        for line in self.__auxdata:
+            self.__parse_line(line)
+        self.__build_conversion_dict()
+        self.__citation_labels.update(self.__bibcite)
+        self.__get_replacer()
+
+    def __parse_line(self, line):
+        r"""Parse one line of .aux
+
+        Parameters
+        ----------
+        line : str
+            One line of .aux file to parse.
+        """
+        if line.startswith('\\citation'):
+            self.__citation.append(line[len('\\citation{'): -len('}\n')])
+        elif line.startswith('\\bibstyle'):
+            self.__bibstyle = line[len('\\bibstyle{'): -len('}\n')]
+        elif line.startswith('\\bibdata'):
+            self.__bibdata = line[len('\\bibdata{'): -len('}\n')]
+        elif line.startswith('\\bibcite'):
+            key, value = line[len('\\bibcite{'): -len('}\n')].split('}{')
+            value = int(value)
+            self.__bibcite.update({key: value})
+
+    def __get_replacer(self):
+        """Get key and value for replace word document.
+        """
+        replacer = dict()
+        for k, v in self.__conversion_dict.items():
+            replacer.update({'\\\\cite\\{%s\\}' % k: '[%s]' % v})
+        self.__replacer = replacer
+
+    def __build_conversion_dict(self):
+        r"""Prepare replaing citation keys with dashed range strings.
+
+        Generate dictionary of such as {'refa,refb,refc,refe,refg': '1-3,5,7'}.
+        """
+        for cite in self.__citation:
+            cite_nums = [self.__bibcite[c] for c in cite.split(',')]
+            self.__conversion_dict.update(
+                {cite: self.__compress(cite_nums)}
+                )
+        for cite in self.citation_keys_in_context:
+            cite_nums = [self.__bibcite[c] for c in cite.split(',')]
+            if self.use_cite_package:
+                self.__conversion_dict.update(
+                    {cite: self.__compress(sorted(cite_nums))}
+                )
+            else:
+                self.__conversion_dict.update(
+                    {cite: ','.join(str(c) for c in cite_nums)}
+                    )
 
     def cite(self, s):
         r"""Do \cite command formatting.
