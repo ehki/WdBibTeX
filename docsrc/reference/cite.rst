@@ -17,9 +17,16 @@ Attributes
 .. autosummary::
    :toctree: api
 
+   Cite.bibcite
+   Cite.bibdata
+   Cite.bibstyle
+   Cite.citation
+   Cite.citation_keys_in_context
    Cite.citation_labels
    Cite.citeleft
    Cite.citeright
+   Cite.cnd
+   Cite.use_cite_package
 
 Methods
 -------
@@ -27,3 +34,5 @@ Methods
    :toctree: api
 
    Cite.cite
+   Cite.parse_context
+   Cite.read_aux

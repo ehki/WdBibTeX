@@ -167,7 +167,25 @@ class LaTeX:
 
     @property
     def packages(self):
-        """Used LaTeX packages."""
+        r"""Returns used LaTeX packages.
+
+        Returns
+        -------
+        str
+            Multi-line LaTeX \\usepackage[options]{package} string.
+
+        Examples
+        --------
+        >>> import wdbibtex
+        >>> tx = wdbibtex.LaTeX()
+        >>> tx.add_package('cite')
+        >>> print(tx.packages)
+        \usepackage{cite}
+        >>> tx.add_package('graphicx', 'dvipdfmx')
+        >>> print(tx.packages)
+        \usepackage{cite}
+        \usepackage[dvipdfmx]{graphicx}
+        """
         return self.__packages
 
     def __update_packages(self):
@@ -505,12 +523,35 @@ class Cite:
 
     @property
     def citeleft(self):
-        """Left delimiter of list. Default '['.
+        r"""Left delimiter of list. Default '['.
 
         Returns
         -------
         str
             Left delimiter of list.
+
+        Examples
+        --------
+        >>> import wdbibtex
+        >>> c = wdbibtex.Cite()
+        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> c.citeleft
+        '['
+        >>> c.cite('\\cite{key1}')
+        '[1]'
+        >>> c.cite('\\cite{key2,key3}')
+        '[2,3]'
+        >>> c.cite('\\cite{key3,key2,key1}')
+        '[3,2,1]'
+        >>> c.citeleft = '('
+        >>> c.citeleft
+        '('
+        >>> c.cite('\\cite{key1}')
+        '(1]'
+        >>> c.cite('\\cite{key2,key3}')
+        '(2,3]'
+        >>> c.cite('\\cite{key3,key2,key1}')
+        '(3,2,1]'
         """
         return self.__citeleft
 
@@ -524,12 +565,35 @@ class Cite:
 
     @property
     def citeright(self):
-        """Right delimiter of list. Default ']'.
+        r"""Right delimiter of list. Default ']'.
 
         Returns
         -------
         str
             Right delimiter of list.
+
+        Examples
+        --------
+        >>> import wdbibtex
+        >>> c = wdbibtex.Cite()
+        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> c.citeright
+        ']'
+        >>> c.cite('\\cite{key1}')
+        '[1]'
+        >>> c.cite('\\cite{key2,key3}')
+        '[2,3]'
+        >>> c.cite('\\cite{key3,key2,key1}')
+        '[3,2,1]'
+        >>> c.citeright = ')'
+        >>> c.citeright
+        ')'
+        >>> c.cite('\\cite{key1}')
+        '[1)'
+        >>> c.cite('\\cite{key2,key3}')
+        '[2,3)'
+        >>> c.cite('\\cite{key3,key2,key1}')
+        '[3,2,1)'
         """
         return self.__citeright
 
@@ -596,6 +660,16 @@ class Cite:
         ----------
         c : str
             Parsed texts.
+
+        Examples
+        --------
+        >>> import wdbibtex
+        >>> ct = wdbibtex.Cite()
+        >>> ct.parse_context(
+        ...     'Some citation \\cite{key}. Some example \\cite{key1,key2}'
+        ... )
+        >>> ct.citation_keys_in_context
+        ['key', 'key1,key2']
         """
         found_keys = re.findall(r'\\+cite\{(.*?)\}', c)
         for k in found_keys:
@@ -748,18 +822,31 @@ class Cite:
         ----------
         s : str
             Raw string to be formatted.
-            For example, \cite{key1} or \\cite{key2,key3}.
+            For example, \\cite{key1} or \\cite{key2,key3}.
 
         Examples
         --------
-        >>> c = wdbibtex.Cite(use_cite_package=True)
-        >>> c.bibcite = {'key1': 1, 'key2': 2, 'key3': 3}
-        >>> c.cite('\cite{key1}')
+        >>> import wdbibtex
+        >>> c = wdbibtex.Cite()
+        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> c.cite('\\cite{key1}')
         '[1]'
-        >>> c.cite('\cite{key1,key2}')
-        '[1,2]'
-        >>> c.cite('\cite{key1,key2,key3}')
-        '[1-3]'
+        >>> c.cite('\\cite{key2,key3}')
+        '[2,3]'
+        >>> c.cite('\\cite{key3,key2,key1}')
+        '[3,2,1]'
+
+        >>> import wdbibtex
+        >>> c = wdbibtex.Cite(use_cite_package=True)
+        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> c.cite('\\cite{key1}')
+        '[1]'
+        >>> c.cite('\\cite{key2,key3}')
+        '[2,3]'
+        >>> c.cite('\\cite{key3,key2,key1}')
+        '[1\u20133]'
+
+        Note \\u2013 is en-dash.
         """
         p = re.compile(r'\\+cite\{(.*)\}')
         if p.match(s):
@@ -849,6 +936,12 @@ class Bbl:
         Base name of LaTeX related files.
     workdir : str or path object, default '.tmp'
         Temporal working directory to store LaTeX contents.
+
+    Examples
+    --------
+    >>> import wdbibtex
+    >>> bb = wdbibtex.Bbl()
+    >>> bb.read_bbl()  # doctest: +SKIP
     """
     def __init__(
         self,
@@ -883,9 +976,13 @@ class Bbl:
 
         Returns
         -------
-        str or None
+        str
             Plain text of the thebibliography.
-            None if LaTeX compile is not done.
+
+        Raises
+        ------
+        ValueError
+            If thebibliography text is not set.
         """  # noqa E501
         if self.__thebibtext is None:
             raise ValueError(
@@ -897,6 +994,12 @@ class Bbl:
         """Read .bbl file.
 
         Read .bbl file to extract formatted thebibliography text.
+
+        Examples
+        --------
+        >>> import wdbibtex
+        >>> bb = wdbibtex.Bbl()
+        >>> bb.read_bbl()  # doctest: +SKIP
         """
         fn = self.workdir / (self.__targetbasename + '.bbl')
         with codecs.open(fn, 'r', 'utf-8') as f:
