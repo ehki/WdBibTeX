@@ -849,6 +849,12 @@ class Bbl:
         Base name of LaTeX related files.
     workdir : str or path object, default '.tmp'
         Temporal working directory to store LaTeX contents.
+
+    Examples
+    --------
+    >>> import wdbibtex
+    >>> bb = wdbibtex.Bbl()
+    >>> bb.read_bbl()  # doctest: +SKIP
     """
     def __init__(
         self,
@@ -883,9 +889,13 @@ class Bbl:
 
         Returns
         -------
-        str or None
+        str
             Plain text of the thebibliography.
-            None if LaTeX compile is not done.
+
+        Raises
+        ------
+        ValueError
+            If thebibliography text is not set.
         """  # noqa E501
         if self.__thebibtext is None:
             raise ValueError(
@@ -897,6 +907,12 @@ class Bbl:
         """Read .bbl file.
 
         Read .bbl file to extract formatted thebibliography text.
+
+        Examples
+        --------
+        >>> import wdbibtex
+        >>> bb = wdbibtex.Bbl()
+        >>> bb.read_bbl()  # doctest: +SKIP
         """
         fn = self.workdir / (self.__targetbasename + '.bbl')
         with codecs.open(fn, 'r', 'utf-8') as f:
