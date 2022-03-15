@@ -505,12 +505,35 @@ class Cite:
 
     @property
     def citeleft(self):
-        """Left delimiter of list. Default '['.
+        r"""Left delimiter of list. Default '['.
 
         Returns
         -------
         str
             Left delimiter of list.
+
+        Examples
+        --------
+        >>> import wdbibtex
+        >>> c = wdbibtex.Cite()
+        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> c.citeleft
+        '['
+        >>> c.cite('\\cite{key1}')
+        '[1]'
+        >>> c.cite('\\cite{key2,key3}')
+        '[2,3]'
+        >>> c.cite('\\cite{key3,key2,key1}')
+        '[3,2,1]'
+        >>> c.citeleft = '('
+        >>> c.citeleft
+        '('
+        >>> c.cite('\\cite{key1}')
+        '(1]'
+        >>> c.cite('\\cite{key2,key3}')
+        '(2,3]'
+        >>> c.cite('\\cite{key3,key2,key1}')
+        '(3,2,1]'
         """
         return self.__citeleft
 
@@ -524,12 +547,35 @@ class Cite:
 
     @property
     def citeright(self):
-        """Right delimiter of list. Default ']'.
+        r"""Right delimiter of list. Default ']'.
 
         Returns
         -------
         str
             Right delimiter of list.
+
+        Examples
+        --------
+        >>> import wdbibtex
+        >>> c = wdbibtex.Cite()
+        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> c.citeright
+        ']'
+        >>> c.cite('\\cite{key1}')
+        '[1]'
+        >>> c.cite('\\cite{key2,key3}')
+        '[2,3]'
+        >>> c.cite('\\cite{key3,key2,key1}')
+        '[3,2,1]'
+        >>> c.citeright = ')'
+        >>> c.citeright
+        ')'
+        >>> c.cite('\\cite{key1}')
+        '[1)'
+        >>> c.cite('\\cite{key2,key3}')
+        '[2,3)'
+        >>> c.cite('\\cite{key3,key2,key1}')
+        '[3,2,1)'
         """
         return self.__citeright
 
