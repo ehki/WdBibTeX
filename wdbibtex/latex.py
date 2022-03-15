@@ -167,7 +167,25 @@ class LaTeX:
 
     @property
     def packages(self):
-        """Used LaTeX packages."""
+        r"""Returns used LaTeX packages.
+
+        Returns
+        -------
+        str
+            Multi-line LaTeX \\usepackage[options]{package} string.
+
+        Examples
+        --------
+        >>> import wdbibtex
+        >>> tx = wdbibtex.LaTeX()
+        >>> tx.add_package('cite')
+        >>> print(tx.packages)
+        \usepackage{cite}
+        >>> tx.add_package('graphicx', 'dvipdfmx')
+        >>> print(tx.packages)
+        \usepackage{cite}
+        \usepackage[dvipdfmx]{graphicx}
+        """
         return self.__packages
 
     def __update_packages(self):
