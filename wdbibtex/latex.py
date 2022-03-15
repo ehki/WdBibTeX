@@ -927,7 +927,7 @@ class Cite:
         return final_str
 
 
-class Bbl:
+class Bibliography:
     """LaTeX bbl file related contents and commands.
 
     Parameters
@@ -940,7 +940,7 @@ class Bbl:
     Examples
     --------
     >>> import wdbibtex
-    >>> bb = wdbibtex.Bbl()
+    >>> bb = wdbibtex.Bibliography()
     >>> bb.read_bbl()  # doctest: +SKIP
     """
     def __init__(
@@ -948,7 +948,7 @@ class Bbl:
         targetbasename='wdbib',
         workdir='.tmp',
     ):
-        """Cunstructor of Bbl
+        """Cunstructor of Bibliography
         """
 
         # Store settings in internal attributes.
@@ -998,7 +998,7 @@ class Bbl:
         Examples
         --------
         >>> import wdbibtex
-        >>> bb = wdbibtex.Bbl()
+        >>> bb = wdbibtex.Bibliography()
         >>> bb.read_bbl()  # doctest: +SKIP
         """
         fn = self.workdir / (self.__targetbasename + '.bbl')

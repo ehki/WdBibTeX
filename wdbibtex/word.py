@@ -155,7 +155,7 @@ class WdBibTeX:
         ct.parse_context(context)
         tx.build()
         ct.read_aux()
-        bb = wdbibtex.Bbl(workdir=self.__workdir)
+        bb = wdbibtex.Bibliography(workdir=self.__workdir)
         bb.read_bbl()
 
         # Replace \thebibliography
