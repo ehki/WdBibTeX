@@ -596,6 +596,16 @@ class Cite:
         ----------
         c : str
             Parsed texts.
+
+        Examples
+        --------
+        >>> import wdbibtex
+        >>> ct = wdbibtex.Cite()
+        >>> ct.parse_context(
+        ...     'Some citation \\cite{key}. Some example \\cite{key1,key2}'
+        ... )
+        >>> ct.citation_keys_in_context
+        ['key', 'key1,key2']
         """
         found_keys = re.findall(r'\\+cite\{(.*?)\}', c)
         for k in found_keys:
