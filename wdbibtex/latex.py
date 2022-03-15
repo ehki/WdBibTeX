@@ -758,18 +758,31 @@ class Cite:
         ----------
         s : str
             Raw string to be formatted.
-            For example, \cite{key1} or \\cite{key2,key3}.
+            For example, \\cite{key1} or \\cite{key2,key3}.
 
         Examples
         --------
-        >>> c = wdbibtex.Cite(use_cite_package=True)
-        >>> c.bibcite = {'key1': 1, 'key2': 2, 'key3': 3}
-        >>> c.cite('\cite{key1}')
+        >>> import wdbibtex
+        >>> c = wdbibtex.Cite()
+        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> c.cite('\\cite{key1}')
         '[1]'
-        >>> c.cite('\cite{key1,key2}')
-        '[1,2]'
-        >>> c.cite('\cite{key1,key2,key3}')
-        '[1-3]'
+        >>> c.cite('\\cite{key2,key3}')
+        '[2,3]'
+        >>> c.cite('\\cite{key3,key2,key1}')
+        '[3,2,1]'
+
+        >>> import wdbibtex
+        >>> c = wdbibtex.Cite(use_cite_package=True)
+        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> c.cite('\\cite{key1}')
+        '[1]'
+        >>> c.cite('\\cite{key2,key3}')
+        '[2,3]'
+        >>> c.cite('\\cite{key3,key2,key1}')
+        '[1\u20133]'
+
+        Note \\u2013 is en-dash.
         """
         p = re.compile(r'\\+cite\{(.*)\}')
         if p.match(s):
