@@ -1,4 +1,4 @@
-from .tests import TestLaTeX
+from .test_latex import TestLaTeX
 
 __all__ = [
     'TestLaTeX',

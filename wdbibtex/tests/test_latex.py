@@ -156,13 +156,18 @@ class TestLaTeX(unittest.TestCase):
             self.assertEqual(c1, c2)
 
         # Parse test for aux file.
-        ltx.read_aux()
+        ct = wdbibtex.Cite()
+        ct.read_aux()
         self.assertEqual(
-            ltx.cnd['\\\\cite\\{enArticle1\\}'],
+            ct.cnd['\\\\cite\\{enArticle1\\}'],
             '[1]'
         )
+
+        # Parse bbl file.
+        bb = wdbibtex.Bbl()
+        bb.read_bbl()
         self.assertEqual(
-            ltx.tbt,
+            bb.tbt,
             u"[1]\tI. Yamada, J. Yamada, S. Yamada, and S. Yamada, "
             u"“Title1,” Japanese Journal, vol. 15, pp. 20\u201430, "
             u"march 2019.\n"
@@ -186,15 +191,19 @@ class TestLaTeX(unittest.TestCase):
             shutil.copy(b, '.tmp/')
 
         ltx = wdbibtex.LaTeX()
+        ct = wdbibtex.Cite()
         ltx.set_bibliographystyle('ieeetr')
         # ltx.add_package('cite')
 
-        ltx.write(
+        contents = (
             'Test contents with one citation \\cite{enArticle1}.\n'
             'Another citation \\cite{enArticle2}.\n'
             'Multiple citations in one citecommand '
             '\\cite{enArticle1,enArticle3}'
         )
+        ltx.write(contents)
+        ct.parse_context(contents)
+
         ltx.build()
 
         # File check
@@ -239,7 +248,7 @@ class TestLaTeX(unittest.TestCase):
             "\\begin{thebibliography}{1}\n",
             "\n",
             "\\bibitem{enArticle1}\n",
-            "I.~Yamada, J.~Yamada, S.~Yamada, and S.~Yamada, ``Title1,'' {\em Japanese\n",  # noqa #E501
+            "I.~Yamada, J.~Yamada, S.~Yamada, and S.~Yamada, ``Title1,'' {\\em Japanese\n",  # noqa #E501
             "  Journal}, vol.~15, pp.~20--30, march 2019.\n",
             "\n",
             "\\bibitem{enArticle2}\n",
@@ -259,21 +268,24 @@ class TestLaTeX(unittest.TestCase):
             self.assertEqual(c1, c2)
 
         # Parse test for aux file.
-        ltx.read_aux()
+        ct.read_aux()
         self.assertEqual(
-            ltx.cnd['\\\\cite\\{enArticle1\\}'],
+            ct.cnd['\\\\cite\\{enArticle1\\}'],
             '[1]'
         )
         self.assertEqual(
-            ltx.cnd['\\\\cite\\{enArticle2\\}'],
+            ct.cnd['\\\\cite\\{enArticle2\\}'],
             '[2]'
         )
         self.assertEqual(
-            ltx.cnd['\\\\cite\\{enArticle1,enArticle3\\}'],
+            ct.cnd['\\\\cite\\{enArticle1,enArticle3\\}'],
             '[1,3]'
         )
+
+        bb = wdbibtex.Bbl()
+        bb.read_bbl()
         self.assertEqual(
-            ltx.tbt,
+            bb.tbt,
             (u"[1]\tI. Yamada, J. Yamada, S. Yamada, and S. Yamada, “Title1,” "
              u"Japanese Journal, vol. 15, pp. 20—30, march 2019.\n"
              u"[2]\tG. Yamada and R. Yamada, “Title2,” Japanese Journal, "

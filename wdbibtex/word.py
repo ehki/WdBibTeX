@@ -33,10 +33,10 @@ class WdBibTeX:
 
     Examples
     --------
-    >>> from wdbibtex import WdBiBTeX
-    >>> wd = WdBibTeX('sample.docx')
-    >>> wd.build()
-    >>> wd.close()
+    >>> from wdbibtex import WdBibTeX
+    >>> wd = WdBibTeX('sample.docx')  # doctest: +SKIP
+    >>> wd.build()  # doctest: +SKIP
+    >>> wd.close()  # doctest: +SKIP
     """
 
     def __init__(
