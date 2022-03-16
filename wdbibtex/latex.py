@@ -940,7 +940,7 @@ class Bibliography:
         self.__targetbasename = targetbasename
 
     @property
-    def tbt(self):
+    def thebibliography(self):
         r"""Plain text to replace \\thebibliography in word file.
 
         A plain text of LaTeX-processed bibliography list.

@@ -162,7 +162,7 @@ class WdBibTeX:
         for _, start, end in self.__thebibliographies[::-1]:
             rng = self.__dc.Range(Start=start, End=end)
             rng.Delete()
-            rng.InsertAfter(bb.tbt)
+            rng.InsertAfter(bb.thebibliography)
 
         # Replace \cite{*}
         # for key, val in ct.cnd.items():
