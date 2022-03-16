@@ -248,7 +248,7 @@ class TestLaTeX(unittest.TestCase):
             "\\begin{thebibliography}{1}\n",
             "\n",
             "\\bibitem{enArticle1}\n",
-            "I.~Yamada, J.~Yamada, S.~Yamada, and S.~Yamada, ``Title1,'' {\em Japanese\n",  # noqa #E501
+            "I.~Yamada, J.~Yamada, S.~Yamada, and S.~Yamada, ``Title1,'' {\\em Japanese\n",  # noqa #E501
             "  Journal}, vol.~15, pp.~20--30, march 2019.\n",
             "\n",
             "\\bibitem{enArticle2}\n",
