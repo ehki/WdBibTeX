@@ -17,7 +17,7 @@ Attributes
 .. autosummary::
    :toctree: api
 
-   Bbl.tbt
+   Bbl.thebibliography
 
 Methods
 -------

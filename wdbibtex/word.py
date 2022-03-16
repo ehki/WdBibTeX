@@ -150,25 +150,27 @@ class WdBibTeX:
         tx.write(context, bib=bib)
         ct = wdbibtex.Cite(
             workdir=self.__workdir,
-            use_cite_package=tx.is_package_used('cite'),
+            use_cite_package=bool(tx.is_package_used('cite')),
         )
         ct.parse_context(context)
         tx.build()
         ct.read_aux()
-        bb = wdbibtex.Bbl(workdir=self.__workdir)
+        bb = wdbibtex.Bibliography(workdir=self.__workdir)
         bb.read_bbl()
 
         # Replace \thebibliography
         for _, start, end in self.__thebibliographies[::-1]:
             rng = self.__dc.Range(Start=start, End=end)
             rng.Delete()
-            rng.InsertAfter(bb.tbt)
+            rng.InsertAfter(bb.thebibliography)
 
         # Replace \cite{*}
-        for key, val in ct.cnd.items():
-            if 'thebibliography' in key:
-                continue
-            self.replace_all(key, val)
+        # for key, val in ct.cnd.items():
+        for key, _, _ in self.__cites:
+            key_escaped = key.replace('\\', '\\\\')
+            key_escaped = key_escaped.replace('{', '\\{')
+            key_escaped = key_escaped.replace('}', '\\}')
+            self.replace_all(key_escaped, ct.cite(key))
 
         # Replace from \begin{preamble} to \end{preamble}^13
         # Note ^13 corresponds carriage return.

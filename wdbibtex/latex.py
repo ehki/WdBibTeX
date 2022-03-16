@@ -410,6 +410,7 @@ class LaTeX:
             elif re.match(r'.*documentclass.*', ln):
                 detect_documentclass = True
                 m = re.match(r'.*documentclass(\[(.*)\])*\{(.*)\}', ln)
+                documentclass_opt = []
                 if m.group(1) is not None:
                     documentclass_opt = m.group(2).replace(' ', '').split(',')
                 documentclsass = m.group(3)
@@ -418,11 +419,12 @@ class LaTeX:
 
             elif re.match(r'.*usepackage.*', ln):
                 m = re.match(r'.*usepackage(\[(.*)\])*\{(.*)\}', ln)
+                package_opt = []
                 if m.group(1) is not None:
-                    package = m.group(2).replace(' ', '').split(',')
+                    package_opt = m.group(2).replace(' ', '').split(',')
                 package = m.group(3)
 
-                self.add_package(package, *package)
+                self.add_package(package, *package_opt)
 
             elif re.match(r'.*bibliographystyle.*', ln):
                 m = re.match(r'.*bibliographystyle\{(.*)\}', ln)
@@ -689,28 +691,6 @@ class Cite:
             )
 
     @property
-    def cnd(self):
-        r"""Returns a dictionary of citation-key/number pair maps.
-
-        CND(Citation to Number Dictionary) will be used to replace
-        citation text in word file such as \\cite{key1} to
-        number such ash [1].
-        WdBibTeX.cnd could be return the following dictionary.
-
-        .. code-block:: python
-
-            {'\\\\cite\\{key1\\}': '[1]',
-             '\\\\cite\\{key1,key2,key3\\}': '[1-3]'}
-
-        Returns
-        -------
-        dict or None
-            Search key and replacement value.
-            None if LaTeX compile is not done.
-        """
-        return self.__replacer
-
-    @property
     def citation(self):
         """[Read only] Returns citation key(s) found in aux file.
         """
@@ -927,7 +907,7 @@ class Cite:
         return final_str
 
 
-class Bbl:
+class Bibliography:
     """LaTeX bbl file related contents and commands.
 
     Parameters
@@ -940,7 +920,7 @@ class Bbl:
     Examples
     --------
     >>> import wdbibtex
-    >>> bb = wdbibtex.Bbl()
+    >>> bb = wdbibtex.Bibliography()
     >>> bb.read_bbl()  # doctest: +SKIP
     """
     def __init__(
@@ -948,7 +928,7 @@ class Bbl:
         targetbasename='wdbib',
         workdir='.tmp',
     ):
-        """Cunstructor of Bbl
+        """Cunstructor of Bibliography
         """
 
         # Store settings in internal attributes.
@@ -962,7 +942,7 @@ class Bbl:
         self.__targetbasename = targetbasename
 
     @property
-    def tbt(self):
+    def thebibliography(self):
         r"""Plain text to replace \\thebibliography in word file.
 
         A plain text of LaTeX-processed bibliography list.
@@ -998,7 +978,7 @@ class Bbl:
         Examples
         --------
         >>> import wdbibtex
-        >>> bb = wdbibtex.Bbl()
+        >>> bb = wdbibtex.Bibliography()
         >>> bb.read_bbl()  # doctest: +SKIP
         """
         fn = self.workdir / (self.__targetbasename + '.bbl')

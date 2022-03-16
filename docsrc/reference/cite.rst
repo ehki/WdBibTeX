@@ -25,7 +25,6 @@ Attributes
    Cite.citation_labels
    Cite.citeleft
    Cite.citeright
-   Cite.cnd
    Cite.use_cite_package
 
 Methods

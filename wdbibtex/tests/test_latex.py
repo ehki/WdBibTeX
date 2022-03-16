@@ -159,15 +159,15 @@ class TestLaTeX(unittest.TestCase):
         ct = wdbibtex.Cite()
         ct.read_aux()
         self.assertEqual(
-            ct.cnd['\\\\cite\\{enArticle1\\}'],
+            ct.cite('\\cite{enArticle1}'),
             '[1]'
         )
 
         # Parse bbl file.
-        bb = wdbibtex.Bbl()
+        bb = wdbibtex.Bibliography()
         bb.read_bbl()
         self.assertEqual(
-            bb.tbt,
+            bb.thebibliography,
             u"[1]\tI. Yamada, J. Yamada, S. Yamada, and S. Yamada, "
             u"“Title1,” Japanese Journal, vol. 15, pp. 20\u201430, "
             u"march 2019.\n"
@@ -270,22 +270,22 @@ class TestLaTeX(unittest.TestCase):
         # Parse test for aux file.
         ct.read_aux()
         self.assertEqual(
-            ct.cnd['\\\\cite\\{enArticle1\\}'],
+            ct.cite('\\cite{enArticle1}'),
             '[1]'
         )
         self.assertEqual(
-            ct.cnd['\\\\cite\\{enArticle2\\}'],
+            ct.cite('\\cite{enArticle2}'),
             '[2]'
         )
         self.assertEqual(
-            ct.cnd['\\\\cite\\{enArticle1,enArticle3\\}'],
+            ct.cite('\\cite{enArticle1,enArticle3}'),
             '[1,3]'
         )
 
-        bb = wdbibtex.Bbl()
+        bb = wdbibtex.Bibliography()
         bb.read_bbl()
         self.assertEqual(
-            bb.tbt,
+            bb.thebibliography,
             (u"[1]\tI. Yamada, J. Yamada, S. Yamada, and S. Yamada, “Title1,” "
              u"Japanese Journal, vol. 15, pp. 20—30, march 2019.\n"
              u"[2]\tG. Yamada and R. Yamada, “Title2,” Japanese Journal, "
