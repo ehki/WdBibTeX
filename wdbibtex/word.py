@@ -165,10 +165,12 @@ class WdBibTeX:
             rng.InsertAfter(bb.tbt)
 
         # Replace \cite{*}
-        for key, val in ct.cnd.items():
-            if 'thebibliography' in key:
-                continue
-            self.replace_all(key, val)
+        # for key, val in ct.cnd.items():
+        for key, _, _ in self.__cites:
+            key_escaped = key.replace('\\', '\\\\')
+            key_escaped = key_escaped.replace('{', '\\{')
+            key_escaped = key_escaped.replace('}', '\\}')
+            self.replace_all(key_escaped, ct.cite(key))
 
         # Replace from \begin{preamble} to \end{preamble}^13
         # Note ^13 corresponds carriage return.
