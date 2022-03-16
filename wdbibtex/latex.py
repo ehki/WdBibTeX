@@ -410,6 +410,7 @@ class LaTeX:
             elif re.match(r'.*documentclass.*', ln):
                 detect_documentclass = True
                 m = re.match(r'.*documentclass(\[(.*)\])*\{(.*)\}', ln)
+                documentclass_opt = []
                 if m.group(1) is not None:
                     documentclass_opt = m.group(2).replace(' ', '').split(',')
                 documentclsass = m.group(3)
@@ -418,11 +419,12 @@ class LaTeX:
 
             elif re.match(r'.*usepackage.*', ln):
                 m = re.match(r'.*usepackage(\[(.*)\])*\{(.*)\}', ln)
+                package_opt = []
                 if m.group(1) is not None:
-                    package = m.group(2).replace(' ', '').split(',')
+                    package_opt = m.group(2).replace(' ', '').split(',')
                 package = m.group(3)
 
-                self.add_package(package, *package)
+                self.add_package(package, *package_opt)
 
             elif re.match(r'.*bibliographystyle.*', ln):
                 m = re.match(r'.*bibliographystyle\{(.*)\}', ln)
