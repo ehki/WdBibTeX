@@ -150,7 +150,7 @@ class WdBibTeX:
         tx.write(context, bib=bib)
         ct = wdbibtex.Cite(
             workdir=self.__workdir,
-            use_cite_package=tx.is_package_used('cite'),
+            use_cite_package=bool(tx.is_package_used('cite')),
         )
         ct.parse_context(context)
         tx.build()
