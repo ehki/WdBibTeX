@@ -5,7 +5,548 @@ import os
 import re
 
 
-class LaTeX:
+class Cite:
+    """Citation package emurating contents and commands.
+
+    Parameters
+    ----------
+    citeleft : str, default '['
+        Left delimiter of list.
+    citeright : str, default ']'
+        Right delimiter of list.
+    use_cite_package : bool, default False
+        If False, emulate LaTeX's use_cite_package citation handling.
+        If True, emulate cite package's behavior.
+    """
+    def __init__(
+        self,
+        citeleft='[',
+        citeright=']',
+        targetbasename='wdbib',
+        use_cite_package=False,
+        workdir='.tmp',
+    ):
+        """Costructor of Cite.
+        """
+
+        # Store settings in internal attributes.
+        if os.path.isabs(workdir):
+            self.workdir = pathlib.Path(workdir)
+        else:
+            self.workdir = (
+                pathlib.Path(os.getcwd()) / workdir
+            ).resolve()
+
+        self._targetbasename = targetbasename
+
+        self._replacer = None
+        self._citation = []
+        self._bibstyle = None
+        self._bibdata = None
+        self._bibcite = {}
+        self._conversion_dict = {}
+
+        self._citation_labels = dict()
+        self._citeleft = citeleft
+        self._citeright = citeright
+        self.use_cite_package = use_cite_package
+        self.citation_keys_in_context = []
+
+    @property
+    def citeleft(self):
+        r"""Left delimiter of list. Default '['.
+
+        Returns
+        -------
+        str
+            Left delimiter of list.
+
+        Examples
+        --------
+        >>> import wdbibtex
+        >>> c = wdbibtex.Cite()
+        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> c.citeleft
+        '['
+        >>> c.cite('\\cite{key1}')
+        '[1]'
+        >>> c.cite('\\cite{key2,key3}')
+        '[2,3]'
+        >>> c.cite('\\cite{key3,key2,key1}')
+        '[3,2,1]'
+        >>> c.citeleft = '('
+        >>> c.citeleft
+        '('
+        >>> c.cite('\\cite{key1}')
+        '(1]'
+        >>> c.cite('\\cite{key2,key3}')
+        '(2,3]'
+        >>> c.cite('\\cite{key3,key2,key1}')
+        '(3,2,1]'
+        """
+        return self._citeleft
+
+    @citeleft.setter
+    def citeleft(self, s):
+        if not isinstance(s, str):
+            TypeError(
+                'expected string object but '
+                '%s object given.' % type(s))
+        self._citeleft = s
+
+    @property
+    def citeright(self):
+        r"""Right delimiter of list. Default ']'.
+
+        Returns
+        -------
+        str
+            Right delimiter of list.
+
+        Examples
+        --------
+        >>> import wdbibtex
+        >>> c = wdbibtex.Cite()
+        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> c.citeright
+        ']'
+        >>> c.cite('\\cite{key1}')
+        '[1]'
+        >>> c.cite('\\cite{key2,key3}')
+        '[2,3]'
+        >>> c.cite('\\cite{key3,key2,key1}')
+        '[3,2,1]'
+        >>> c.citeright = ')'
+        >>> c.citeright
+        ')'
+        >>> c.cite('\\cite{key1}')
+        '[1)'
+        >>> c.cite('\\cite{key2,key3}')
+        '[2,3)'
+        >>> c.cite('\\cite{key3,key2,key1}')
+        '[3,2,1)'
+        """
+        return self._citeright
+
+    @citeright.setter
+    def citeright(self, s):
+        if not isinstance(s, str):
+            TypeError(
+                'expected string object but '
+                '%s object given.' % type(s))
+        self._citeright = s
+
+    @property
+    def citation_labels(self):
+        """Key to number map of citations.
+
+        Returns
+        -------
+        dict
+            Citation key to citation number map.
+        """
+        return self._citation_labels
+
+    @citation_labels.setter
+    def citation_labels(self, d):
+        if not isinstance(d, str):
+            TypeError(
+                'expected dictionary object but '
+                '%s object given.' % type(d))
+        self._citation_labels = d
+
+    @property
+    def use_cite_package(self):
+        """If Cite class emulate cite package's behavior.
+
+        Returns
+        -------
+        bool
+            If True, emulate cite package's behavior.
+            If False, emulrate LaTeX's original citation mechanism.
+
+        Raises
+        ------
+        TypeError
+            If non-bool value is given to setter.
+        """
+        return self._use_cite_package
+
+    @use_cite_package.setter
+    def use_cite_package(self, b):
+        if isinstance(b, bool):
+            self._use_cite_package = b
+        else:
+            raise TypeError(
+                'use_cite_package attribute must be bool.'
+            )
+
+    def parse_context(self, c):
+        r"""Find all citation keys from context written to .tex file.
+
+        Find all citation keys from context written to .tex file.
+        Found keys are stores to citation_keys_in_context attribute.
+
+        Parameters
+        ----------
+        c : str
+            Parsed texts.
+
+        Examples
+        --------
+        >>> import wdbibtex
+        >>> ct = wdbibtex.Cite()
+        >>> ct.parse_context(
+        ...     'Some citation \\cite{key}. Some example \\cite{key1,key2}'
+        ... )
+        >>> ct.citation_keys_in_context
+        ['key', 'key1,key2']
+        """
+        found_keys = re.findall(r'\\+cite\{(.*?)\}', c)
+        for k in found_keys:
+            self.citation_keys_in_context.append(k)
+
+    @property
+    def citation_keys_in_context(self):
+        return self._citation_keys_in_context
+
+    @citation_keys_in_context.setter
+    def citation_keys_in_context(self, lis):
+        if isinstance(lis, list):
+            self._citation_keys_in_context = lis
+        else:
+            raise TypeError(
+                'citation_keys_in_context must be a list.'
+            )
+
+    @property
+    def citation(self):
+        """[Read only] Returns citation key(s) found in aux file.
+        """
+        return self._citation
+
+    @property
+    def bibstyle(self):
+        """[Read only] Returns bibliography style string written in aux file.
+        """
+        return self._bibstyle
+
+    @property
+    def bibdata(self):
+        """[Read only] Returns bibliography data file(s) written in aux file.
+        """
+        return self._bibdata
+
+    @property
+    def bibcite(self):
+        """[Read only] Returns citation key and citation number dictionary
+        """
+        return self._bibcite
+
+    def read_aux(self):
+        r"""Read .aux file.
+
+        Aux file will be read line-by-line.
+        Following four types of the line will be
+        interpreted and stored to the LaTeX attributes.
+
+        - \\citation{keys}
+           Appended to the citation attribute
+           (list object) key as string.
+        - \\bibstyle{s}
+           Stored as bibstyle string attribute.
+        - \\bibdata{d}
+           Stored as bibdata string attribute.
+        - \\bibcite{k}{n}
+           Added to bibcite attribute
+           (dictionary) as {k: n}.
+        """
+        fn = self.workdir / (self._targetbasename + '.aux')
+        with codecs.open(fn, 'r', 'utf-8') as f:
+            self._auxdata = f.readlines()
+        for line in self._auxdata:
+            self._parse_line(line)
+        self._build_conversion_dict()
+        self._citation_labels.update(self._bibcite)
+        self._get_replacer()
+
+    def _parse_line(self, line):
+        r"""Parse one line of .aux
+
+        Parameters
+        ----------
+        line : str
+            One line of .aux file to parse.
+        """
+        if line.startswith('\\citation'):
+            self._citation.append(line[len('\\citation{'): -len('}\n')])
+        elif line.startswith('\\bibstyle'):
+            self._bibstyle = line[len('\\bibstyle{'): -len('}\n')]
+        elif line.startswith('\\bibdata'):
+            self._bibdata = line[len('\\bibdata{'): -len('}\n')]
+        elif line.startswith('\\bibcite'):
+            key, value = line[len('\\bibcite{'): -len('}\n')].split('}{')
+            value = int(value)
+            self._bibcite.update({key: value})
+
+    def _get_replacer(self):
+        """Get key and value for replace word document.
+        """
+        replacer = dict()
+        for k, v in self._conversion_dict.items():
+            replacer.update({'\\\\cite\\{%s\\}' % k: '[%s]' % v})
+        self._replacer = replacer
+
+    def _build_conversion_dict(self):
+        r"""Prepare replaing citation keys with dashed range strings.
+
+        Generate dictionary of such as {'refa,refb,refc,refe,refg': '1-3,5,7'}.
+        """
+        for cite in self._citation:
+            cite_nums = [self._bibcite[c] for c in cite.split(',')]
+            self._conversion_dict.update(
+                {cite: self._compress(cite_nums)}
+                )
+        for cite in self.citation_keys_in_context:
+            cite_nums = [self._bibcite[c] for c in cite.split(',')]
+            if self.use_cite_package:
+                self._conversion_dict.update(
+                    {cite: self._compress(sorted(cite_nums))}
+                )
+            else:
+                self._conversion_dict.update(
+                    {cite: ','.join(str(c) for c in cite_nums)}
+                    )
+
+    def cite(self, s):
+        r"""Do \cite command formatting.
+
+        Returns formated text from citation commands such as
+        \cite{key1} and \cite{key1,key2,key3}, etc.
+        By default, if there are three or more consecutive numbers,
+        they are compressed into a range using an en-dash.
+        Citation numbers are also sorted in the default condition.
+
+        Parameters
+        ----------
+        s : str
+            Raw string to be formatted.
+            For example, \\cite{key1} or \\cite{key2,key3}.
+
+        Examples
+        --------
+        >>> import wdbibtex
+        >>> c = wdbibtex.Cite()
+        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> c.cite('\\cite{key1}')
+        '[1]'
+        >>> c.cite('\\cite{key2,key3}')
+        '[2,3]'
+        >>> c.cite('\\cite{key3,key2,key1}')
+        '[3,2,1]'
+
+        >>> import wdbibtex
+        >>> c = wdbibtex.Cite(use_cite_package=True)
+        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> c.cite('\\cite{key1}')
+        '[1]'
+        >>> c.cite('\\cite{key2,key3}')
+        '[2,3]'
+        >>> c.cite('\\cite{key3,key2,key1}')
+        '[1\u20133]'
+
+        Note \\u2013 is en-dash.
+        """
+        p = re.compile(r'\\+cite\{(.*)\}')
+        if p.match(s):
+            keys = p.match(s).group(1).split(',')
+            if len(keys) == 1:
+                key = keys[0]
+                return (
+                    self._citeleft
+                    + str(self._citation_labels[key])
+                    + self._citeright
+                )
+            if len(keys) > 1:
+                if self.use_cite_package:
+                    nums = sorted(
+                        [self._citation_labels[key] for key in keys]
+                    )
+                    return (
+                        self._citeleft
+                        + self._compress(nums)
+                        + self._citeright
+                    )
+                else:
+                    nums = [str(self._citation_labels[key]) for key in keys]
+                    return (
+                        self._citeleft
+                        + ','.join(nums)
+                        + self._citeright
+                    )
+        else:
+            ValueError(
+                'no citation pattern matched.'
+            )
+
+    def _compress(self, nums, sep=u'\u2013'):
+        r"""Compress groups of three or more consecutive numbers into a range.
+
+        Compress poor list of positive integers with three or more
+        consecutive numbers into a range using a separating character.
+        For example, a list ``[1,2,3,6]`` will be converted into ``[1-3,6]``.
+
+        Parameters
+        ----------
+        nums : list of positive integers
+            Multiple integers to convert dashed range string.
+            A list of single element integer is also allowd.
+        sep : str, default en-dash(U+2013)
+            A character inserted betwen start and end of range.
+        """
+        seq = []
+        final = []
+        last = 0
+
+        for index, val in enumerate(nums):
+
+            if last + 1 == val or index == 0:
+                seq.append(val)
+                last = val
+            else:
+                if len(seq) > 2:
+                    final.append(str(seq[0]) + sep + str(seq[len(seq)-1]))
+                elif len(seq) == 2:
+                    final.append(str(seq[0]) + ',' + str(seq[len(seq)-1]))
+                else:
+                    final.append(str(seq[0]))
+                    seq = []
+                    seq.append(val)
+                    last = val
+
+            if index == len(nums) - 1:
+                if len(seq) > 2:
+                    final.append(str(seq[0]) + sep + str(seq[len(seq)-1]))
+                elif len(seq) == 2:
+                    final.append(str(seq[0]) + ',' + str(seq[len(seq)-1]))
+                else:
+                    final.append(str(seq[0]))
+
+        final_str = ','.join(map(str, final))
+        return final_str
+
+
+class Bibliography:
+    """LaTeX bbl file related contents and commands.
+
+    Parameters
+    ----------
+    targetbasename : str, default 'wdbib'
+        Base name of LaTeX related files.
+    workdir : str or path object, default '.tmp'
+        Temporal working directory to store LaTeX contents.
+
+    Examples
+    --------
+    >>> import wdbibtex
+    >>> bb = wdbibtex.Bibliography()
+    >>> bb.read_bbl()  # doctest: +SKIP
+    """
+    def __init__(
+        self,
+        targetbasename='wdbib',
+        workdir='.tmp',
+    ):
+        """Cunstructor of Bibliography
+        """
+
+        # Store settings in internal attributes.
+        if os.path.isabs(workdir):
+            self.workdir = pathlib.Path(workdir)
+        else:
+            self.workdir = (
+                pathlib.Path(os.getcwd()) / workdir
+            ).resolve()
+
+        self.__targetbasename = targetbasename
+
+    @property
+    def thebibliography(self):
+        r"""Plain text to replace \\thebibliography in word file.
+
+        A plain text of LaTeX-processed bibliography list.
+        An tab string is inserted between each citenum and citation string.
+        Example in IEEE format follows:
+
+        .. code-block:: text
+
+            [1]\\tF. Author, S. Author, "Paper Title," Journal Name, vol. 1, no. 1, p. 1, march 2022.
+            [2]\\tG. Name, F. Name, "Title," Journal, vol. 2, no. 2, pp. 1-10, 2020.
+
+        Returns
+        -------
+        str
+            Plain text of the thebibliography.
+
+        Raises
+        ------
+        ValueError
+            If thebibliography text is not set.
+        """  # noqa E501
+        if self.__thebibtext is None:
+            raise ValueError(
+                'Thebibliography text is not set yet.'
+            )
+        return self.__thebibtext
+
+    def read_bbl(self):
+        """Read .bbl file.
+
+        Read .bbl file to extract formatted thebibliography text.
+
+        Examples
+        --------
+        >>> import wdbibtex
+        >>> bb = wdbibtex.Bibliography()
+        >>> bb.read_bbl()  # doctest: +SKIP
+        """
+        fn = self.workdir / (self.__targetbasename + '.bbl')
+        with codecs.open(fn, 'r', 'utf-8') as f:
+            self.__bbldata = f.readlines()
+        self.__make_thebibliography_text()
+
+    def __make_thebibliography_text(self):
+        """Generate thebibliography plain text to incert word file.
+        """
+        replacer = {}
+        replacer.update({
+            r'\n  ': ' ',
+            r'\{\\em (.*)\}': r'\1',
+            r'\\emph\{(.*)\}': r'\1',
+            r'\\BIBforeignlanguage\{(.*)\}\{(.*)\}': r'\2',
+            r'~': ' ',
+            r'--': u'\u2014',
+            r'``': '“',
+            r"''": '”',
+            r'\n\n': '\n'
+            })
+        thebib_begin = None
+        for i, line in enumerate(self.__bbldata):
+            if line.startswith('\\bibitem') and thebib_begin is None:
+                thebib_begin = i
+            if line.startswith('\\end{thebibliography}'):
+                thebib_end = i
+        thebibtext = ''.join(self.__bbldata[thebib_begin: thebib_end])
+        for k, v in replacer.items():
+            thebibtext = re.sub(k, v, thebibtext)
+        for c, m in enumerate(re.findall('\\\\bibitem{(.*)}\n', thebibtext)):
+            thebibtext = re.sub(
+                '\\\\bibitem{%s}\n' % m, '[%s]\t' % (c+1), thebibtext
+            )
+        self.__thebibtext = thebibtext
+
+
+class LaTeX(Cite):
     """LaTeX related contents and commands.
 
     Run LaTeX and BibTeX commands. Write .tex files.
@@ -44,6 +585,8 @@ class LaTeX:
             texopts=None,
             workdir='.tmp',
     ):
+
+        super(LaTeX, self).__init__()
 
         self.__locale = self.__default_locale()
 
@@ -474,544 +1017,3 @@ class LaTeX:
             return 'ja'
         else:
             raise ValueError('Unhandled locale %s' % locale.getlocale())
-
-
-class Cite:
-    """Citation package emurating contents and commands.
-
-    Parameters
-    ----------
-    citeleft : str, default '['
-        Left delimiter of list.
-    citeright : str, default ']'
-        Right delimiter of list.
-    use_cite_package : bool, default False
-        If False, emulate LaTeX's use_cite_package citation handling.
-        If True, emulate cite package's behavior.
-    """
-    def __init__(
-        self,
-        citeleft='[',
-        citeright=']',
-        targetbasename='wdbib',
-        use_cite_package=False,
-        workdir='.tmp',
-    ):
-        """Costructor of Cite.
-        """
-
-        # Store settings in internal attributes.
-        if os.path.isabs(workdir):
-            self.workdir = pathlib.Path(workdir)
-        else:
-            self.workdir = (
-                pathlib.Path(os.getcwd()) / workdir
-            ).resolve()
-
-        self.__targetbasename = targetbasename
-
-        self.__replacer = None
-        self.__citation = []
-        self.__bibstyle = None
-        self.__bibdata = None
-        self.__bibcite = {}
-        self.__conversion_dict = {}
-
-        self.__citation_labels = dict()
-        self.__citeleft = citeleft
-        self.__citeright = citeright
-        self.use_cite_package = use_cite_package
-        self.citation_keys_in_context = []
-
-    @property
-    def citeleft(self):
-        r"""Left delimiter of list. Default '['.
-
-        Returns
-        -------
-        str
-            Left delimiter of list.
-
-        Examples
-        --------
-        >>> import wdbibtex
-        >>> c = wdbibtex.Cite()
-        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
-        >>> c.citeleft
-        '['
-        >>> c.cite('\\cite{key1}')
-        '[1]'
-        >>> c.cite('\\cite{key2,key3}')
-        '[2,3]'
-        >>> c.cite('\\cite{key3,key2,key1}')
-        '[3,2,1]'
-        >>> c.citeleft = '('
-        >>> c.citeleft
-        '('
-        >>> c.cite('\\cite{key1}')
-        '(1]'
-        >>> c.cite('\\cite{key2,key3}')
-        '(2,3]'
-        >>> c.cite('\\cite{key3,key2,key1}')
-        '(3,2,1]'
-        """
-        return self.__citeleft
-
-    @citeleft.setter
-    def citeleft(self, s):
-        if not isinstance(s, str):
-            TypeError(
-                'expected string object but '
-                '%s object given.' % type(s))
-        self.__citeleft = s
-
-    @property
-    def citeright(self):
-        r"""Right delimiter of list. Default ']'.
-
-        Returns
-        -------
-        str
-            Right delimiter of list.
-
-        Examples
-        --------
-        >>> import wdbibtex
-        >>> c = wdbibtex.Cite()
-        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
-        >>> c.citeright
-        ']'
-        >>> c.cite('\\cite{key1}')
-        '[1]'
-        >>> c.cite('\\cite{key2,key3}')
-        '[2,3]'
-        >>> c.cite('\\cite{key3,key2,key1}')
-        '[3,2,1]'
-        >>> c.citeright = ')'
-        >>> c.citeright
-        ')'
-        >>> c.cite('\\cite{key1}')
-        '[1)'
-        >>> c.cite('\\cite{key2,key3}')
-        '[2,3)'
-        >>> c.cite('\\cite{key3,key2,key1}')
-        '[3,2,1)'
-        """
-        return self.__citeright
-
-    @citeright.setter
-    def citeright(self, s):
-        if not isinstance(s, str):
-            TypeError(
-                'expected string object but '
-                '%s object given.' % type(s))
-        self.__citeright = s
-
-    @property
-    def citation_labels(self):
-        """Key to number map of citations.
-
-        Returns
-        -------
-        dict
-            Citation key to citation number map.
-        """
-        return self.__citation_labels
-
-    @citation_labels.setter
-    def citation_labels(self, d):
-        if not isinstance(d, str):
-            TypeError(
-                'expected dictionary object but '
-                '%s object given.' % type(d))
-        self.__citation_labels = d
-
-    @property
-    def use_cite_package(self):
-        """If Cite class emulate cite package's behavior.
-
-        Returns
-        -------
-        bool
-            If True, emulate cite package's behavior.
-            If False, emulrate LaTeX's original citation mechanism.
-
-        Raises
-        ------
-        TypeError
-            If non-bool value is given to setter.
-        """
-        return self.__use_cite_package
-
-    @use_cite_package.setter
-    def use_cite_package(self, b):
-        if isinstance(b, bool):
-            self.__use_cite_package = b
-        else:
-            raise TypeError(
-                'use_cite_package attribute must be bool.'
-            )
-
-    def parse_context(self, c):
-        r"""Find all citation keys from context written to .tex file.
-
-        Find all citation keys from context written to .tex file.
-        Found keys are stores to citation_keys_in_context attribute.
-
-        Parameters
-        ----------
-        c : str
-            Parsed texts.
-
-        Examples
-        --------
-        >>> import wdbibtex
-        >>> ct = wdbibtex.Cite()
-        >>> ct.parse_context(
-        ...     'Some citation \\cite{key}. Some example \\cite{key1,key2}'
-        ... )
-        >>> ct.citation_keys_in_context
-        ['key', 'key1,key2']
-        """
-        found_keys = re.findall(r'\\+cite\{(.*?)\}', c)
-        for k in found_keys:
-            self.citation_keys_in_context.append(k)
-
-    @property
-    def citation_keys_in_context(self):
-        return self.__citation_keys_in_context
-
-    @citation_keys_in_context.setter
-    def citation_keys_in_context(self, lis):
-        if isinstance(lis, list):
-            self.__citation_keys_in_context = lis
-        else:
-            raise TypeError(
-                'citation_keys_in_context must be a list.'
-            )
-
-    @property
-    def citation(self):
-        """[Read only] Returns citation key(s) found in aux file.
-        """
-        return self.__citation
-
-    @property
-    def bibstyle(self):
-        """[Read only] Returns bibliography style string written in aux file.
-        """
-        return self.__bibstyle
-
-    @property
-    def bibdata(self):
-        """[Read only] Returns bibliography data file(s) written in aux file.
-        """
-        return self.__bibdata
-
-    @property
-    def bibcite(self):
-        """[Read only] Returns citation key and citation number dictionary
-        """
-        return self.__bibcite
-
-    def read_aux(self):
-        r"""Read .aux file.
-
-        Aux file will be read line-by-line.
-        Following four types of the line will be
-        interpreted and stored to the LaTeX attributes.
-
-        - \\citation{keys}
-           Appended to the citation attribute
-           (list object) key as string.
-        - \\bibstyle{s}
-           Stored as bibstyle string attribute.
-        - \\bibdata{d}
-           Stored as bibdata string attribute.
-        - \\bibcite{k}{n}
-           Added to bibcite attribute
-           (dictionary) as {k: n}.
-        """
-        fn = self.workdir / (self.__targetbasename + '.aux')
-        with codecs.open(fn, 'r', 'utf-8') as f:
-            self.__auxdata = f.readlines()
-        for line in self.__auxdata:
-            self.__parse_line(line)
-        self.__build_conversion_dict()
-        self.__citation_labels.update(self.__bibcite)
-        self.__get_replacer()
-
-    def __parse_line(self, line):
-        r"""Parse one line of .aux
-
-        Parameters
-        ----------
-        line : str
-            One line of .aux file to parse.
-        """
-        if line.startswith('\\citation'):
-            self.__citation.append(line[len('\\citation{'): -len('}\n')])
-        elif line.startswith('\\bibstyle'):
-            self.__bibstyle = line[len('\\bibstyle{'): -len('}\n')]
-        elif line.startswith('\\bibdata'):
-            self.__bibdata = line[len('\\bibdata{'): -len('}\n')]
-        elif line.startswith('\\bibcite'):
-            key, value = line[len('\\bibcite{'): -len('}\n')].split('}{')
-            value = int(value)
-            self.__bibcite.update({key: value})
-
-    def __get_replacer(self):
-        """Get key and value for replace word document.
-        """
-        replacer = dict()
-        for k, v in self.__conversion_dict.items():
-            replacer.update({'\\\\cite\\{%s\\}' % k: '[%s]' % v})
-        self.__replacer = replacer
-
-    def __build_conversion_dict(self):
-        r"""Prepare replaing citation keys with dashed range strings.
-
-        Generate dictionary of such as {'refa,refb,refc,refe,refg': '1-3,5,7'}.
-        """
-        for cite in self.__citation:
-            cite_nums = [self.__bibcite[c] for c in cite.split(',')]
-            self.__conversion_dict.update(
-                {cite: self.__compress(cite_nums)}
-                )
-        for cite in self.citation_keys_in_context:
-            cite_nums = [self.__bibcite[c] for c in cite.split(',')]
-            if self.use_cite_package:
-                self.__conversion_dict.update(
-                    {cite: self.__compress(sorted(cite_nums))}
-                )
-            else:
-                self.__conversion_dict.update(
-                    {cite: ','.join(str(c) for c in cite_nums)}
-                    )
-
-    def cite(self, s):
-        r"""Do \cite command formatting.
-
-        Returns formated text from citation commands such as
-        \cite{key1} and \cite{key1,key2,key3}, etc.
-        By default, if there are three or more consecutive numbers,
-        they are compressed into a range using an en-dash.
-        Citation numbers are also sorted in the default condition.
-
-        Parameters
-        ----------
-        s : str
-            Raw string to be formatted.
-            For example, \\cite{key1} or \\cite{key2,key3}.
-
-        Examples
-        --------
-        >>> import wdbibtex
-        >>> c = wdbibtex.Cite()
-        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
-        >>> c.cite('\\cite{key1}')
-        '[1]'
-        >>> c.cite('\\cite{key2,key3}')
-        '[2,3]'
-        >>> c.cite('\\cite{key3,key2,key1}')
-        '[3,2,1]'
-
-        >>> import wdbibtex
-        >>> c = wdbibtex.Cite(use_cite_package=True)
-        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
-        >>> c.cite('\\cite{key1}')
-        '[1]'
-        >>> c.cite('\\cite{key2,key3}')
-        '[2,3]'
-        >>> c.cite('\\cite{key3,key2,key1}')
-        '[1\u20133]'
-
-        Note \\u2013 is en-dash.
-        """
-        p = re.compile(r'\\+cite\{(.*)\}')
-        if p.match(s):
-            keys = p.match(s).group(1).split(',')
-            if len(keys) == 1:
-                key = keys[0]
-                return (
-                    self.__citeleft
-                    + str(self.__citation_labels[key])
-                    + self.__citeright
-                )
-            if len(keys) > 1:
-                if self.use_cite_package:
-                    nums = sorted(
-                        [self.__citation_labels[key] for key in keys]
-                    )
-                    return (
-                        self.__citeleft
-                        + self.__compress(nums)
-                        + self.__citeright
-                    )
-                else:
-                    nums = [str(self.__citation_labels[key]) for key in keys]
-                    return (
-                        self.__citeleft
-                        + ','.join(nums)
-                        + self.__citeright
-                    )
-        else:
-            ValueError(
-                'no citation pattern matched.'
-            )
-
-    def __compress(self, nums, sep=u'\u2013'):
-        r"""Compress groups of three or more consecutive numbers into a range.
-
-        Compress poor list of positive integers with three or more
-        consecutive numbers into a range using a separating character.
-        For example, a list ``[1,2,3,6]`` will be converted into ``[1-3,6]``.
-
-        Parameters
-        ----------
-        nums : list of positive integers
-            Multiple integers to convert dashed range string.
-            A list of single element integer is also allowd.
-        sep : str, default en-dash(U+2013)
-            A character inserted betwen start and end of range.
-        """
-        seq = []
-        final = []
-        last = 0
-
-        for index, val in enumerate(nums):
-
-            if last + 1 == val or index == 0:
-                seq.append(val)
-                last = val
-            else:
-                if len(seq) > 2:
-                    final.append(str(seq[0]) + sep + str(seq[len(seq)-1]))
-                elif len(seq) == 2:
-                    final.append(str(seq[0]) + ',' + str(seq[len(seq)-1]))
-                else:
-                    final.append(str(seq[0]))
-                    seq = []
-                    seq.append(val)
-                    last = val
-
-            if index == len(nums) - 1:
-                if len(seq) > 2:
-                    final.append(str(seq[0]) + sep + str(seq[len(seq)-1]))
-                elif len(seq) == 2:
-                    final.append(str(seq[0]) + ',' + str(seq[len(seq)-1]))
-                else:
-                    final.append(str(seq[0]))
-
-        final_str = ','.join(map(str, final))
-        return final_str
-
-
-class Bibliography:
-    """LaTeX bbl file related contents and commands.
-
-    Parameters
-    ----------
-    targetbasename : str, default 'wdbib'
-        Base name of LaTeX related files.
-    workdir : str or path object, default '.tmp'
-        Temporal working directory to store LaTeX contents.
-
-    Examples
-    --------
-    >>> import wdbibtex
-    >>> bb = wdbibtex.Bibliography()
-    >>> bb.read_bbl()  # doctest: +SKIP
-    """
-    def __init__(
-        self,
-        targetbasename='wdbib',
-        workdir='.tmp',
-    ):
-        """Cunstructor of Bibliography
-        """
-
-        # Store settings in internal attributes.
-        if os.path.isabs(workdir):
-            self.workdir = pathlib.Path(workdir)
-        else:
-            self.workdir = (
-                pathlib.Path(os.getcwd()) / workdir
-            ).resolve()
-
-        self.__targetbasename = targetbasename
-
-    @property
-    def thebibliography(self):
-        r"""Plain text to replace \\thebibliography in word file.
-
-        A plain text of LaTeX-processed bibliography list.
-        An tab string is inserted between each citenum and citation string.
-        Example in IEEE format follows:
-
-        .. code-block:: text
-
-            [1]\\tF. Author, S. Author, "Paper Title," Journal Name, vol. 1, no. 1, p. 1, march 2022.
-            [2]\\tG. Name, F. Name, "Title," Journal, vol. 2, no. 2, pp. 1-10, 2020.
-
-        Returns
-        -------
-        str
-            Plain text of the thebibliography.
-
-        Raises
-        ------
-        ValueError
-            If thebibliography text is not set.
-        """  # noqa E501
-        if self.__thebibtext is None:
-            raise ValueError(
-                'Thebibliography text is not set yet.'
-            )
-        return self.__thebibtext
-
-    def read_bbl(self):
-        """Read .bbl file.
-
-        Read .bbl file to extract formatted thebibliography text.
-
-        Examples
-        --------
-        >>> import wdbibtex
-        >>> bb = wdbibtex.Bibliography()
-        >>> bb.read_bbl()  # doctest: +SKIP
-        """
-        fn = self.workdir / (self.__targetbasename + '.bbl')
-        with codecs.open(fn, 'r', 'utf-8') as f:
-            self.__bbldata = f.readlines()
-        self.__make_thebibliography_text()
-
-    def __make_thebibliography_text(self):
-        """Generate thebibliography plain text to incert word file.
-        """
-        replacer = {}
-        replacer.update({
-            r'\n  ': ' ',
-            r'\{\\em (.*)\}': r'\1',
-            r'\\emph\{(.*)\}': r'\1',
-            r'\\BIBforeignlanguage\{(.*)\}\{(.*)\}': r'\2',
-            r'~': ' ',
-            r'--': u'\u2014',
-            r'``': '“',
-            r"''": '”',
-            r'\n\n': '\n'
-            })
-        thebib_begin = None
-        for i, line in enumerate(self.__bbldata):
-            if line.startswith('\\bibitem') and thebib_begin is None:
-                thebib_begin = i
-            if line.startswith('\\end{thebibliography}'):
-                thebib_end = i
-        thebibtext = ''.join(self.__bbldata[thebib_begin: thebib_end])
-        for k, v in replacer.items():
-            thebibtext = re.sub(k, v, thebibtext)
-        for c, m in enumerate(re.findall('\\\\bibitem{(.*)}\n', thebibtext)):
-            thebibtext = re.sub(
-                '\\\\bibitem{%s}\n' % m, '[%s]\t' % (c+1), thebibtext
-            )
-        self.__thebibtext = thebibtext
