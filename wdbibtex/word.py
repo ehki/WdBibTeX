@@ -148,13 +148,10 @@ class WdBibTeX:
         # Build latex document
         context = '\n'.join([cite for cite, _, _ in self.__cites])
         tx.write(context, bib=bib)
-        ct = wdbibtex.Cite(
-            workdir=self.__workdir,
-            use_cite_package=bool(tx.is_package_used('cite')),
-        )
-        ct.parse_context(context)
+        tx.use_cite_package = bool(tx.is_package_used('cite'))
+        tx.parse_context(context)
         tx.build()
-        ct.read_aux()
+        tx.read_aux()
         bb = wdbibtex.Bibliography(workdir=self.__workdir)
         bb.read_bbl()
 
@@ -180,7 +177,7 @@ class WdBibTeX:
             key_escaped = key.replace('\\', '\\\\')
             key_escaped = key_escaped.replace('{', '\\{')
             key_escaped = key_escaped.replace('}', '\\}')
-            self.replace_all(key_escaped, ct.cite(key))
+            self.replace_all(key_escaped, tx.cite(key))
 
         # Replace from \begin{preamble} to \end{preamble}^13
         # Note ^13 corresponds carriage return.

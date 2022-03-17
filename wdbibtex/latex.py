@@ -975,6 +975,14 @@ class LaTeX(Cite):
 
                 self.set_bibliographystyle(bibliographystyle)
 
+            elif re.match(r'.*renewcommand\\citeleft.*', ln):
+                m = re.match(r'.*renewcommand\\citeleft\{(.*)\}', ln)
+                self.citeleft = m.group(1)
+
+            elif re.match(r'.*renewcommand\\citeright.*', ln):
+                m = re.match(r'.*renewcommand\\citeright\{(.*)\}', ln)
+                self.citeright = m.group(1)
+
             else:
                 pass
 
