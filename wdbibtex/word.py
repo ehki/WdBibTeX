@@ -166,7 +166,17 @@ class WdBibTeX:
 
         # Replace \cite{*}
         # for key, val in ct.cnd.items():
-        for key, _, _ in self.__cites:
+        superscript = (
+            isinstance(tx.is_package_used('cite'), list)
+            and (
+                'superscript' in tx.is_package_used('cite')
+                or 'super' in tx.is_package_used('cite')
+            )
+        )
+        for key, start, end in self.__cites[::-1]:
+            if superscript:
+                rng = self.__dc.Range(Start=start, End=end)
+                rng.Font.Superscript = True
             key_escaped = key.replace('\\', '\\\\')
             key_escaped = key_escaped.replace('{', '\\{')
             key_escaped = key_escaped.replace('}', '\\}')
