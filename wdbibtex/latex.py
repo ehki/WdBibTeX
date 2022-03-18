@@ -468,7 +468,7 @@ class Bibliography:
                 pathlib.Path(os.getcwd()) / workdir
             ).resolve()
 
-        self.__targetbasename = targetbasename
+        self._targetbasename = targetbasename
 
     @property
     def thebibliography(self):
@@ -493,11 +493,11 @@ class Bibliography:
         ValueError
             If thebibliography text is not set.
         """  # noqa E501
-        if self.__thebibtext is None:
+        if self._thebibtext is None:
             raise ValueError(
                 'Thebibliography text is not set yet.'
             )
-        return self.__thebibtext
+        return self._thebibtext
 
     def read_bbl(self):
         """Read .bbl file.
@@ -510,12 +510,12 @@ class Bibliography:
         >>> bb = wdbibtex.Bibliography()
         >>> bb.read_bbl()  # doctest: +SKIP
         """
-        fn = self.workdir / (self.__targetbasename + '.bbl')
+        fn = self.workdir / (self._targetbasename + '.bbl')
         with codecs.open(fn, 'r', 'utf-8') as f:
-            self.__bbldata = f.readlines()
-        self.__make_thebibliography_text()
+            self._bbldata = f.readlines()
+        self._make_thebibliography_text()
 
-    def __make_thebibliography_text(self):
+    def _make_thebibliography_text(self):
         """Generate thebibliography plain text to incert word file.
         """
         replacer = {}
@@ -531,22 +531,22 @@ class Bibliography:
             r'\n\n': '\n'
             })
         thebib_begin = None
-        for i, line in enumerate(self.__bbldata):
+        for i, line in enumerate(self._bbldata):
             if line.startswith('\\bibitem') and thebib_begin is None:
                 thebib_begin = i
             if line.startswith('\\end{thebibliography}'):
                 thebib_end = i
-        thebibtext = ''.join(self.__bbldata[thebib_begin: thebib_end])
+        thebibtext = ''.join(self._bbldata[thebib_begin: thebib_end])
         for k, v in replacer.items():
             thebibtext = re.sub(k, v, thebibtext)
         for c, m in enumerate(re.findall('\\\\bibitem{(.*)}\n', thebibtext)):
             thebibtext = re.sub(
                 '\\\\bibitem{%s}\n' % m, '[%s]\t' % (c+1), thebibtext
             )
-        self.__thebibtext = thebibtext
+        self._thebibtext = thebibtext
 
 
-class LaTeX(Cite):
+class LaTeX(Cite, Bibliography):
     """LaTeX related contents and commands.
 
     Run LaTeX and BibTeX commands. Write .tex files.

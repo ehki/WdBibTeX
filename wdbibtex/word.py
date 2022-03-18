@@ -152,14 +152,13 @@ class WdBibTeX:
         tx.parse_context(context)
         tx.build()
         tx.read_aux()
-        bb = wdbibtex.Bibliography(workdir=self.__workdir)
-        bb.read_bbl()
+        tx.read_bbl()
 
         # Replace \thebibliography
         for _, start, end in self.__thebibliographies[::-1]:
             rng = self.__dc.Range(Start=start, End=end)
             rng.Delete()
-            rng.InsertAfter(bb.thebibliography)
+            rng.InsertAfter(tx.thebibliography)
 
         # Replace \cite{*}
         # for key, val in ct.cnd.items():
