@@ -679,7 +679,7 @@ class LaTeX(Cite, Bibliography):
     def bibliographystyle(self, bibliographystyle):
         import glob
         if bibliographystyle:
-            self.__bibliographystyle = bibliographystyle
+            self.set_bibliographystyle(bibliographystyle)
 
         else:
             bibliographystile = glob.glob('*.bst')
