@@ -131,6 +131,7 @@ class WdBibTeX:
         """  # noqa E501
 
         self.open()
+        os.makedirs(self.__workdir, exist_ok=True)
         for b in glob.glob(os.path.join(self.__docxdir, '*.bst')):
             shutil.copy(b, self.__workdir)
         for b in glob.glob(os.path.join(self.__docxdir, '*.bib')):
@@ -141,6 +142,10 @@ class WdBibTeX:
         if bst:
             # Overwrite preamble in docx with given command line artument.
             tx.bibliographystyle = bst
+        else:
+            # Try setting default bibliographystyle=None.
+            # Try find .bst in th project directory.
+            tx.bibliographystyle = tx.bibliographystyle
 
         self.__cites = self.find_all('\\\\cite\\{*\\}')
         self.__thebibliographies = self.find_all('\\\\thebibliography')
