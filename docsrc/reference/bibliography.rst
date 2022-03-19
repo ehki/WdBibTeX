@@ -1,5 +1,5 @@
-Bbl
-====
+Bibliography
+============
 
 
 .. currentmodule:: wdbibtex
@@ -10,18 +10,18 @@ Constructor
 .. autosummary::
    :toctree: api
 
-   Bbl
+   Bibliography
 
 Attributes
 ----------
 .. autosummary::
    :toctree: api
 
-   Bbl.thebibliography
+   Bibliography.thebibliography
 
 Methods
 -------
 .. autosummary::
    :toctree: api
 
-   Bbl.read_bbl
+   Bibliography.read_bbl
