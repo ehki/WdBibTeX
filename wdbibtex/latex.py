@@ -208,6 +208,40 @@ class Cite:
 
     @property
     def citation_keys_in_context(self):
+        r"""List of citation keys may be called.
+
+        List of citation keys may be called during translation from citation
+        keys to citation numbers. The citation-key handling varied with the
+        LaTeX project uses the cite package or not. If the project does not use
+        cite package, multiple citation keys are separately stored in the .aux
+        file. For example, ``\cite{key1,key2}`` in .tex file becomes
+        ``\citation{key1}\n\citation{key2}`` in .aux file.
+        If the project uses cite package, the multiple citation keys are
+        placed in .aux file as is. For example, ``\cite{key1,key2}`` in .tex
+        file is ``\citation{key1,key2}`` in .aux file.
+        This attribute increase the handling of the citation keys by storing
+        all citation keys found in .tex file as is.
+
+        Parameters
+        ----------
+        c : str
+            Parsed texts.
+
+        See Also
+        --------
+        parse_context : set citation_keys_in_context attribute by parsing text
+
+        Examples
+        --------
+        >>> import wdbibtex
+        >>> ct = wdbibtex.Cite()
+        >>> ct.parse_context(
+        ...     'Some citation \\cite{key}. Some example \\cite{key1,key2}'
+        ... )
+        >>> ct.citation_keys_in_context
+        ['key', 'key1,key2']
+        """
+
         return self._citation_keys_in_context
 
     @citation_keys_in_context.setter
