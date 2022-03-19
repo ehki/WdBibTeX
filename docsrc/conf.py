@@ -75,3 +75,30 @@ todo_include_todos = True
 
 autosummary_generate = True
 numpydoc_show_class_members = False
+
+language = 'en'
+latex_engine = 'platex'
+latex_docclass = {
+    'manual': 'book',
+    'howto': 'article',
+}
+pygments_style = 'bw'
+
+latex_elements = {
+    'preamble': r'''
+\usepackage[titles]{tocloft}
+\usepackage{hyperref}
+\hypersetup{
+     colorlinks=true,
+     linkcolor=black,
+     citecolor=black,
+     filecolor=black,
+     urlcolor=black,
+ }
+''',
+    'printindex': '',
+    'pointsize': '11pt',
+}
+latex_documents = [(
+    'index', 'manual.tex', 'WdBibTeX', author, 'howto', True
+)]
