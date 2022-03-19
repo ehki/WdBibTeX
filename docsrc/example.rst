@@ -106,7 +106,7 @@ The following contents are automatically written in ``sample.docx`` by executing
     
     Sample citation\cite{enArticle1}.
     英語文献の引用例\cite{enArticle1}。
-    Multiple citatoins example\cite{enArticle2,enArticle3,enArticle4}.
+    Multiple citations example\cite{enArticle2,enArticle3,enArticle4}.
     複数文献の引用例\cite{enArticle2,enArticle3,enArticle4}。
     Examples of Japanese reference\cite{jpArticle2,jpArticle3,jpArticle4}.
     日本語文献の引用例\cite{jpArticle2,jpArticle3,jpArticle4}。
