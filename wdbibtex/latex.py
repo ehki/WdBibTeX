@@ -219,30 +219,6 @@ class Cite:
                 'citation_keys_in_context must be a list.'
             )
 
-    @property
-    def citation(self):
-        """[Read only] Returns citation key(s) found in aux file.
-        """
-        return self._citation
-
-    @property
-    def bibstyle(self):
-        """[Read only] Returns bibliography style string written in aux file.
-        """
-        return self._bibstyle
-
-    @property
-    def bibdata(self):
-        """[Read only] Returns bibliography data file(s) written in aux file.
-        """
-        return self._bibdata
-
-    @property
-    def bibcite(self):
-        """[Read only] Returns citation key and citation number dictionary
-        """
-        return self._bibcite
-
     def read_aux(self):
         r"""Read .aux file.
 
@@ -669,12 +645,61 @@ class LaTeX(Cite, Bibliography):
     def formatted_bibliographystyle(self):
         r"""[Read only] Formatted bibliographystyle, e.g. \bibliographystyle{IEEEtran}
 
+        Formatted bibliography string to be written in preamble.
+        In the case ``bibliographystyle`` is ``SomeBST``,
+        ``formatted_bibliographystyle`` is ``\bibliographystyle{SomeBST}``.
+
+        See Also
+        --------
+        bibliographystyle : bare bibliographystyle to be used
         """
         return self.__formatted_bibliographystyle
 
     @property
     def bibliographystyle(self):
-        """Bibliographystyle string.
+        r"""Bibliographystyle string.
+
+        Bibliography string. If None is set, a .bst is automatically selected.
+        The ``bibliography`` string is, for example,
+        ``SomeBST`` of ``\bibliographystyle{SomeBST}``.
+        While the ``formatted_bibliographystyle``
+        is ``\bibliographystyle{SomeBST}``.
+
+        See Also
+        --------
+        formatted_bibliographystyle : formatted line to be written in preamble
+
+        Examples
+        --------
+        >>> import wdbibtex
+        >>> tx = wdbibtex.LaTeX()
+        >>> tx.bibliographystyle = 'IEEEtran'
+        >>> tx.bibliographystyle
+        'IEEEtran'
+        >>> tx.formatted_bibliographystyle
+        '\\bibliographystyle{IEEEtran}'
+
+        In the case of None and no .bst file is found, raise ValueError.
+
+        >>> import wdbibtex
+        >>> tx = wdbibtex.LaTeX()
+        >>> tx.bibliographystyle = None
+        Traceback (most recent call last):
+        ...
+        ValueError: No .bst files found in working directory.
+
+        In the case of None and some .bst file is in the working directory,
+        the .bst file is automatically selected.
+
+        >>> import wdbibtex
+        >>> import pathlib
+        >>> tx = wdbibtex.LaTeX(workdir='.tmp')
+        >>> pathlib.Path('.tmp/testbst.bst').touch()
+        >>> tx.bibliographystyle = None
+        >>> tx.bibliographystyle
+        'testbst'
+        >>> tx.formatted_bibliographystyle
+        '\\bibliographystyle{testbst}'
 
         Raises
         ------

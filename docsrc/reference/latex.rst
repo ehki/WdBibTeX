@@ -18,10 +18,17 @@ Attributes
    :toctree: api
 
    LaTeX.bibliographystyle
+   LaTeX.citation_keys_in_context
+   LaTeX.citation_labels
+   LaTeX.citeleft
+   LaTeX.citeright
    LaTeX.documentclass
+   LaTeX.formatted_bibliographystyle
    LaTeX.locale
    LaTeX.packages
    LaTeX.preamble
+   LaTeX.thebibliography
+   LaTeX.use_cite_package
 
 Methods
 -------
@@ -30,7 +37,11 @@ Methods
 
    LaTeX.add_package
    LaTeX.build
+   LaTeX.cite
    LaTeX.is_package_used
+   LaTeX.parse_context
+   LaTeX.read_aux
+   LaTeX.read_bbl
    LaTeX.set_bibliographystyle
    LaTeX.set_documentclass
    LaTeX.write
