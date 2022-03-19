@@ -620,6 +620,7 @@ class LaTeX(Cite, Bibliography):
         self.__bibtexopts = bibtexopts
         self.__packages = None
         self.__bibliographystyle = None
+        self.__formatted_bibliographystyle = None
         self.__documentclass = None
         self.__package_list = []
         self.preamble = preamble
@@ -665,6 +666,13 @@ class LaTeX(Cite, Bibliography):
         self.__update_preamble()
 
     @property
+    def formatted_bibliographystyle(self):
+        r"""[Read only] Formatted bibliographystyle, e.g. \bibliographystyle{IEEEtran}
+
+        """
+        return self.__formatted_bibliographystyle
+
+    @property
     def bibliographystyle(self):
         """Bibliographystyle string.
 
@@ -682,18 +690,19 @@ class LaTeX(Cite, Bibliography):
             self.set_bibliographystyle(bibliographystyle)
 
         else:
-            bibliographystile = glob.glob('*.bst')
-            if len(bibliographystile) > 1:
+            bibliographystyle = glob.glob(str(self.workdir) + '/*.bst')
+            if len(bibliographystyle) > 1:
                 raise ValueError(
                     'More than two .bst files found in working directory.'
                 )
-            elif len(bibliographystile) == 0:
+            elif len(bibliographystyle) == 0:
                 raise ValueError(
                     'No .bst files found in working directory.'
                 )
             else:
-                bibliographystile = bibliographystile[0]
-                self.set_bibliographystyle(bibliographystile)
+                bstfile = os.path.basename(bibliographystyle[0])
+                bibliographystyle = os.path.splitext(bstfile)[0]
+                self.set_bibliographystyle(bibliographystyle)
 
     def set_bibliographystyle(self, bst):
         """Bibliographystyle setter.
@@ -701,9 +710,16 @@ class LaTeX(Cite, Bibliography):
         Parameters
         ----------
         bst : str
-            Bibliography style
+            Bibliography style such as IEEEtran or ieeetr.
         """
-        self.__bibliographystyle = '\\bibliographystyle{%s}' % bst
+        if re.search(r'[^a-zA-Z]', bst):
+            raise ValueError(
+                'Invalid bibliographystyle. Only plain alphabets are allowed.'
+            )
+        else:
+            self.__bibliographystyle = bst
+            self.__formatted_bibliographystyle = \
+                '\\bibliographystyle{%s}' % bst
 
         # Update preamble
         self.__update_preamble()
@@ -938,7 +954,7 @@ class LaTeX(Cite, Bibliography):
         contents = [
             self.documentclass,
             self.packages,
-            self.bibliographystyle,
+            self.formatted_bibliographystyle,
         ]
         self.__preamble = '\n'.join(
             [c for c in contents if c is not None]

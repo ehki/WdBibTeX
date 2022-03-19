@@ -1,6 +1,8 @@
 import itertools
 import glob
 import os
+import pathlib
+import pytest
 import shutil
 import sys
 import unittest
@@ -297,3 +299,31 @@ class TestLaTeX(unittest.TestCase):
         # Clear working directory
         shutil.rmtree('.tmp')
         os.chdir(cwd)
+
+
+class TestBstHandling:
+    def test_set_bst(self):
+        tx = wdbibtex.LaTeX()
+        tx.set_bibliographystyle('ieeetr')
+        assert tx.bibliographystyle == 'ieeetr'
+        assert tx.formatted_bibliographystyle == r'\bibliographystyle{ieeetr}'
+
+    def test_set_wrong_bst(self):
+        tx = wdbibtex.LaTeX()
+        with pytest.raises(ValueError):
+            tx.set_bibliographystyle(r'\bibliographystyle{ieeetr}')
+
+    def test_set_auto_bst(self, touch_bst):
+        tx = wdbibtex.LaTeX()
+        tx.bibliographystyle = None
+        assert tx.bibliographystyle == 'testbst'
+
+    @pytest.fixture(scope='function')
+    def touch_bst(self):
+        fb = pathlib.Path('.tmp/testbst.bst')
+        fb.touch()
+        yield None
+        fb.unlink(True)
+        dirpath = pathlib.Path('.tmp')
+        if dirpath.exists() and dirpath.is_dir():
+            shutil.rmtree(dirpath)
