@@ -49,7 +49,7 @@ Citation style customization
 ----------------------------
 
 WdBibTeX support documentclass and cite package customization via preamble written in word file.
-The example is found in ``examples/example3``.
+The example is found in ``examples/custom``.
 The following contents are automatically written in sample.docx by executing docxgen.py.
 
 .. code-block:: text
@@ -77,7 +77,7 @@ The following contents are automatically written in sample.docx by executing doc
     \thebibliography
 
 
-After excecuting following command in ``examples/example3`` directory,
+After excecuting following command in ``examples/custom`` directory,
 you can see the superscripted citations in the ``sample_bib.docx``.
 Note that the second citation is converted to (2-4) as the citation package is called in the preamble.
 
@@ -86,7 +86,7 @@ Note that the second citation is converted to (2-4) as the citation package is c
     $ python -m wdbibtex sample.docx
 
 
-.. figure:: _static/img/example3.png
+.. figure:: _static/img/custom.png
    :width: 600px
 
 
