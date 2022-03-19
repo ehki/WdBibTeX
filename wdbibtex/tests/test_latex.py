@@ -23,7 +23,7 @@ class TestLaTeX(unittest.TestCase):
         exampledir = os.path.join(
             os.path.dirname(__file__), '..', '..', 'examples'
         )
-        os.chdir(os.path.join(exampledir, 'example1'))
+        os.chdir(os.path.join(exampledir, 'first'))
 
         # Copy LaTeX bib and bst files to workdir
         os.makedirs('.tmp', exist_ok=True)
@@ -60,7 +60,7 @@ class TestLaTeX(unittest.TestCase):
         exampledir = os.path.join(
             os.path.dirname(__file__), '..', '..', 'examples'
         )
-        os.chdir(os.path.join(exampledir, 'example1'))
+        os.chdir(os.path.join(exampledir, 'first'))
 
         # Copy LaTeX bib and bst files to workdir
         os.makedirs('.tmp', exist_ok=True)
@@ -97,7 +97,7 @@ class TestLaTeX(unittest.TestCase):
         exampledir = os.path.join(
             os.path.dirname(__file__), '..', '..', 'examples'
         )
-        os.chdir(os.path.join(exampledir, 'example1'))
+        os.chdir(os.path.join(exampledir, 'first'))
 
         # Copy LaTeX bib and bst files to workdir
         os.makedirs('.tmp', exist_ok=True)
@@ -185,7 +185,7 @@ class TestLaTeX(unittest.TestCase):
         exampledir = os.path.join(
             os.path.dirname(__file__), '..', '..', 'examples'
         )
-        os.chdir(os.path.join(exampledir, 'example2'))
+        os.chdir(os.path.join(exampledir, 'ieejtran'))
 
         # Copy LaTeX bib and bst files to workdir
         os.makedirs('.tmp', exist_ok=True)
