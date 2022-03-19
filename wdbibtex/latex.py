@@ -676,6 +676,38 @@ class LaTeX(Cite, Bibliography):
     def bibliographystyle(self):
         """Bibliographystyle string.
 
+        Examples
+        --------
+        >>> import wdbibtex
+        >>> tx = wdbibtex.LaTeX()
+        >>> tx.bibliographystyle = 'IEEEtran'
+        >>> tx.bibliographystyle
+        'IEEEtran'
+        >>> tx.formatted_bibliographystyle
+        '\\\\bibliographystyle{IEEEtran}'
+
+        In the case of None and no .bst file is found, raise ValueError.
+
+        >>> import wdbibtex
+        >>> tx = wdbibtex.LaTeX()
+        >>> tx.bibliographystyle = None
+        Traceback (most recent call last):
+        ...
+        ValueError: No .bst files found in working directory.
+
+        In the case of None and some .bst file is in the working directory,
+        the .bst file is automatically selected.
+
+        >>> import wdbibtex
+        >>> import pathlib
+        >>> tx = wdbibtex.LaTeX(workdir='.tmp')
+        >>> pathlib.Path('.tmp/testbst.bst').touch()
+        >>> tx.bibliographystyle = None
+        >>> tx.bibliographystyle
+        'testbst'
+        >>> tx.formatted_bibliographystyle
+        '\\\\bibliographystyle{testbst}'
+
         Raises
         ------
         ValueError
