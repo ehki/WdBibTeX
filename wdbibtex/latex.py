@@ -219,18 +219,6 @@ class Cite:
                 'citation_keys_in_context must be a list.'
             )
 
-    @property
-    def citation(self):
-        """[Read only] Returns citation key(s) found in aux file.
-        """
-        return self._citation
-
-    @property
-    def bibstyle(self):
-        """[Read only] Returns bibliography style string written in aux file.
-        """
-        return self._bibstyle
-
     def read_aux(self):
         r"""Read .aux file.
 
