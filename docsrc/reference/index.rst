@@ -7,5 +7,3 @@ API reference
 
    wdbibtex
    latex
-   cite
-   bibliography
