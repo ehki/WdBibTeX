@@ -129,8 +129,8 @@ You can see ``sample_bib.docx`` with the following BibTeX-converted contents:
 
     Sample citation[1].
     英語文献の引用例[1]。
-    Multiple citations example[2-4].
-    複数文献の引用例[2-4]。
+    Multiple citations example[2,3,4].
+    複数文献の引用例[2,3,4]。
     Examples of Japanese reference[5,6].
     日本語文献の引用例[5,6]。
     The list of bibliography is placed to the thebibliography command as follows:
