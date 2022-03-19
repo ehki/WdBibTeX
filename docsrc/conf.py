@@ -18,8 +18,11 @@ sys.path.insert(0, os.path.abspath('../'))
 # -- Project information -----------------------------------------------------
 
 project = 'wdbibtex'
-copyright = '2022, ehki'
+copyright = '2022, Haruki Ejiri'
 author = 'Haruki Ejiri'
+release = "0.1"
+version = ".".join(release.split("."))
+html_title = 'WdBibTeX 0.1'
 
 
 # -- General configuration ---------------------------------------------------
