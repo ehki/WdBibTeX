@@ -231,18 +231,6 @@ class Cite:
         """
         return self._bibstyle
 
-    @property
-    def bibdata(self):
-        """[Read only] Returns bibliography data file(s) written in aux file.
-        """
-        return self._bibdata
-
-    @property
-    def bibcite(self):
-        """[Read only] Returns citation key and citation number dictionary
-        """
-        return self._bibcite
-
     def read_aux(self):
         r"""Read .aux file.
 
