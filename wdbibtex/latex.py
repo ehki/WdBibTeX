@@ -690,18 +690,19 @@ class LaTeX(Cite, Bibliography):
             self.set_bibliographystyle(bibliographystyle)
 
         else:
-            bibliographystile = glob.glob('*.bst')
-            if len(bibliographystile) > 1:
+            bibliographystyle = glob.glob(str(self.workdir) + '/*.bst')
+            if len(bibliographystyle) > 1:
                 raise ValueError(
                     'More than two .bst files found in working directory.'
                 )
-            elif len(bibliographystile) == 0:
+            elif len(bibliographystyle) == 0:
                 raise ValueError(
                     'No .bst files found in working directory.'
                 )
             else:
-                bibliographystile = bibliographystile[0]
-                self.set_bibliographystyle(bibliographystile)
+                bstfile = os.path.basename(bibliographystyle[0])
+                bibliographystyle = os.path.splitext(bstfile)[0]
+                self.set_bibliographystyle(bibliographystyle)
 
     def set_bibliographystyle(self, bst):
         """Bibliographystyle setter.
@@ -711,7 +712,7 @@ class LaTeX(Cite, Bibliography):
         bst : str
             Bibliography style such as IEEEtran or ieeetr.
         """
-        if re.match(r'[^a-zA-Z]', bst):
+        if re.search(r'[^a-zA-Z]', bst):
             raise ValueError(
                 'Invalid bibliographystyle. Only plain alphabets are allowed.'
             )
