@@ -669,12 +669,29 @@ class LaTeX(Cite, Bibliography):
     def formatted_bibliographystyle(self):
         r"""[Read only] Formatted bibliographystyle, e.g. \bibliographystyle{IEEEtran}
 
+        Formatted bibliography string to be written in preamble.
+        In the case ``bibliographystyle`` is ``SomeBST``,
+        ``formatted_bibliographystyle`` is ``\bibliographystyle{SomeBST}``.
+
+        See Also
+        --------
+        bibliographystyle : bare bibliographystyle to be used
         """
         return self.__formatted_bibliographystyle
 
     @property
     def bibliographystyle(self):
-        """Bibliographystyle string.
+        r"""Bibliographystyle string.
+
+        Bibliography string. If None is set, a .bst is automatically selected.
+        The ``bibliography`` string is, for example,
+        ``SomeBST`` of ``\bibliographystyle{SomeBST}``.
+        While the ``formatted_bibliographystyle``
+        is ``\bibliographystyle{SomeBST}``.
+
+        See Also
+        --------
+        formatted_bibliographystyle : formatted line to be written in preamble
 
         Examples
         --------
@@ -684,7 +701,7 @@ class LaTeX(Cite, Bibliography):
         >>> tx.bibliographystyle
         'IEEEtran'
         >>> tx.formatted_bibliographystyle
-        '\\\\bibliographystyle{IEEEtran}'
+        '\\bibliographystyle{IEEEtran}'
 
         In the case of None and no .bst file is found, raise ValueError.
 
@@ -706,7 +723,7 @@ class LaTeX(Cite, Bibliography):
         >>> tx.bibliographystyle
         'testbst'
         >>> tx.formatted_bibliographystyle
-        '\\\\bibliographystyle{testbst}'
+        '\\bibliographystyle{testbst}'
 
         Raises
         ------

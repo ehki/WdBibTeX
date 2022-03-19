@@ -19,6 +19,7 @@ Attributes
 
    LaTeX.bibliographystyle
    LaTeX.documentclass
+   LaTeX.formatted_bibliographystyle
    LaTeX.locale
    LaTeX.packages
    LaTeX.preamble
