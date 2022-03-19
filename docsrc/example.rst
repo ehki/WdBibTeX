@@ -96,7 +96,7 @@ Citation in IEEJtran style
 As the author also maintains IEEJtran.bst(https://github.com/ehki/jIEEEtran), which is BibTeX style files for Japanese Electrical Engineers, one example for Japanese bibliography is stated here.
 Although the point is LaTeX and BibTeX command selection, WdBibTeX automatically select proper command based on system locale.
 
-One example for Japanese reference is located in ``examples/example2``.
+One example for Japanese reference is located in ``examples/ieejtran``.
 Note that IEEJtran.bst is already place in the sample directory and WdBibTeX uses the existing .bst file automatically.
 The following contents are automatically written in ``sample.docx`` by executing ``docxgen.py``.
 
@@ -115,7 +115,7 @@ The following contents are automatically written in ``sample.docx`` by executing
     
     \thebibliography
 
-Then, let's excecute following command in ``examples/example2`` directory.
+Then, let's excecute following command in ``examples/ieejtran`` directory.
 
 .. code-block:: sh
 
