@@ -86,6 +86,10 @@ Note that the second citation is converted to (2-4) as the citation package is c
     $ python -m wdbibtex sample.docx
 
 
+.. figure:: _static/img/example3.png
+   :width: 600px
+
+
 Citation in IEEJtran style
 --------------------------
 
