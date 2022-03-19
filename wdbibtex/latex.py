@@ -49,7 +49,7 @@ class Cite:
         self._citation_labels = dict()
         self._citeleft = citeleft
         self._citeright = citeright
-        self.use_cite_package = use_cite_package
+        self._use_cite_package = use_cite_package
         self._citation_keys_in_context = []
 
     @property
@@ -155,31 +155,31 @@ class Cite:
                 '%s object given.' % type(d))
         self._citation_labels = d
 
-    @property
-    def use_cite_package(self):
-        """If Cite class emulate cite package's behavior.
+    # @property
+    # def use_cite_package(self):
+    #     """If Cite class emulate cite package's behavior.
 
-        Returns
-        -------
-        bool
-            If True, emulate cite package's behavior.
-            If False, emulrate LaTeX's original citation mechanism.
+    #     Returns
+    #     -------
+    #     bool
+    #         If True, emulate cite package's behavior.
+    #         If False, emulrate LaTeX's original citation mechanism.
 
-        Raises
-        ------
-        TypeError
-            If non-bool value is given to setter.
-        """
-        return self._use_cite_package
+    #     Raises
+    #     ------
+    #     TypeError
+    #         If non-bool value is given to setter.
+    #     """
+    #     return self._use_cite_package
 
-    @use_cite_package.setter
-    def use_cite_package(self, b):
-        if isinstance(b, bool):
-            self._use_cite_package = b
-        else:
-            raise TypeError(
-                'use_cite_package attribute must be bool.'
-            )
+    # @use_cite_package.setter
+    # def use_cite_package(self, b):
+    #     if isinstance(b, bool):
+    #         self._use_cite_package = b
+    #     else:
+    #         raise TypeError(
+    #             'use_cite_package attribute must be bool.'
+    #         )
 
     def _parse_context(self, c):
         r"""Find all citation keys from context written to .tex file.
@@ -319,7 +319,7 @@ class Cite:
                 )
         for cite in self._citation_keys_in_context:
             cite_nums = [self._bibcite[c] for c in cite.split(',')]
-            if self.use_cite_package:
+            if self._use_cite_package:
                 self._conversion_dict.update(
                     {cite: self._compress(sorted(cite_nums))}
                 )
@@ -378,7 +378,7 @@ class Cite:
                     + self._citeright
                 )
             if len(keys) > 1:
-                if self.use_cite_package:
+                if self._use_cite_package:
                     nums = sorted(
                         [self._citation_labels[key] for key in keys]
                     )
@@ -810,13 +810,18 @@ class LaTeX(Cite, Bibliography):
 
     def __update_packages(self):
         pkgs = []
+        is_cite_package_found = False
         for pkg, *opts in self.__package_list:
             if bool(opts):
                 pkgs.append('\\usepackage[%s]{%s}' % (','.join(opts), pkg))
             else:
                 pkgs.append('\\usepackage{%s}' % pkg)
 
+            if pkg == 'cite':
+                is_cite_package_found = True
+
         self.__packages = '\n'.join(pkgs)
+        self._use_cite_package = is_cite_package_found
 
     def add_package(self, package, *options):
         """Add a package to the package list

@@ -27,7 +27,6 @@ Attributes
    LaTeX.packages
    LaTeX.preamble
    LaTeX.thebibliography
-   LaTeX.use_cite_package
 
 Methods
 -------
