@@ -154,7 +154,6 @@ class WdBibTeX:
         context = '\n'.join([cite for cite, _, _ in self.__cites])
         tx.write(context, bib=bib)
         tx.use_cite_package = bool(tx.is_package_used('cite'))
-        tx.parse_context(context)
         tx.build()
         tx.read_aux()
         tx.read_bbl()

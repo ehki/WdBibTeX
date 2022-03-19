@@ -50,7 +50,7 @@ class Cite:
         self._citeleft = citeleft
         self._citeright = citeright
         self.use_cite_package = use_cite_package
-        self.citation_keys_in_context = []
+        self._citation_keys_in_context = []
 
     @property
     def citeleft(self):
@@ -181,7 +181,7 @@ class Cite:
                 'use_cite_package attribute must be bool.'
             )
 
-    def parse_context(self, c):
+    def _parse_context(self, c):
         r"""Find all citation keys from context written to .tex file.
 
         Find all citation keys from context written to .tex file.
@@ -196,62 +196,62 @@ class Cite:
         --------
         >>> import wdbibtex
         >>> ct = wdbibtex.Cite()
-        >>> ct.parse_context(
+        >>> ct._parse_context(
         ...     'Some citation \\cite{key}. Some example \\cite{key1,key2}'
         ... )
-        >>> ct.citation_keys_in_context
+        >>> ct._citation_keys_in_context
         ['key', 'key1,key2']
         """
         found_keys = re.findall(r'\\+cite\{(.*?)\}', c)
         for k in found_keys:
-            self.citation_keys_in_context.append(k)
+            self._citation_keys_in_context.append(k)
 
-    @property
-    def citation_keys_in_context(self):
-        r"""List of citation keys may be called.
+    # @property
+    # def citation_keys_in_context(self):
+    #     r"""List of citation keys may be called.
 
-        List of citation keys may be called during translation from citation
-        keys to citation numbers. The citation-key handling varied with the
-        LaTeX project uses the cite package or not. If the project does not use
-        cite package, multiple citation keys are separately stored in the .aux
-        file. For example, ``\cite{key1,key2}`` in .tex file becomes
-        ``\citation{key1}\n\citation{key2}`` in .aux file.
-        If the project uses cite package, the multiple citation keys are
-        placed in .aux file as is. For example, ``\cite{key1,key2}`` in .tex
-        file is ``\citation{key1,key2}`` in .aux file.
-        This attribute increase the handling of the citation keys by storing
-        all citation keys found in .tex file as is.
+    #     List of citation keys may be called during translation from citation
+    #     keys to citation numbers. The citation-key handling varied with the
+    #     LaTeX project uses the cite package or not. If the project does not
+    #     use cite package, multiple citation keys are separately stored in
+    #     the .aux file. For example, ``\cite{key1,key2}`` in .tex file becomes
+    #     ``\citation{key1}\n\citation{key2}`` in .aux file.
+    #     If the project uses cite package, the multiple citation keys are
+    #     placed in .aux file as is. For example, ``\cite{key1,key2}`` in .tex
+    #     file is ``\citation{key1,key2}`` in .aux file.
+    #     This attribute increase the handling of the citation keys by storing
+    #     all citation keys found in .tex file as is.
 
-        Parameters
-        ----------
-        c : str
-            Parsed texts.
+    #     Parameters
+    #     ----------
+    #     c : str
+    #         Parsed texts.
 
-        See Also
-        --------
-        parse_context : set citation_keys_in_context attribute by parsing text
+    #     See Also
+    #     --------
+    #     _parse_context : set citation_keys_in_context by parsing text
 
-        Examples
-        --------
-        >>> import wdbibtex
-        >>> ct = wdbibtex.Cite()
-        >>> ct.parse_context(
-        ...     'Some citation \\cite{key}. Some example \\cite{key1,key2}'
-        ... )
-        >>> ct.citation_keys_in_context
-        ['key', 'key1,key2']
-        """
+    #     Examples
+    #     --------
+    #     >>> import wdbibtex
+    #     >>> ct = wdbibtex.Cite()
+    #     >>> ct._parse_context(
+    #     ...     'Some citation \\cite{key}. Some example \\cite{key1,key2}'
+    #     ... )
+    #     >>> ct._citation_keys_in_context
+    #     ['key', 'key1,key2']
+    #     """
 
-        return self._citation_keys_in_context
+    #     return self._citation_keys_in_context
 
-    @citation_keys_in_context.setter
-    def citation_keys_in_context(self, lis):
-        if isinstance(lis, list):
-            self._citation_keys_in_context = lis
-        else:
-            raise TypeError(
-                'citation_keys_in_context must be a list.'
-            )
+    # @citation_keys_in_context.setter
+    # def citation_keys_in_context(self, lis):
+    #     if isinstance(lis, list):
+    #         self._citation_keys_in_context = lis
+    #     else:
+    #         raise TypeError(
+    #             'citation_keys_in_context must be a list.'
+    #         )
 
     def read_aux(self):
         r"""Read .aux file.
@@ -317,7 +317,7 @@ class Cite:
             self._conversion_dict.update(
                 {cite: self._compress(cite_nums)}
                 )
-        for cite in self.citation_keys_in_context:
+        for cite in self._citation_keys_in_context:
             cite_nums = [self._bibcite[c] for c in cite.split(',')]
             if self.use_cite_package:
                 self._conversion_dict.update(
@@ -727,6 +727,8 @@ class LaTeX(Cite, Bibliography):
 
         >>> import wdbibtex
         >>> import pathlib
+        >>> import shutil
+        >>> shutil.rmtree('.tmp', ignore_errors=True)
         >>> tx = wdbibtex.LaTeX(workdir='.tmp')
         >>> pathlib.Path('.tmp/testbst.bst').touch()
         >>> tx.bibliographystyle = None
@@ -925,6 +927,7 @@ class LaTeX(Cite, Bibliography):
                     '',
                 ])
             )
+        self._parse_context(c)
 
     def build(self):
         """Build LaTeX related files.

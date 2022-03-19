@@ -18,7 +18,6 @@ Attributes
    :toctree: api
 
    LaTeX.bibliographystyle
-   LaTeX.citation_keys_in_context
    LaTeX.citation_labels
    LaTeX.citeleft
    LaTeX.citeright
@@ -39,7 +38,6 @@ Methods
    LaTeX.build
    LaTeX.cite
    LaTeX.is_package_used
-   LaTeX.parse_context
    LaTeX.read_aux
    LaTeX.read_bbl
    LaTeX.set_bibliographystyle
