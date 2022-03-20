@@ -18,8 +18,11 @@ sys.path.insert(0, os.path.abspath('../'))
 # -- Project information -----------------------------------------------------
 
 project = 'wdbibtex'
-copyright = '2022, ehki'
+copyright = '2022, Haruki Ejiri'
 author = 'Haruki Ejiri'
+release = "0.2.0"
+version = ".".join(release.split("."))
+html_title = 'WdBibTeX 0.2.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -32,6 +35,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx.ext.todo',
+    'sphinx.ext.githubpages',
     'sphinxarg.ext',
     'numpydoc',
 ]
@@ -64,6 +68,7 @@ html_theme = 'pydata_sphinx_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+html_favicon = '_static/img/favicon.png'
 
 # -- Extension configuration -------------------------------------------------
 
@@ -74,3 +79,30 @@ todo_include_todos = True
 
 autosummary_generate = True
 numpydoc_show_class_members = False
+
+language = 'en'
+latex_engine = 'platex'
+latex_docclass = {
+    'manual': 'book',
+    'howto': 'article',
+}
+pygments_style = 'bw'
+
+latex_elements = {
+    'preamble': r'''
+\usepackage[titles]{tocloft}
+\usepackage{hyperref}
+\hypersetup{
+     colorlinks=true,
+     linkcolor=black,
+     citecolor=black,
+     filecolor=black,
+     urlcolor=black,
+ }
+''',
+    'printindex': '',
+    'pointsize': '11pt',
+}
+latex_documents = [(
+    'index', 'manual.tex', 'WdBibTeX', author, 'howto', True
+)]

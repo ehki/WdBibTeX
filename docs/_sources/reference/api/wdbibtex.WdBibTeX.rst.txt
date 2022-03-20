@@ -7,6 +7,14 @@
 
    
    
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~WdBibTeX.original_file
+      ~WdBibTeX.target_file
+      ~WdBibTeX.workdir
+   
    
 
    
@@ -20,6 +28,7 @@
       ~WdBibTeX.close
       ~WdBibTeX.find_all
       ~WdBibTeX.open
+      ~WdBibTeX.read_preamble
       ~WdBibTeX.replace_all
    
    

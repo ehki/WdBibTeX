@@ -1,0 +1,6 @@
+﻿wdbibtex.WdBibTeX.read\_preamble
+================================
+
+.. currentmodule:: wdbibtex
+
+.. automethod:: WdBibTeX.read_preamble

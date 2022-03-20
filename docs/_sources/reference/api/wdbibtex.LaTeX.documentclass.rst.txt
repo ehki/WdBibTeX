@@ -1,0 +1,6 @@
+﻿wdbibtex.LaTeX.documentclass
+============================
+
+.. currentmodule:: wdbibtex
+
+.. autoproperty:: LaTeX.documentclass

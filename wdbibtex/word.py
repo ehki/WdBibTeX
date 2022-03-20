@@ -8,20 +8,35 @@ import wdbibtex
 
 
 class WdBibTeX:
-    """MS Word's BibTeX toolkit.
+    """BibTeX toolkit for MS Word.
 
     WdBibTeX is a MS Word wrapper for BibTeX citation conversion.
+    WdBibTeX extracts LaTeX and BibTeX commands from a Word file,
+    and copies them to dummy .tex file in working directory.
+    By building LaTeX project with old-style LaTeX+BibTeX process,
+    WdBibTeX obtain BibTeX-processed bibliography texts
+    and citation numbers.
+    Finally, WdBibTeX replaces original LaTeX and BibTeX commands
+    in Word file with BibTeX-processed bibliography textx
+    and citation numbers.
 
     Parameters
     ----------
-    file : str
+    file : str or path object
         Target word file with .docx extension.
     copy_suffix : str, default '_bib'
         Appended text to a copied word file.
-        WdBibTeX operates the copied file.
-    workdir : '.tmp'
+        WdBibTeX operates the copied file for safety.
+    workdir : str or path object, default '.tmp'
         Working directory of latex process.
-        The working directory will be removed by WdBibTeX.clean().
+        The working directory will be removed by WdBibTeX.clear().
+
+    Examples
+    --------
+    >>> from wdbibtex import WdBibTeX
+    >>> wd = WdBibTeX('sample.docx')  # doctest: +SKIP
+    >>> wd.build()  # doctest: +SKIP
+    >>> wd.close()  # doctest: +SKIP
     """
 
     def __init__(
@@ -41,12 +56,29 @@ class WdBibTeX:
             + str(self.__origin_file.suffix)
         )
         self.__workdir = self.__docxdir / workdir
-        self.__ltx = wdbibtex.LaTeX(workdir=self.__workdir)
+
+    @property
+    def original_file(self):
+        """[Read only] Returns original word file.
+        """
+        return self.__target_file
+
+    @property
+    def target_file(self):
+        """[Read only] Returns operating word file.
+        """
+        return self.__target_file
+
+    @property
+    def workdir(self):
+        """[Read only] Returns LaTeX working directory.
+        """
+        return self.__workdir
 
     def clear(self):
         """Clear auxiliary files on working directory.
         """
-        shutil.rmtree(self.__ltx.workdir)
+        shutil.rmtree(self.workdir)
 
     def close(self, clear=False):
         """Close word file and word application.
@@ -99,29 +131,62 @@ class WdBibTeX:
         """  # noqa E501
 
         self.open()
+        os.makedirs(self.__workdir, exist_ok=True)
         for b in glob.glob(os.path.join(self.__docxdir, '*.bst')):
             shutil.copy(b, self.__workdir)
         for b in glob.glob(os.path.join(self.__docxdir, '*.bib')):
             shutil.copy(b, self.__workdir)
+        tx = wdbibtex.LaTeX(workdir=self.__workdir)
+        tx.preamble = self.read_preamble()
+
+        if bst:
+            # Overwrite preamble in docx with given command line artument.
+            tx.bibliographystyle = bst
+        else:
+            # Try setting default bibliographystyle=None.
+            # Try find .bst in th project directory.
+            tx.bibliographystyle = tx.bibliographystyle
+
         self.__cites = self.find_all('\\\\cite\\{*\\}')
         self.__thebibliographies = self.find_all('\\\\thebibliography')
 
         # Build latex document
         context = '\n'.join([cite for cite, _, _ in self.__cites])
-        self.__ltx.write(context, bib=bib, bst=bst)
-        self.__ltx.build()
+        tx.write(context, bib=bib)
+        tx.build()
+        tx.read_aux()
+        tx.read_bbl()
 
         # Replace \thebibliography
         for _, start, end in self.__thebibliographies[::-1]:
             rng = self.__dc.Range(Start=start, End=end)
             rng.Delete()
-            rng.InsertAfter(self.__ltx.tbt)
+            rng.InsertAfter(tx.thebibliography)
 
         # Replace \cite{*}
-        for key, val in self.__ltx.cnd.items():
-            if 'thebibliography' in key:
-                continue
-            self.replace_all(key, val)
+        # for key, val in ct.cnd.items():
+        superscript = (
+            isinstance(tx.is_package_used('cite'), list)
+            and (
+                'superscript' in tx.is_package_used('cite')
+                or 'super' in tx.is_package_used('cite')
+            )
+        )
+        for key, start, end in self.__cites[::-1]:
+            if superscript:
+                rng = self.__dc.Range(Start=start, End=end)
+                rng.Font.Superscript = True
+            key_escaped = key.replace('\\', '\\\\')
+            key_escaped = key_escaped.replace('{', '\\{')
+            key_escaped = key_escaped.replace('}', '\\}')
+            self.replace_all(key_escaped, tx.cite(key))
+
+        # Replace from \begin{preamble} to \end{preamble}^13
+        # Note ^13 corresponds carriage return.
+        self.replace_all(
+            '\\\\begin\\{preamble\\}*\\\\end\\{preamble\\}^13',
+            ''
+        )
 
     def find_all(self, key):
         """Find all keys from word file.
@@ -203,6 +268,48 @@ class WdBibTeX:
 
         self.__dc = self.__ap.Documents.Open(str(self.__target_file))
         self.__sl = self.__ap.Selection
+
+    def read_preamble(self):
+        r"""Read preamble contents if exists.
+
+        WdBibTeX detects special command of \begin{preamble} and \end{preamble}
+        commands from target .docx file. Contents written in the two commands
+        will be copied to the preamble of .tex file. If these commands did not
+        be found, the following default preamble is used.
+
+        .. code-block:: text
+
+            \documentclass[latex]{article}
+            \usepackage{cite}
+
+        Returns
+        -------
+        None or str
+            None if no preamble texts exists, str if preamble exists.
+
+        Raises
+        ------
+        ValueError
+            If only one of \begin{preamble} or \end{preamble} found in file.
+            Or, if two or more \begin{preamble} or \end{preamble} found.
+        """
+        bgn_pa = self.find_all("\\\\begin\\{preamble\\}")
+        end_pa = self.find_all("\\\\end\\{preamble\\}")
+        if bgn_pa == [['', 0, 0]] and end_pa == [['', 0, 0]]:
+            return None
+        elif bgn_pa == [['', 0, 0]] or end_pa == [['', 0, 0]]:
+            raise ValueError(
+                'One of \\begin{preamble} or \\end{preamble} not found.'
+            )
+        elif (len(bgn_pa) > 1 or len(end_pa) > 1):
+            raise ValueError(
+                'Two or more \\begin{preamble} or \\end{preamble} found.'
+            )
+        pa = self.__dc.Range(
+            Start=bgn_pa[0][2],
+            End=end_pa[0][1]
+        )
+        return str(pa).replace('\r', '\n')
 
     def replace_all(self, key, val):
         """Replace all keys in document with value.
