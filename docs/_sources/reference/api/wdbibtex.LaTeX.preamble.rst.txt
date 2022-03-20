@@ -1,0 +1,6 @@
+﻿wdbibtex.LaTeX.preamble
+=======================
+
+.. currentmodule:: wdbibtex
+
+.. autoproperty:: LaTeX.preamble

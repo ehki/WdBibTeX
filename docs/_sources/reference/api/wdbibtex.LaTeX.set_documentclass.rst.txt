@@ -1,0 +1,6 @@
+﻿wdbibtex.LaTeX.set\_documentclass
+=================================
+
+.. currentmodule:: wdbibtex
+
+.. automethod:: LaTeX.set_documentclass

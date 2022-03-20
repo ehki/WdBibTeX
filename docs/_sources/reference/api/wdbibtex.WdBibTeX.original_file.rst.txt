@@ -1,0 +1,6 @@
+﻿wdbibtex.WdBibTeX.original\_file
+================================
+
+.. currentmodule:: wdbibtex
+
+.. autoproperty:: WdBibTeX.original_file

@@ -1,0 +1,6 @@
+﻿wdbibtex.WdBibTeX.target\_file
+==============================
+
+.. currentmodule:: wdbibtex
+
+.. autoproperty:: WdBibTeX.target_file

@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>wdbibtex.latex &#8212; wdbibtex  documentation</title>
+    <title>wdbibtex.latex &#8212; WdBibTeX 0.2.0</title>
     
     <link href="../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -31,6 +31,7 @@
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.png"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -75,7 +76,7 @@
 
 <li class="toctree-l1 nav-item">
  <a class="reference internal nav-link" href="../../example.html">
-  Example
+  Examples
  </a>
 </li>
 
@@ -147,7 +148,486 @@
 <span class="kn">import</span> <span class="nn">re</span>
 
 
-<div class="viewcode-block" id="LaTeX"><a class="viewcode-back" href="../../reference/api/wdbibtex.LaTeX.html#wdbibtex.LaTeX">[docs]</a><span class="k">class</span> <span class="nc">LaTeX</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">Cite</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Citation package emurating contents and commands.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    citeleft : str, default &#39;[&#39;</span>
+<span class="sd">        Left delimiter of list.</span>
+<span class="sd">    citeright : str, default &#39;]&#39;</span>
+<span class="sd">        Right delimiter of list.</span>
+<span class="sd">    use_cite_package : bool, default False</span>
+<span class="sd">        If False, emulate LaTeX&#39;s use_cite_package citation handling.</span>
+<span class="sd">        If True, emulate cite package&#39;s behavior.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">citeleft</span><span class="o">=</span><span class="s1">&#39;[&#39;</span><span class="p">,</span>
+        <span class="n">citeright</span><span class="o">=</span><span class="s1">&#39;]&#39;</span><span class="p">,</span>
+        <span class="n">targetbasename</span><span class="o">=</span><span class="s1">&#39;wdbib&#39;</span><span class="p">,</span>
+        <span class="n">use_cite_package</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">workdir</span><span class="o">=</span><span class="s1">&#39;.tmp&#39;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Costructor of Cite.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Store settings in internal attributes.</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">workdir</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">workdir</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">workdir</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">workdir</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span> <span class="o">/</span> <span class="n">workdir</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_targetbasename</span> <span class="o">=</span> <span class="n">targetbasename</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_replacer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_citation</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bibstyle</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bibdata</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bibcite</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_conversion_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_citation_labels</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_citeleft</span> <span class="o">=</span> <span class="n">citeleft</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_citeright</span> <span class="o">=</span> <span class="n">citeright</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_use_cite_package</span> <span class="o">=</span> <span class="n">use_cite_package</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_citation_keys_in_context</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">citeleft</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Left delimiter of list. Default &#39;[&#39;.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Left delimiter of list.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import wdbibtex</span>
+<span class="sd">        &gt;&gt;&gt; tx = wdbibtex.LaTeX()</span>
+<span class="sd">        &gt;&gt;&gt; tx.citation_labels = {&#39;key1&#39;: 1, &#39;key2&#39;: 2, &#39;key3&#39;: 3}</span>
+<span class="sd">        &gt;&gt;&gt; tx.citeleft</span>
+<span class="sd">        &#39;[&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.cite(&#39;\\cite{key1}&#39;)</span>
+<span class="sd">        &#39;[1]&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.cite(&#39;\\cite{key2,key3}&#39;)</span>
+<span class="sd">        &#39;[2,3]&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.cite(&#39;\\cite{key3,key2,key1}&#39;)</span>
+<span class="sd">        &#39;[3,2,1]&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.citeleft = &#39;(&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.citeleft</span>
+<span class="sd">        &#39;(&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.cite(&#39;\\cite{key1}&#39;)</span>
+<span class="sd">        &#39;(1]&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.cite(&#39;\\cite{key2,key3}&#39;)</span>
+<span class="sd">        &#39;(2,3]&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.cite(&#39;\\cite{key3,key2,key1}&#39;)</span>
+<span class="sd">        &#39;(3,2,1]&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_citeleft</span>
+
+    <span class="nd">@citeleft</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">citeleft</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s1">&#39;expected string object but &#39;</span>
+                <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> object given.&#39;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_citeleft</span> <span class="o">=</span> <span class="n">s</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">citeright</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Right delimiter of list. Default &#39;]&#39;.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Right delimiter of list.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import wdbibtex</span>
+<span class="sd">        &gt;&gt;&gt; tx = wdbibtex.LaTeX()</span>
+<span class="sd">        &gt;&gt;&gt; tx.citation_labels = {&#39;key1&#39;: 1, &#39;key2&#39;: 2, &#39;key3&#39;: 3}</span>
+<span class="sd">        &gt;&gt;&gt; tx.citeright</span>
+<span class="sd">        &#39;]&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.cite(&#39;\\cite{key1}&#39;)</span>
+<span class="sd">        &#39;[1]&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.cite(&#39;\\cite{key2,key3}&#39;)</span>
+<span class="sd">        &#39;[2,3]&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.cite(&#39;\\cite{key3,key2,key1}&#39;)</span>
+<span class="sd">        &#39;[3,2,1]&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.citeright = &#39;)&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.citeright</span>
+<span class="sd">        &#39;)&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.cite(&#39;\\cite{key1}&#39;)</span>
+<span class="sd">        &#39;[1)&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.cite(&#39;\\cite{key2,key3}&#39;)</span>
+<span class="sd">        &#39;[2,3)&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.cite(&#39;\\cite{key3,key2,key1}&#39;)</span>
+<span class="sd">        &#39;[3,2,1)&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_citeright</span>
+
+    <span class="nd">@citeright</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">citeright</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s1">&#39;expected string object but &#39;</span>
+                <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> object given.&#39;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_citeright</span> <span class="o">=</span> <span class="n">s</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">citation_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Key to number map of citations.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Citation key to citation number map.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_citation_labels</span>
+
+    <span class="nd">@citation_labels</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">citation_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s1">&#39;expected dictionary object but &#39;</span>
+                <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> object given.&#39;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_citation_labels</span> <span class="o">=</span> <span class="n">d</span>
+
+    <span class="k">def</span> <span class="nf">_parse_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Find all citation keys from context written to .tex file.</span>
+
+<span class="sd">        Find all citation keys from context written to .tex file.</span>
+<span class="sd">        Found keys are stores to citation_keys_in_context attribute.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        c : str</span>
+<span class="sd">            Parsed texts.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import wdbibtex</span>
+<span class="sd">        &gt;&gt;&gt; tx = wdbibtex.LaTeX()</span>
+<span class="sd">        &gt;&gt;&gt; tx._parse_context(</span>
+<span class="sd">        ...     &#39;Some citation \\cite{key}. Some example \\cite{key1,key2}&#39;</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; tx._citation_keys_in_context</span>
+<span class="sd">        [&#39;key&#39;, &#39;key1,key2&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">found_keys</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">+cite\{(.*?)\}&#39;</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">found_keys</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_citation_keys_in_context</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">read_aux</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Read .aux file.</span>
+
+<span class="sd">        Aux file will be read line-by-line.</span>
+<span class="sd">        Following four types of the line will be</span>
+<span class="sd">        interpreted and stored to the LaTeX attributes.</span>
+
+<span class="sd">        - \\citation{keys}</span>
+<span class="sd">           Appended to the citation attribute</span>
+<span class="sd">           (list object) key as string.</span>
+<span class="sd">        - \\bibstyle{s}</span>
+<span class="sd">           Stored as bibstyle string attribute.</span>
+<span class="sd">        - \\bibdata{d}</span>
+<span class="sd">           Stored as bibdata string attribute.</span>
+<span class="sd">        - \\bibcite{k}{n}</span>
+<span class="sd">           Added to bibcite attribute</span>
+<span class="sd">           (dictionary) as {k: n}.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">workdir</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_targetbasename</span> <span class="o">+</span> <span class="s1">&#39;.aux&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_auxdata</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auxdata</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parse_line</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_conversion_dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_citation_labels</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bibcite</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_replacer</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_parse_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Parse one line of .aux</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        line : str</span>
+<span class="sd">            One line of .aux file to parse.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">citation&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_citation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">citation{&#39;</span><span class="p">):</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)])</span>
+        <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">bibstyle&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_bibstyle</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">bibstyle{&#39;</span><span class="p">):</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">bibdata&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_bibdata</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">bibdata{&#39;</span><span class="p">):</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">bibcite&#39;</span><span class="p">):</span>
+            <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">bibcite{&#39;</span><span class="p">):</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;}{&#39;</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_bibcite</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">_get_replacer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get key and value for replace word document.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">replacer</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conversion_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">replacer</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">cite</span><span class="se">\\</span><span class="s1">{</span><span class="si">%s</span><span class="se">\\</span><span class="s1">}&#39;</span> <span class="o">%</span> <span class="n">k</span><span class="p">:</span> <span class="s1">&#39;[</span><span class="si">%s</span><span class="s1">]&#39;</span> <span class="o">%</span> <span class="n">v</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_replacer</span> <span class="o">=</span> <span class="n">replacer</span>
+
+    <span class="k">def</span> <span class="nf">_build_conversion_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Prepare replaing citation keys with dashed range strings.</span>
+
+<span class="sd">        Generate dictionary of such as {&#39;refa,refb,refc,refe,refg&#39;: &#39;1-3,5,7&#39;}.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">cite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_citation</span><span class="p">:</span>
+            <span class="n">cite_nums</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_bibcite</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cite</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_conversion_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span><span class="n">cite</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compress</span><span class="p">(</span><span class="n">cite_nums</span><span class="p">)}</span>
+                <span class="p">)</span>
+        <span class="k">for</span> <span class="n">cite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_citation_keys_in_context</span><span class="p">:</span>
+            <span class="n">cite_nums</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_bibcite</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cite</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_cite_package</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_conversion_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="p">{</span><span class="n">cite</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compress</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">cite_nums</span><span class="p">))}</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_conversion_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="p">{</span><span class="n">cite</span><span class="p">:</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cite_nums</span><span class="p">)}</span>
+                    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">cite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Do \cite command formatting.</span>
+
+<span class="sd">        Returns formated text from citation commands such as</span>
+<span class="sd">        \cite{key1} and \cite{key1,key2,key3}, etc.</span>
+<span class="sd">        By default, if there are three or more consecutive numbers,</span>
+<span class="sd">        they are compressed into a range using an en-dash.</span>
+<span class="sd">        Citation numbers are also sorted in the default condition.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        s : str</span>
+<span class="sd">            Raw string to be formatted.</span>
+<span class="sd">            For example, \\cite{key1} or \\cite{key2,key3}.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import wdbibtex</span>
+<span class="sd">        &gt;&gt;&gt; tx = wdbibtex.LaTeX()</span>
+<span class="sd">        &gt;&gt;&gt; tx.citation_labels = {&#39;key1&#39;: 1, &#39;key2&#39;: 2, &#39;key3&#39;: 3}</span>
+<span class="sd">        &gt;&gt;&gt; tx.cite(&#39;\\cite{key1}&#39;)</span>
+<span class="sd">        &#39;[1]&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.cite(&#39;\\cite{key2,key3}&#39;)</span>
+<span class="sd">        &#39;[2,3]&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.cite(&#39;\\cite{key3,key2,key1}&#39;)</span>
+<span class="sd">        &#39;[3,2,1]&#39;</span>
+
+<span class="sd">        &gt;&gt;&gt; import wdbibtex</span>
+<span class="sd">        &gt;&gt;&gt; tx = wdbibtex.LaTeX()</span>
+<span class="sd">        &gt;&gt;&gt; tx.add_package(&#39;cite&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; tx.citation_labels = {&#39;key1&#39;: 1, &#39;key2&#39;: 2, &#39;key3&#39;: 3}</span>
+<span class="sd">        &gt;&gt;&gt; tx.cite(&#39;\\cite{key1}&#39;)</span>
+<span class="sd">        &#39;[1]&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.cite(&#39;\\cite{key2,key3}&#39;)</span>
+<span class="sd">        &#39;[2,3]&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.cite(&#39;\\cite{key3,key2,key1}&#39;)</span>
+<span class="sd">        &#39;[1\u20133]&#39;</span>
+
+<span class="sd">        Note \\u2013 is en-dash.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">+cite\{(.*)\}&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">return</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_citeleft</span>
+                    <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_citation_labels</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+                    <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_citeright</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_cite_package</span><span class="p">:</span>
+                    <span class="n">nums</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_citation_labels</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="k">return</span> <span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_citeleft</span>
+                        <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compress</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span>
+                        <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_citeright</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">nums</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_citation_labels</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">]</span>
+                    <span class="k">return</span> <span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_citeleft</span>
+                        <span class="o">+</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span>
+                        <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_citeright</span>
+                    <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;no citation pattern matched.&#39;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_compress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nums</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="sa">u</span><span class="s1">&#39;</span><span class="se">\u2013</span><span class="s1">&#39;</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compress groups of three or more consecutive numbers into a range.</span>
+
+<span class="sd">        Compress poor list of positive integers with three or more</span>
+<span class="sd">        consecutive numbers into a range using a separating character.</span>
+<span class="sd">        For example, a list ``[1,2,3,6]`` will be converted into ``[1-3,6]``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nums : list of positive integers</span>
+<span class="sd">            Multiple integers to convert dashed range string.</span>
+<span class="sd">            A list of single element integer is also allowd.</span>
+<span class="sd">        sep : str, default en-dash(U+2013)</span>
+<span class="sd">            A character inserted betwen start and end of range.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">seq</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">final</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">last</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nums</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="n">last</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">val</span> <span class="ow">or</span> <span class="n">index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                <span class="n">last</span> <span class="o">=</span> <span class="n">val</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">final</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="n">sep</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">final</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">final</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                    <span class="n">seq</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                    <span class="n">last</span> <span class="o">=</span> <span class="n">val</span>
+
+            <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">final</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="n">sep</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">final</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">final</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+        <span class="n">final_str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">final</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">final_str</span>
+
+
+<span class="k">class</span> <span class="nc">Bibliography</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;LaTeX bbl file related contents and commands.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    targetbasename : str, default &#39;wdbib&#39;</span>
+<span class="sd">        Base name of LaTeX related files.</span>
+<span class="sd">    workdir : str or path object, default &#39;.tmp&#39;</span>
+<span class="sd">        Temporal working directory to store LaTeX contents.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import wdbibtex</span>
+<span class="sd">    &gt;&gt;&gt; bb = wdbibtex.Bibliography()</span>
+<span class="sd">    &gt;&gt;&gt; bb.read_bbl()  # doctest: +SKIP</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">targetbasename</span><span class="o">=</span><span class="s1">&#39;wdbib&#39;</span><span class="p">,</span>
+        <span class="n">workdir</span><span class="o">=</span><span class="s1">&#39;.tmp&#39;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Cunstructor of Bibliography</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Store settings in internal attributes.</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">workdir</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">workdir</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">workdir</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">workdir</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span> <span class="o">/</span> <span class="n">workdir</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_targetbasename</span> <span class="o">=</span> <span class="n">targetbasename</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">thebibliography</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Plain text to replace \\thebibliography in word file.</span>
+
+<span class="sd">        A plain text of LaTeX-processed bibliography list.</span>
+<span class="sd">        An tab string is inserted between each citenum and citation string.</span>
+<span class="sd">        Example in IEEE format follows:</span>
+
+<span class="sd">        .. code-block:: text</span>
+
+<span class="sd">            [1]\\tF. Author, S. Author, &quot;Paper Title,&quot; Journal Name, vol. 1, no. 1, p. 1, march 2022.</span>
+<span class="sd">            [2]\\tG. Name, F. Name, &quot;Title,&quot; Journal, vol. 2, no. 2, pp. 1-10, 2020.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Plain text of the thebibliography.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If thebibliography text is not set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa E501</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thebibtext</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Thebibliography text is not set yet.&#39;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thebibtext</span>
+
+    <span class="k">def</span> <span class="nf">read_bbl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read .bbl file.</span>
+
+<span class="sd">        Read .bbl file to extract formatted thebibliography text.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import wdbibtex</span>
+<span class="sd">        &gt;&gt;&gt; bb = wdbibtex.Bibliography()</span>
+<span class="sd">        &gt;&gt;&gt; bb.read_bbl()  # doctest: +SKIP</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">workdir</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_targetbasename</span> <span class="o">+</span> <span class="s1">&#39;.bbl&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_bbldata</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_thebibliography_text</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_make_thebibliography_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generate thebibliography plain text to incert word file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">replacer</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">replacer</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="sa">r</span><span class="s1">&#39;\n  &#39;</span><span class="p">:</span> <span class="s1">&#39; &#39;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s1">&#39;\{</span><span class="se">\\</span><span class="s1">em (.*)\}&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;\1&#39;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">emph\{(.*)\}&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;\1&#39;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">BIBforeignlanguage\{(.*)\}\{(.*)\}&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;\2&#39;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s1">&#39;~&#39;</span><span class="p">:</span> <span class="s1">&#39; &#39;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s1">&#39;--&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;</span><span class="se">\u2014</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s1">&#39;``&#39;</span><span class="p">:</span> <span class="s1">&#39;“&#39;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;&#39;&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;”&#39;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s1">&#39;\n\n&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="p">})</span>
+        <span class="n">thebib_begin</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bbldata</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">bibitem&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">thebib_begin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">thebib_begin</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">end</span><span class="si">{thebibliography}</span><span class="s1">&#39;</span><span class="p">):</span>
+                <span class="n">thebib_end</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="n">thebibtext</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bbldata</span><span class="p">[</span><span class="n">thebib_begin</span><span class="p">:</span> <span class="n">thebib_end</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">replacer</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">thebibtext</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">thebibtext</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">bibitem{(.*)}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">thebibtext</span><span class="p">)):</span>
+            <span class="n">thebibtext</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+                <span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">bibitem{</span><span class="si">%s</span><span class="s1">}</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">m</span><span class="p">,</span> <span class="s1">&#39;[</span><span class="si">%s</span><span class="s1">]</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">c</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">thebibtext</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_thebibtext</span> <span class="o">=</span> <span class="n">thebibtext</span>
+
+
+<div class="viewcode-block" id="LaTeX"><a class="viewcode-back" href="../../reference/api/wdbibtex.LaTeX.html#wdbibtex.LaTeX">[docs]</a><span class="k">class</span> <span class="nc">LaTeX</span><span class="p">(</span><span class="n">Cite</span><span class="p">,</span> <span class="n">Bibliography</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;LaTeX related contents and commands.</span>
 
 <span class="sd">    Run LaTeX and BibTeX commands. Write .tex files.</span>
@@ -162,14 +642,10 @@
 <span class="sd">    bibtexopts : str or None, default None</span>
 <span class="sd">        BibTeX command options.</span>
 <span class="sd">        If None, automatically selected according to system locale.</span>
-<span class="sd">    dashstarts : int, default 3</span>
-<span class="sd">        Only 2 or 3,</span>
-<span class="sd">        If dashstarts is 2, &#39;1 and 2&#39; turns 1-2.</span>
-<span class="sd">        If dashstarts is 3, &#39;1 and 2&#39; turns 1,2.</span>
 <span class="sd">    preamble : str or None, default None</span>
 <span class="sd">        Preamble of .tex file.</span>
 <span class="sd">        If None, automatically selected.</span>
-<span class="sd">    targetbasename : str, default wdbib</span>
+<span class="sd">    targetbasename : str, default &#39;wdbib&#39;</span>
 <span class="sd">        Base name of LaTeX related files.</span>
 <span class="sd">    texcmd : str or None, default None</span>
 <span class="sd">        LaTeX command.</span>
@@ -177,24 +653,21 @@
 <span class="sd">    texopts : str or None, default None</span>
 <span class="sd">        LaTeX command options.</span>
 <span class="sd">        If None, automatically selected accorgin to system locale.</span>
-<span class="sd">    workdir : str | pathlib.Path, default &#39;.tmp&#39;</span>
+<span class="sd">    workdir : str or path object, default &#39;.tmp&#39;</span>
 <span class="sd">        Temporal working directory to store LaTeX contents.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">bibtexcmd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">bibtexopts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">dashstarts</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
             <span class="n">preamble</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">targetbasename</span><span class="o">=</span><span class="s1">&#39;wdbib&#39;</span><span class="p">,</span>
             <span class="n">texcmd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">texopts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">workdir</span><span class="o">=</span><span class="s1">&#39;.tmp&#39;</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="c1"># Argument check</span>
-        <span class="k">assert</span> <span class="n">dashstarts</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span>
-            <span class="s1">&#39;Invalid dashstarts. Only integer 2 or 3 is allowed.&#39;</span>
-        <span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">LaTeX</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">__locale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__default_locale</span><span class="p">()</span>
 
@@ -213,11 +686,6 @@
                 <span class="n">bibtexcmd</span> <span class="o">=</span> <span class="s1">&#39;upbibtex&#39;</span>
         <span class="k">if</span> <span class="n">bibtexopts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">bibtexopts</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        <span class="k">if</span> <span class="n">preamble</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">preamble</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">documentclass[latex]</span><span class="si">{article}</span><span class="se">\n</span><span class="s1">&#39;</span>
-                <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">usepackage</span><span class="si">{cite}</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="p">)</span>
 
         <span class="c1"># Store settings in internal attributes.</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">workdir</span><span class="p">):</span>
@@ -231,20 +699,276 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__texopts</span> <span class="o">=</span> <span class="n">texopts</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__bibtexcmd</span> <span class="o">=</span> <span class="n">bibtexcmd</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__bibtexopts</span> <span class="o">=</span> <span class="n">bibtexopts</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__preamble</span> <span class="o">=</span> <span class="n">preamble</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__dashstarts</span> <span class="o">=</span> <span class="n">dashstarts</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__thebibtext</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__replacer</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">citation</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bibstyle</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bibdata</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bibcite</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__conversion_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__packages</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__bibliographystyle</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__formatted_bibliographystyle</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__documentclass</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__package_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preamble</span> <span class="o">=</span> <span class="n">preamble</span>
 
         <span class="c1"># Makedir working directory if not exist.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<div class="viewcode-block" id="LaTeX.write"><a class="viewcode-back" href="../../reference/api/wdbibtex.LaTeX.write.html#wdbibtex.LaTeX.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">bib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bst</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">documentclass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;LaTeX documentclass string.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__documentclass</span>
+
+    <span class="nd">@documentclass</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">documentclass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">documentclass</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">documentclass</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Invalid documentclass.&#39;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__documentclass</span> <span class="o">=</span> <span class="n">documentclass</span>
+
+        <span class="c1"># Update preamble</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__update_preamble</span><span class="p">()</span>
+
+<div class="viewcode-block" id="LaTeX.set_documentclass"><a class="viewcode-back" href="../../reference/api/wdbibtex.LaTeX.set_documentclass.html#wdbibtex.LaTeX.set_documentclass">[docs]</a>    <span class="k">def</span> <span class="nf">set_documentclass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">documentclass</span><span class="p">,</span> <span class="o">*</span><span class="n">options</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Documentclass setter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        documentclass</span>
+<span class="sd">            Documentclass</span>
+<span class="sd">        *options</span>
+<span class="sd">            Documentclass options.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">documentclass</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__documentclass</span> <span class="o">=</span> <span class="n">documentclass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+                <span class="n">opts</span> <span class="o">=</span> <span class="s1">&#39;[</span><span class="si">%s</span><span class="s1">]&#39;</span> <span class="o">%</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__documentclass</span> <span class="o">=</span> \
+                <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">documentclass</span><span class="si">%s</span><span class="s1">{</span><span class="si">%s</span><span class="s1">}&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="n">documentclass</span><span class="p">)</span>
+
+        <span class="c1"># Update preamble</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__update_preamble</span><span class="p">()</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">formatted_bibliographystyle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;[Read only] Formatted bibliographystyle, e.g. \bibliographystyle{IEEEtran}</span>
+
+<span class="sd">        Formatted bibliography string to be written in preamble.</span>
+<span class="sd">        In the case ``bibliographystyle`` is ``SomeBST``,</span>
+<span class="sd">        ``formatted_bibliographystyle`` is ``\bibliographystyle{SomeBST}``.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        bibliographystyle : bare bibliographystyle to be used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__formatted_bibliographystyle</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bibliographystyle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Bibliographystyle string.</span>
+
+<span class="sd">        Bibliography string. If None is set, a .bst is automatically selected.</span>
+<span class="sd">        The ``bibliography`` string is, for example,</span>
+<span class="sd">        ``SomeBST`` of ``\bibliographystyle{SomeBST}``.</span>
+<span class="sd">        While the ``formatted_bibliographystyle``</span>
+<span class="sd">        is ``\bibliographystyle{SomeBST}``.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        formatted_bibliographystyle : formatted line to be written in preamble</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import wdbibtex</span>
+<span class="sd">        &gt;&gt;&gt; tx = wdbibtex.LaTeX()</span>
+<span class="sd">        &gt;&gt;&gt; tx.bibliographystyle = &#39;IEEEtran&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.bibliographystyle</span>
+<span class="sd">        &#39;IEEEtran&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.formatted_bibliographystyle</span>
+<span class="sd">        &#39;\\bibliographystyle{IEEEtran}&#39;</span>
+
+<span class="sd">        In the case of None and no .bst file is found, raise ValueError.</span>
+
+<span class="sd">        &gt;&gt;&gt; import wdbibtex</span>
+<span class="sd">        &gt;&gt;&gt; tx = wdbibtex.LaTeX()</span>
+<span class="sd">        &gt;&gt;&gt; tx.bibliographystyle = None</span>
+<span class="sd">        Traceback (most recent call last):</span>
+<span class="sd">        ...</span>
+<span class="sd">        ValueError: No .bst files found in working directory.</span>
+
+<span class="sd">        In the case of None and some .bst file is in the working directory,</span>
+<span class="sd">        the .bst file is automatically selected.</span>
+
+<span class="sd">        &gt;&gt;&gt; import wdbibtex</span>
+<span class="sd">        &gt;&gt;&gt; import pathlib</span>
+<span class="sd">        &gt;&gt;&gt; import shutil</span>
+<span class="sd">        &gt;&gt;&gt; shutil.rmtree(&#39;.tmp&#39;, ignore_errors=True)</span>
+<span class="sd">        &gt;&gt;&gt; tx = wdbibtex.LaTeX(workdir=&#39;.tmp&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; pathlib.Path(&#39;.tmp/testbst.bst&#39;).touch()</span>
+<span class="sd">        &gt;&gt;&gt; tx.bibliographystyle = None</span>
+<span class="sd">        &gt;&gt;&gt; tx.bibliographystyle</span>
+<span class="sd">        &#39;testbst&#39;</span>
+<span class="sd">        &gt;&gt;&gt; tx.formatted_bibliographystyle</span>
+<span class="sd">        &#39;\\bibliographystyle{testbst}&#39;</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If bst is None and there is no or multiple .bst files in cwd.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__bibliographystyle</span>
+
+    <span class="nd">@bibliographystyle</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">bibliographystyle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bibliographystyle</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">glob</span>
+        <span class="k">if</span> <span class="n">bibliographystyle</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_bibliographystyle</span><span class="p">(</span><span class="n">bibliographystyle</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bibliographystyle</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/*.bst&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bibliographystyle</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;More than two .bst files found in working directory.&#39;</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">bibliographystyle</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;No .bst files found in working directory.&#39;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">bstfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">bibliographystyle</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">bibliographystyle</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">bstfile</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_bibliographystyle</span><span class="p">(</span><span class="n">bibliographystyle</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LaTeX.set_bibliographystyle"><a class="viewcode-back" href="../../reference/api/wdbibtex.LaTeX.set_bibliographystyle.html#wdbibtex.LaTeX.set_bibliographystyle">[docs]</a>    <span class="k">def</span> <span class="nf">set_bibliographystyle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bst</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Bibliographystyle setter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bst : str</span>
+<span class="sd">            Bibliography style such as IEEEtran or ieeetr.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[^a-zA-Z]&#39;</span><span class="p">,</span> <span class="n">bst</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Invalid bibliographystyle. Only plain alphabets are allowed.&#39;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__bibliographystyle</span> <span class="o">=</span> <span class="n">bst</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__formatted_bibliographystyle</span> <span class="o">=</span> \
+                <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">bibliographystyle{</span><span class="si">%s</span><span class="s1">}&#39;</span> <span class="o">%</span> <span class="n">bst</span>
+
+        <span class="c1"># Update preamble</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__update_preamble</span><span class="p">()</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">packages</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns used LaTeX packages.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Multi-line LaTeX \\usepackage[options]{package} string.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import wdbibtex</span>
+<span class="sd">        &gt;&gt;&gt; tx = wdbibtex.LaTeX()</span>
+<span class="sd">        &gt;&gt;&gt; tx.add_package(&#39;cite&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; print(tx.packages)</span>
+<span class="sd">        \usepackage{cite}</span>
+<span class="sd">        &gt;&gt;&gt; tx.add_package(&#39;graphicx&#39;, &#39;dvipdfmx&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; print(tx.packages)</span>
+<span class="sd">        \usepackage{cite}</span>
+<span class="sd">        \usepackage[dvipdfmx]{graphicx}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__packages</span>
+
+    <span class="k">def</span> <span class="nf">__update_packages</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">pkgs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">is_cite_package_found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">pkg</span><span class="p">,</span> <span class="o">*</span><span class="n">opts</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__package_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">opts</span><span class="p">):</span>
+                <span class="n">pkgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">usepackage[</span><span class="si">%s</span><span class="s1">]{</span><span class="si">%s</span><span class="s1">}&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">opts</span><span class="p">),</span> <span class="n">pkg</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pkgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">usepackage{</span><span class="si">%s</span><span class="s1">}&#39;</span> <span class="o">%</span> <span class="n">pkg</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">pkg</span> <span class="o">==</span> <span class="s1">&#39;cite&#39;</span><span class="p">:</span>
+                <span class="n">is_cite_package_found</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__packages</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pkgs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_use_cite_package</span> <span class="o">=</span> <span class="n">is_cite_package_found</span>
+
+<div class="viewcode-block" id="LaTeX.add_package"><a class="viewcode-back" href="../../reference/api/wdbibtex.LaTeX.add_package.html#wdbibtex.LaTeX.add_package">[docs]</a>    <span class="k">def</span> <span class="nf">add_package</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="o">*</span><span class="n">options</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a package to the package list</span>
+
+<span class="sd">        Add a package to the package list of package_list.</span>
+<span class="sd">        The package can have option.</span>
+<span class="sd">        The package will used in the preamble attribute.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        package : str</span>
+<span class="sd">            Package name.</span>
+<span class="sd">        *options</span>
+<span class="sd">            Options of the package.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Overwrite duplicated package</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="o">*</span><span class="n">o</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__package_list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="n">package</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__package_list</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="k">break</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__package_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">package</span><span class="p">,</span> <span class="o">*</span><span class="n">options</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Update package string.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__update_packages</span><span class="p">()</span>
+
+        <span class="c1"># Update preamble</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__update_preamble</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="LaTeX.is_package_used"><a class="viewcode-back" href="../../reference/api/wdbibtex.LaTeX.is_package_used.html#wdbibtex.LaTeX.is_package_used">[docs]</a>    <span class="k">def</span> <span class="nf">is_package_used</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns if the package is used.</span>
+
+<span class="sd">        Returns False if the package is not used</span>
+<span class="sd">        while True if the package is used without option.</span>
+<span class="sd">        If the package is used with option(s), returns List of option(s).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        p : str</span>
+<span class="sd">            Package name to find.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool or list</span>
+<span class="sd">            False if the package is not used.</span>
+<span class="sd">            True if the package is used without option.</span>
+<span class="sd">            List of option(s) if the package is used with option(s).</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import wdbibtex</span>
+<span class="sd">        &gt;&gt;&gt; tx = wdbibtex.LaTeX()</span>
+<span class="sd">        &gt;&gt;&gt; tx.add_package(&#39;cite&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; tx.is_package_used(&#39;cite&#39;)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; tx.add_package(&#39;graphicx&#39;, &#39;dvipdfmx&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; tx.is_package_used(&#39;graphicx&#39;)</span>
+<span class="sd">        [&#39;dvipdfmx&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; tx.is_package_used(&#39;xcolor&#39;)</span>
+<span class="sd">        False</span>
+<span class="sd">        &gt;&gt;&gt; print(tx.packages)</span>
+<span class="sd">        \usepackage{cite}</span>
+<span class="sd">        \usepackage[dvipdfmx]{graphicx}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__package_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">package</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">p</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">package</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">package</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="LaTeX.write"><a class="viewcode-back" href="../../reference/api/wdbibtex.LaTeX.write.html#wdbibtex.LaTeX.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">bib</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Write .tex file.</span>
 
 <span class="sd">        Write minimal .tex file into workdir.</span>
@@ -256,15 +980,8 @@
 <span class="sd">        ----------</span>
 <span class="sd">        c : str</span>
 <span class="sd">            String data to be written in .tex file.</span>
-<span class="sd">        bib : str or None</span>
+<span class="sd">        bib : str or None, default None</span>
 <span class="sd">            Bibliography library file(s). If None, use all .bib files in cwd.</span>
-<span class="sd">        bst : str or None</span>
-<span class="sd">            Bibliography style. If None, use .bst file in cwd.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            If bst is None and there is no or multiple .bst files in cwd.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">glob</span>
 
@@ -274,29 +991,19 @@
                 <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">b</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*.bib&#39;</span><span class="p">)]</span>
             <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">bst</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">bst</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*.bst&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bst</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s1">&#39;More than two .bst files found in working directory.&#39;</span>
-                <span class="p">)</span>
-            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">bst</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s1">&#39;No .bst files found in working directory.&#39;</span>
-                <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">bst</span> <span class="o">=</span> <span class="n">bst</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-
         <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">workdir</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__targetbasename</span> <span class="o">+</span> <span class="s1">&#39;.tex&#39;</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">__preamble</span>
-                <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">bibliographystyle{</span><span class="si">%s</span><span class="s1">}</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">bst</span>
-                <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">begin</span><span class="si">{document}</span><span class="se">\n</span><span class="s1">&#39;</span>
-                <span class="o">+</span> <span class="n">c</span>
-                <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">bibliography{</span><span class="si">%s</span><span class="s1">}</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">bib</span>
-                <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">end</span><span class="si">{document}</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="p">)</span></div>
+                <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">preamble</span><span class="p">,</span>
+                    <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">begin</span><span class="si">{document}</span><span class="s1">&#39;</span><span class="p">,</span>
+                    <span class="n">c</span><span class="p">,</span>
+                    <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">bibliography{</span><span class="si">%s</span><span class="s1">}&#39;</span> <span class="o">%</span> <span class="n">bib</span><span class="p">,</span>
+                    <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">end</span><span class="si">{document}</span><span class="s1">&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                <span class="p">])</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parse_context</span><span class="p">(</span><span class="n">c</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="LaTeX.build"><a class="viewcode-back" href="../../reference/api/wdbibtex.LaTeX.build.html#wdbibtex.LaTeX.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Build LaTeX related files.</span>
@@ -304,13 +1011,15 @@
 <span class="sd">        Build LaTeX files in old-style four steps (without PDF generation).</span>
 
 <span class="sd">        1. latex: to generate .aux from .tex</span>
-
 <span class="sd">        2. bibtex: to generate .bbl and update .aux from .aux and .bst.</span>
-
 <span class="sd">        3. latex: to update .aux.</span>
-
 <span class="sd">        4. latex: to complete .aux.</span>
 
+<span class="sd">        Firstly the current directory is switched to the working directory.</span>
+<span class="sd">        Secondly the above four steps are invoked.</span>
+<span class="sd">        Thirdly read .bbl and .aux files are parsed.</span>
+<span class="sd">        Finally, the current directory is switched</span>
+<span class="sd">        to the original working directory.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">subprocess</span>
         <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>  <span class="c1"># Save original working directory.</span>
@@ -332,168 +1041,104 @@
         <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">latexcmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">latexcmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">read_aux</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">read_bbl</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__make_thebibliography_text</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__get_replacer</span><span class="p">()</span>
-
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>  <span class="c1"># Back to original working directory.</span></div>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cnd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns citation key to replacement number dictionary.</span>
+    <span class="k">def</span> <span class="nf">preamble</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns latex preamble text.</span>
 
-<span class="sd">        Citation to Number Dictionary will be used to replace</span>
-<span class="sd">        citation text in word file such as \\cite{key1} to</span>
-<span class="sd">        number such ash [1].</span>
+<span class="sd">        A text to be used as LaTeX preamble. Note that not all latex-compatible</span>
+<span class="sd">        preamble is used in WdBibTeX package. LaTeX class accepts None</span>
+<span class="sd">        for preamble attribute. In this case, the following default preamble</span>
+<span class="sd">        text is used according to system locale.</span>
+<span class="sd">        Note BST is replaced a bibliography style file</span>
+<span class="sd">        placed in the project directory.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        dict</span>
-<span class="sd">            Search key and replacement value.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__replacer</span>
+<span class="sd">        .. code-block:: text</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tbt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Plain text for replacement of bibliography list.</span>
+<span class="sd">            \documentclass[latex]{article}</span>
+<span class="sd">            \bibliographystyle{BST}</span>
 
-<span class="sd">        A plain text of LaTeX-processed bibliography list.</span>
-<span class="sd">        An tab string is inserted between each citenum and citation string.</span>
-<span class="sd">        For example in IEEE format:</span>
+<span class="sd">        .. code-block:: text</span>
 
-<span class="sd">        | [1]\\tF. Author, S. Author, &quot;Paper Title,&quot; Journal Name, vol. 1, no. 1, p. 1, march 2022.</span>
-<span class="sd">        | [2]\\tG. Name, F. Name, &quot;Title,&quot; Journal, vol. 2, no. 2, pp. 1-10, 2020.</span>
+<span class="sd">            \documentclass[uplatex]{jsarticle}</span>
+<span class="sd">            \bibliographystyle{BST}</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        str</span>
-<span class="sd">            Plain text of the thebibliography.</span>
-<span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa E501</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__thebibtext</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="sd">            Preamble text.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__preamble</span>
+
+    <span class="nd">@preamble</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">preamble</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__locale</span> <span class="o">==</span> <span class="s1">&#39;en&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_documentclass</span><span class="p">(</span><span class="s1">&#39;article&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">__locale</span> <span class="o">==</span> <span class="s1">&#39;ja&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_documentclass</span><span class="p">(</span><span class="s1">&#39;jsarticle&#39;</span><span class="p">,</span> <span class="s1">&#39;uplatex&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__parse_preamble</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;Thebibliography text is not set yet.&#39;</span>
+                <span class="s1">&#39;Invalid preamble. &#39;</span>
+                <span class="s1">&#39;Only None or str is allowed.&#39;</span>
             <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__thebibtext</span>
 
-    <span class="k">def</span> <span class="nf">__get_replacer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get key and value for replace word document.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">replacer</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__conversion_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">replacer</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">cite</span><span class="se">\\</span><span class="s1">{</span><span class="si">%s</span><span class="se">\\</span><span class="s1">}&#39;</span> <span class="o">%</span> <span class="n">k</span><span class="p">:</span> <span class="s1">&#39;[</span><span class="si">%s</span><span class="s1">]&#39;</span> <span class="o">%</span> <span class="n">v</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__replacer</span> <span class="o">=</span> <span class="n">replacer</span>
+    <span class="k">def</span> <span class="nf">__update_preamble</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-<div class="viewcode-block" id="LaTeX.read_bbl"><a class="viewcode-back" href="../../reference/api/wdbibtex.LaTeX.read_bbl.html#wdbibtex.LaTeX.read_bbl">[docs]</a>    <span class="k">def</span> <span class="nf">read_bbl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Read .bbl file.</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">documentclass</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">packages</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">formatted_bibliographystyle</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__preamble</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">contents</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="p">)</span>
 
-<span class="sd">        Read .bbl file to extract formatted thebibliography text.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">workdir</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__targetbasename</span> <span class="o">+</span> <span class="s1">&#39;.bbl&#39;</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__bbldata</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span></div>
+    <span class="k">def</span> <span class="nf">__parse_preamble</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preamble</span><span class="p">):</span>
+        <span class="n">detect_documentclass</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="n">preamble</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">ln</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;%&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">detect_documentclass</span><span class="p">:</span>
+                <span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">__build_conversion_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Prepare replaing citation keys with dashed range strings.</span>
+            <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;.*documentclass.*&#39;</span><span class="p">,</span> <span class="n">ln</span><span class="p">):</span>
+                <span class="n">detect_documentclass</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;.*documentclass(\[(.*)\])*\{(.*)\}&#39;</span><span class="p">,</span> <span class="n">ln</span><span class="p">)</span>
+                <span class="n">documentclass_opt</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">documentclass_opt</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+                <span class="n">documentclsass</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 
-<span class="sd">        Generate dictionary of such as {&#39;refa,refb,refc,refe,refg&#39;: &#39;1-3,5,7&#39;}.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">cite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">citation</span><span class="p">:</span>
-            <span class="n">cite_nums</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bibcite</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cite</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__conversion_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                <span class="p">{</span><span class="n">cite</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_dashed_range</span><span class="p">(</span><span class="n">cite_nums</span><span class="p">)}</span>
-                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_documentclass</span><span class="p">(</span><span class="n">documentclsass</span><span class="p">,</span> <span class="o">*</span><span class="n">documentclass_opt</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__get_dashed_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nums</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Convert multiple integers to dashed range string.</span>
+            <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;.*usepackage.*&#39;</span><span class="p">,</span> <span class="n">ln</span><span class="p">):</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;.*usepackage(\[(.*)\])*\{(.*)\}&#39;</span><span class="p">,</span> <span class="n">ln</span><span class="p">)</span>
+                <span class="n">package_opt</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">package_opt</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+                <span class="n">package</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 
-<span class="sd">        Multiple integers are such as 1,2,3,6.</span>
-<span class="sd">        And dashed rang strings are such as 1-3,6.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_package</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="o">*</span><span class="n">package_opt</span><span class="p">)</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        nums : list</span>
-<span class="sd">            Multiple integers to convert dashed range string.</span>
-<span class="sd">            A list of single element integer is also allowd.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">seq</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">final</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">last</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;.*bibliographystyle.*&#39;</span><span class="p">,</span> <span class="n">ln</span><span class="p">):</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;.*bibliographystyle\{(.*)\}&#39;</span><span class="p">,</span> <span class="n">ln</span><span class="p">)</span>
+                <span class="n">bibliographystyle</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nums</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_bibliographystyle</span><span class="p">(</span><span class="n">bibliographystyle</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">last</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">val</span> <span class="ow">or</span> <span class="n">index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
-                <span class="n">last</span> <span class="o">=</span> <span class="n">val</span>
+            <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;.*renewcommand</span><span class="se">\\</span><span class="s1">citeleft.*&#39;</span><span class="p">,</span> <span class="n">ln</span><span class="p">):</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;.*renewcommand</span><span class="se">\\</span><span class="s1">citeleft\{(.*)\}&#39;</span><span class="p">,</span> <span class="n">ln</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">citeleft</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;.*renewcommand</span><span class="se">\\</span><span class="s1">citeright.*&#39;</span><span class="p">,</span> <span class="n">ln</span><span class="p">):</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;.*renewcommand</span><span class="se">\\</span><span class="s1">citeright\{(.*)\}&#39;</span><span class="p">,</span> <span class="n">ln</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">citeright</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dashstarts</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-                    <span class="n">final</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dashstarts</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-                    <span class="n">final</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dashstarts</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-                    <span class="n">final</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">final</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-                    <span class="n">seq</span> <span class="o">=</span> <span class="p">[]</span>
-                    <span class="n">seq</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
-                    <span class="n">last</span> <span class="o">=</span> <span class="n">val</span>
-
-            <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dashstarts</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-                    <span class="n">final</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dashstarts</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-                    <span class="n">final</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dashstarts</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-                    <span class="n">final</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">final</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-
-        <span class="n">final_str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">final</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">final_str</span>
-
-<div class="viewcode-block" id="LaTeX.read_aux"><a class="viewcode-back" href="../../reference/api/wdbibtex.LaTeX.read_aux.html#wdbibtex.LaTeX.read_aux">[docs]</a>    <span class="k">def</span> <span class="nf">read_aux</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Read .aux file.</span>
-
-<span class="sd">        Aux file will be read line-by-line.</span>
-<span class="sd">        Following four types of the line will be</span>
-<span class="sd">        interpreted and stored to the LaTeX attributes.</span>
-
-<span class="sd">        - \\citation{keys}</span>
-<span class="sd">           Appended to the citation attribute</span>
-<span class="sd">           (list object) key as string.</span>
-<span class="sd">        - \\bibstyle{s}</span>
-<span class="sd">           Stored as bibstyle string attribute.</span>
-<span class="sd">        - \\bibdata{d}</span>
-<span class="sd">           Stored as bibdata string attribute.</span>
-<span class="sd">        - \\bibcite{k}{n}</span>
-<span class="sd">           Added to bibcite attribute</span>
-<span class="sd">           (dictionary) as {k: n}.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">workdir</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__targetbasename</span> <span class="o">+</span> <span class="s1">&#39;.aux&#39;</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__auxdata</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__auxdata</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__parse_line</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__build_conversion_dict</span><span class="p">()</span></div>
-
-    <span class="k">def</span> <span class="nf">__parse_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Parse one line of .aux</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        line : str</span>
-<span class="sd">            One line of .aux file to parse.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">citation&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">citation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">citation{&#39;</span><span class="p">):</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)])</span>
-        <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">bibstyle&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bibstyle</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">bibstyle{&#39;</span><span class="p">):</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)]</span>
-        <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">bibdata&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bibdata</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">bibdata{&#39;</span><span class="p">):</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)]</span>
-        <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">bibcite&#39;</span><span class="p">):</span>
-            <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">bibcite{&#39;</span><span class="p">):</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;}{&#39;</span><span class="p">)</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bibcite</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span>
+                <span class="k">pass</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">locale</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -521,36 +1166,6 @@
                 <span class="s1">&#39;Invalid locale string. &#39;</span>
                 <span class="s1">&#39;Only 2-characters string is allowed.&#39;</span>
             <span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">__make_thebibliography_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Generate thebibliography plain text to incert word file.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">replacer</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">replacer</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-            <span class="sa">r</span><span class="s1">&#39;\n  &#39;</span><span class="p">:</span> <span class="s1">&#39; &#39;</span><span class="p">,</span>
-            <span class="sa">r</span><span class="s1">&#39;\{</span><span class="se">\\</span><span class="s1">em (.*)\}&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;\1&#39;</span><span class="p">,</span>
-            <span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">emph\{(.*)\}&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;\1&#39;</span><span class="p">,</span>
-            <span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">BIBforeignlanguage\{(.*)\}\{(.*)\}&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;\2&#39;</span><span class="p">,</span>
-            <span class="sa">r</span><span class="s1">&#39;~&#39;</span><span class="p">:</span> <span class="s1">&#39; &#39;</span><span class="p">,</span>
-            <span class="sa">r</span><span class="s1">&#39;--&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;</span><span class="se">\u2014</span><span class="s1">&#39;</span><span class="p">,</span>
-            <span class="sa">r</span><span class="s1">&#39;``&#39;</span><span class="p">:</span> <span class="s1">&#39;“&#39;</span><span class="p">,</span>
-            <span class="sa">r</span><span class="s2">&quot;&#39;&#39;&quot;</span><span class="p">:</span> <span class="s1">&#39;”&#39;</span><span class="p">,</span>
-            <span class="sa">r</span><span class="s1">&#39;\n\n&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="p">})</span>
-        <span class="n">thebib_begin</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__bbldata</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">bibitem&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">thebib_begin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">thebib_begin</span> <span class="o">=</span> <span class="n">i</span>
-            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">end</span><span class="si">{thebibliography}</span><span class="s1">&#39;</span><span class="p">):</span>
-                <span class="n">thebib_end</span> <span class="o">=</span> <span class="n">i</span>
-        <span class="n">thebibtext</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__bbldata</span><span class="p">[</span><span class="n">thebib_begin</span><span class="p">:</span> <span class="n">thebib_end</span><span class="p">])</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">replacer</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">thebibtext</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">thebibtext</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bibcite</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">thebibtext</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
-                <span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">bibitem{</span><span class="si">%s</span><span class="s1">}</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">k</span><span class="p">,</span> <span class="s1">&#39;[</span><span class="si">%s</span><span class="s1">]</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">v</span><span class="p">,</span> <span class="n">thebibtext</span>
-            <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__thebibtext</span> <span class="o">=</span> <span class="n">thebibtext</span>
 
     <span class="k">def</span> <span class="nf">__default_locale</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">loca</span><span class="p">,</span> <span class="n">locb</span> <span class="o">=</span> <span class="n">locale</span><span class="o">.</span><span class="n">getlocale</span><span class="p">()</span>
@@ -585,7 +1200,7 @@
     
     <div class="footer-item">
       <p class="copyright">
-    &copy; Copyright 2022, ehki.<br>
+    &copy; Copyright 2022, Haruki Ejiri.<br>
 </p>
     </div>
     

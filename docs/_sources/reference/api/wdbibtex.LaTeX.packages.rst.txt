@@ -1,0 +1,6 @@
+﻿wdbibtex.LaTeX.packages
+=======================
+
+.. currentmodule:: wdbibtex
+
+.. autoproperty:: LaTeX.packages
