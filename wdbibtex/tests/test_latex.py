@@ -349,3 +349,22 @@ class TestExamples:
         os.chdir('examples/first')
         yield None
         os.chdir(cwd)
+
+    def test_gen_custom(self, chdir_custom):
+        p = subprocess.run(['python', 'docxgen.py'])
+        assert p.returncode == 0
+        time.sleep(0.5)
+
+    def test_run_custom(self, chdir_custom):
+        p = subprocess.run(
+            ['python', '-m', 'wdbibtex', 'sample.docx']
+        )
+        assert p.returncode == 0
+        time.sleep(0.5)
+
+    @pytest.fixture(scope='function')
+    def chdir_custom(self):
+        cwd = os.getcwd()
+        os.chdir('examples/custom')
+        yield None
+        os.chdir(cwd)
