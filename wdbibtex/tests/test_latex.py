@@ -4,6 +4,8 @@ import os
 import pathlib
 import pytest
 import shutil
+import subprocess
+import time
 import sys
 import unittest
 
@@ -325,3 +327,25 @@ class TestBstHandling:
         dirpath = pathlib.Path('.tmp')
         if dirpath.exists() and dirpath.is_dir():
             shutil.rmtree(dirpath)
+
+
+class TestExamples:
+
+    def test_gen_first(self, chdir_first):
+        p = subprocess.run(['python', 'docxgen.py'])
+        assert p.returncode == 0
+        time.sleep(0.5)
+
+    def test_run_first(self, chdir_first):
+        p = subprocess.run(
+            ['python', '-m', 'wdbibtex', 'sample.docx', '--bst', 'ieeetr']
+        )
+        assert p.returncode == 0
+        time.sleep(0.5)
+
+    @pytest.fixture(scope='function')
+    def chdir_first(self):
+        cwd = os.getcwd()
+        os.chdir('examples/first')
+        yield None
+        os.chdir(cwd)
