@@ -30,10 +30,10 @@ class TestLaTeX(unittest.TestCase):
         for b in glob.glob('*.bib'):
             shutil.copy(b, '.tmp')
 
-        ltx = wdbibtex.LaTeX()
-        ltx.set_bibliographystyle('ieeetr')
+        tx = wdbibtex.LaTeX()
+        tx.set_bibliographystyle('ieeetr')
 
-        ltx.write('Test contents')
+        tx.write('Test contents')
 
         # File check
         correct = [
@@ -67,11 +67,11 @@ class TestLaTeX(unittest.TestCase):
         for b in glob.glob('*.bib'):
             shutil.copy(b, '.tmp/')
 
-        ltx = wdbibtex.LaTeX()
-        ltx.set_bibliographystyle('ieeetr')
+        tx = wdbibtex.LaTeX()
+        tx.set_bibliographystyle('ieeetr')
 
-        ltx.write('Test contents')
-        ltx.build()
+        tx.write('Test contents')
+        tx.build()
 
         # File check
         correct = [
@@ -104,13 +104,13 @@ class TestLaTeX(unittest.TestCase):
         for b in glob.glob('*.bib'):
             shutil.copy(b, '.tmp/')
 
-        ltx = wdbibtex.LaTeX()
-        ltx.set_bibliographystyle('ieeetr')
+        tx = wdbibtex.LaTeX()
+        tx.set_bibliographystyle('ieeetr')
 
-        ltx.write(
+        tx.write(
             'Test contents with one citation \\cite{enArticle1}.'
         )
-        ltx.build()
+        tx.build()
 
         # File check
         correct = [
@@ -158,10 +158,9 @@ class TestLaTeX(unittest.TestCase):
             self.assertEqual(c1, c2)
 
         # Parse test for aux file.
-        ct = wdbibtex.Cite()
-        ct.read_aux()
+        tx.read_aux()
         self.assertEqual(
-            ct.cite('\\cite{enArticle1}'),
+            tx.cite('\\cite{enArticle1}'),
             '[1]'
         )
 
@@ -192,10 +191,9 @@ class TestLaTeX(unittest.TestCase):
         for b in glob.glob('*.bib'):
             shutil.copy(b, '.tmp/')
 
-        ltx = wdbibtex.LaTeX()
-        ct = wdbibtex.Cite()
-        ltx.set_bibliographystyle('ieeetr')
-        # ltx.add_package('cite')
+        tx = wdbibtex.LaTeX()
+        tx.set_bibliographystyle('ieeetr')
+        # tx.add_package('cite')
 
         contents = (
             'Test contents with one citation \\cite{enArticle1}.\n'
@@ -203,10 +201,10 @@ class TestLaTeX(unittest.TestCase):
             'Multiple citations in one citecommand '
             '\\cite{enArticle1,enArticle3}'
         )
-        ltx.write(contents)
-        ct.parse_context(contents)
+        tx.write(contents)
+        tx.parse_context(contents)
 
-        ltx.build()
+        tx.build()
 
         # File check
         correct = [
@@ -270,17 +268,17 @@ class TestLaTeX(unittest.TestCase):
             self.assertEqual(c1, c2)
 
         # Parse test for aux file.
-        ct.read_aux()
+        tx.read_aux()
         self.assertEqual(
-            ct.cite('\\cite{enArticle1}'),
+            tx.cite('\\cite{enArticle1}'),
             '[1]'
         )
         self.assertEqual(
-            ct.cite('\\cite{enArticle2}'),
+            tx.cite('\\cite{enArticle2}'),
             '[2]'
         )
         self.assertEqual(
-            ct.cite('\\cite{enArticle1,enArticle3}'),
+            tx.cite('\\cite{enArticle1,enArticle3}'),
             '[1,3]'
         )
 
