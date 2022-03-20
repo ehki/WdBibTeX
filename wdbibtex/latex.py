@@ -64,24 +64,24 @@ class Cite:
         Examples
         --------
         >>> import wdbibtex
-        >>> c = wdbibtex.Cite()
-        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
-        >>> c.citeleft
+        >>> tx = wdbibtex.LaTeX()
+        >>> tx.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> tx.citeleft
         '['
-        >>> c.cite('\\cite{key1}')
+        >>> tx.cite('\\cite{key1}')
         '[1]'
-        >>> c.cite('\\cite{key2,key3}')
+        >>> tx.cite('\\cite{key2,key3}')
         '[2,3]'
-        >>> c.cite('\\cite{key3,key2,key1}')
+        >>> tx.cite('\\cite{key3,key2,key1}')
         '[3,2,1]'
-        >>> c.citeleft = '('
-        >>> c.citeleft
+        >>> tx.citeleft = '('
+        >>> tx.citeleft
         '('
-        >>> c.cite('\\cite{key1}')
+        >>> tx.cite('\\cite{key1}')
         '(1]'
-        >>> c.cite('\\cite{key2,key3}')
+        >>> tx.cite('\\cite{key2,key3}')
         '(2,3]'
-        >>> c.cite('\\cite{key3,key2,key1}')
+        >>> tx.cite('\\cite{key3,key2,key1}')
         '(3,2,1]'
         """
         return self._citeleft
@@ -106,24 +106,24 @@ class Cite:
         Examples
         --------
         >>> import wdbibtex
-        >>> c = wdbibtex.Cite()
-        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
-        >>> c.citeright
+        >>> tx = wdbibtex.LaTeX()
+        >>> tx.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> tx.citeright
         ']'
-        >>> c.cite('\\cite{key1}')
+        >>> tx.cite('\\cite{key1}')
         '[1]'
-        >>> c.cite('\\cite{key2,key3}')
+        >>> tx.cite('\\cite{key2,key3}')
         '[2,3]'
-        >>> c.cite('\\cite{key3,key2,key1}')
+        >>> tx.cite('\\cite{key3,key2,key1}')
         '[3,2,1]'
-        >>> c.citeright = ')'
-        >>> c.citeright
+        >>> tx.citeright = ')'
+        >>> tx.citeright
         ')'
-        >>> c.cite('\\cite{key1}')
+        >>> tx.cite('\\cite{key1}')
         '[1)'
-        >>> c.cite('\\cite{key2,key3}')
+        >>> tx.cite('\\cite{key2,key3}')
         '[2,3)'
-        >>> c.cite('\\cite{key3,key2,key1}')
+        >>> tx.cite('\\cite{key3,key2,key1}')
         '[3,2,1)'
         """
         return self._citeright
@@ -169,11 +169,11 @@ class Cite:
         Examples
         --------
         >>> import wdbibtex
-        >>> ct = wdbibtex.Cite()
-        >>> ct._parse_context(
+        >>> tx = wdbibtex.LaTeX()
+        >>> tx._parse_context(
         ...     'Some citation \\cite{key}. Some example \\cite{key1,key2}'
         ... )
-        >>> ct._citation_keys_in_context
+        >>> tx._citation_keys_in_context
         ['key', 'key1,key2']
         """
         found_keys = re.findall(r'\\+cite\{(.*?)\}', c)
@@ -273,23 +273,24 @@ class Cite:
         Examples
         --------
         >>> import wdbibtex
-        >>> c = wdbibtex.Cite()
-        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
-        >>> c.cite('\\cite{key1}')
+        >>> tx = wdbibtex.LaTeX()
+        >>> tx.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> tx.cite('\\cite{key1}')
         '[1]'
-        >>> c.cite('\\cite{key2,key3}')
+        >>> tx.cite('\\cite{key2,key3}')
         '[2,3]'
-        >>> c.cite('\\cite{key3,key2,key1}')
+        >>> tx.cite('\\cite{key3,key2,key1}')
         '[3,2,1]'
 
         >>> import wdbibtex
-        >>> c = wdbibtex.Cite(use_cite_package=True)
-        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
-        >>> c.cite('\\cite{key1}')
+        >>> tx = wdbibtex.LaTeX()
+        >>> tx.add_package('cite')
+        >>> tx.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> tx.cite('\\cite{key1}')
         '[1]'
-        >>> c.cite('\\cite{key2,key3}')
+        >>> tx.cite('\\cite{key2,key3}')
         '[2,3]'
-        >>> c.cite('\\cite{key3,key2,key1}')
+        >>> tx.cite('\\cite{key3,key2,key1}')
         '[1\u20133]'
 
         Note \\u2013 is en-dash.
