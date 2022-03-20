@@ -158,10 +158,9 @@ class TestLaTeX(unittest.TestCase):
             self.assertEqual(c1, c2)
 
         # Parse test for aux file.
-        ct = wdbibtex.Cite()
-        ct.read_aux()
+        ltx.read_aux()
         self.assertEqual(
-            ct.cite('\\cite{enArticle1}'),
+            ltx.cite('\\cite{enArticle1}'),
             '[1]'
         )
 
@@ -193,7 +192,6 @@ class TestLaTeX(unittest.TestCase):
             shutil.copy(b, '.tmp/')
 
         ltx = wdbibtex.LaTeX()
-        ct = wdbibtex.Cite()
         ltx.set_bibliographystyle('ieeetr')
         # ltx.add_package('cite')
 
@@ -204,7 +202,7 @@ class TestLaTeX(unittest.TestCase):
             '\\cite{enArticle1,enArticle3}'
         )
         ltx.write(contents)
-        ct.parse_context(contents)
+        ltx.parse_context(contents)
 
         ltx.build()
 
@@ -270,17 +268,17 @@ class TestLaTeX(unittest.TestCase):
             self.assertEqual(c1, c2)
 
         # Parse test for aux file.
-        ct.read_aux()
+        ltx.read_aux()
         self.assertEqual(
-            ct.cite('\\cite{enArticle1}'),
+            ltx.cite('\\cite{enArticle1}'),
             '[1]'
         )
         self.assertEqual(
-            ct.cite('\\cite{enArticle2}'),
+            ltx.cite('\\cite{enArticle2}'),
             '[2]'
         )
         self.assertEqual(
-            ct.cite('\\cite{enArticle1,enArticle3}'),
+            ltx.cite('\\cite{enArticle1,enArticle3}'),
             '[1,3]'
         )
 
