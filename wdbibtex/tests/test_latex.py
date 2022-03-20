@@ -4,6 +4,8 @@ import os
 import pathlib
 import pytest
 import shutil
+import subprocess
+import time
 import sys
 import unittest
 
@@ -325,3 +327,73 @@ class TestBstHandling:
         dirpath = pathlib.Path('.tmp')
         if dirpath.exists() and dirpath.is_dir():
             shutil.rmtree(dirpath)
+
+
+class TestExamples:
+
+    def test_gen_first(self, chdir_first, remove_docx):
+        p = subprocess.run(['python', 'docxgen.py'])
+        assert p.returncode == 0
+        time.sleep(0.5)
+
+    def test_run_first(self, chdir_first, remove_docx):
+        p = subprocess.run(
+            ['python', '-m', 'wdbibtex', 'sample.docx', '--bst', 'ieeetr']
+        )
+        assert p.returncode == 0
+        time.sleep(0.5)
+
+    @pytest.fixture(scope='function')
+    def chdir_first(self):
+        cwd = os.getcwd()
+        os.chdir('examples/first')
+        yield None
+        os.chdir(cwd)
+
+    def test_gen_custom(self, chdir_custom, remove_docx):
+        p = subprocess.run(['python', 'docxgen.py'])
+        assert p.returncode == 0
+        time.sleep(0.5)
+
+    def test_run_custom(self, chdir_custom, remove_docx):
+        p = subprocess.run(
+            ['python', '-m', 'wdbibtex', 'sample.docx']
+        )
+        assert p.returncode == 0
+        time.sleep(0.5)
+
+    @pytest.fixture(scope='function')
+    def chdir_custom(self):
+        cwd = os.getcwd()
+        os.chdir('examples/custom')
+        yield None
+        os.chdir(cwd)
+
+    def test_gen_ieejtran(self, chdir_ieejtran, remove_docx):
+        p = subprocess.run(['python', 'docxgen.py'])
+        assert p.returncode == 0
+        time.sleep(0.5)
+
+    def test_run_ieejtran(self, chdir_ieejtran, remove_docx):
+        p = subprocess.run(
+            ['python', '-m', 'wdbibtex', 'sample.docx']
+        )
+        assert p.returncode == 0
+        time.sleep(0.5)
+
+    @pytest.fixture(scope='function')
+    def chdir_ieejtran(self):
+        cwd = os.getcwd()
+        os.chdir('examples/ieejtran')
+        yield None
+        os.chdir(cwd)
+
+    @pytest.fixture(scope='class')
+    def remove_docx(self):
+        yield None
+        os.remove('examples/first/sample.docx')
+        os.remove('examples/first/sample_bib.docx')
+        os.remove('examples/custom/sample.docx')
+        os.remove('examples/custom/sample_bib.docx')
+        os.remove('examples/ieejtran/sample.docx')
+        os.remove('examples/ieejtran/sample_bib.docx')
