@@ -204,8 +204,6 @@ class TestLaTeX(unittest.TestCase):
             '\\cite{enArticle1,enArticle3}'
         )
         tx.write(contents)
-        tx.parse_context(contents)
-
         tx.build()
 
         # File check

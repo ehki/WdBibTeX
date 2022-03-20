@@ -49,8 +49,8 @@ class Cite:
         self._citation_labels = dict()
         self._citeleft = citeleft
         self._citeright = citeright
-        self.use_cite_package = use_cite_package
-        self.citation_keys_in_context = []
+        self._use_cite_package = use_cite_package
+        self._citation_keys_in_context = []
 
     @property
     def citeleft(self):
@@ -64,24 +64,24 @@ class Cite:
         Examples
         --------
         >>> import wdbibtex
-        >>> c = wdbibtex.Cite()
-        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
-        >>> c.citeleft
+        >>> tx = wdbibtex.LaTeX()
+        >>> tx.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> tx.citeleft
         '['
-        >>> c.cite('\\cite{key1}')
+        >>> tx.cite('\\cite{key1}')
         '[1]'
-        >>> c.cite('\\cite{key2,key3}')
+        >>> tx.cite('\\cite{key2,key3}')
         '[2,3]'
-        >>> c.cite('\\cite{key3,key2,key1}')
+        >>> tx.cite('\\cite{key3,key2,key1}')
         '[3,2,1]'
-        >>> c.citeleft = '('
-        >>> c.citeleft
+        >>> tx.citeleft = '('
+        >>> tx.citeleft
         '('
-        >>> c.cite('\\cite{key1}')
+        >>> tx.cite('\\cite{key1}')
         '(1]'
-        >>> c.cite('\\cite{key2,key3}')
+        >>> tx.cite('\\cite{key2,key3}')
         '(2,3]'
-        >>> c.cite('\\cite{key3,key2,key1}')
+        >>> tx.cite('\\cite{key3,key2,key1}')
         '(3,2,1]'
         """
         return self._citeleft
@@ -106,24 +106,24 @@ class Cite:
         Examples
         --------
         >>> import wdbibtex
-        >>> c = wdbibtex.Cite()
-        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
-        >>> c.citeright
+        >>> tx = wdbibtex.LaTeX()
+        >>> tx.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> tx.citeright
         ']'
-        >>> c.cite('\\cite{key1}')
+        >>> tx.cite('\\cite{key1}')
         '[1]'
-        >>> c.cite('\\cite{key2,key3}')
+        >>> tx.cite('\\cite{key2,key3}')
         '[2,3]'
-        >>> c.cite('\\cite{key3,key2,key1}')
+        >>> tx.cite('\\cite{key3,key2,key1}')
         '[3,2,1]'
-        >>> c.citeright = ')'
-        >>> c.citeright
+        >>> tx.citeright = ')'
+        >>> tx.citeright
         ')'
-        >>> c.cite('\\cite{key1}')
+        >>> tx.cite('\\cite{key1}')
         '[1)'
-        >>> c.cite('\\cite{key2,key3}')
+        >>> tx.cite('\\cite{key2,key3}')
         '[2,3)'
-        >>> c.cite('\\cite{key3,key2,key1}')
+        >>> tx.cite('\\cite{key3,key2,key1}')
         '[3,2,1)'
         """
         return self._citeright
@@ -155,33 +155,7 @@ class Cite:
                 '%s object given.' % type(d))
         self._citation_labels = d
 
-    @property
-    def use_cite_package(self):
-        """If Cite class emulate cite package's behavior.
-
-        Returns
-        -------
-        bool
-            If True, emulate cite package's behavior.
-            If False, emulrate LaTeX's original citation mechanism.
-
-        Raises
-        ------
-        TypeError
-            If non-bool value is given to setter.
-        """
-        return self._use_cite_package
-
-    @use_cite_package.setter
-    def use_cite_package(self, b):
-        if isinstance(b, bool):
-            self._use_cite_package = b
-        else:
-            raise TypeError(
-                'use_cite_package attribute must be bool.'
-            )
-
-    def parse_context(self, c):
+    def _parse_context(self, c):
         r"""Find all citation keys from context written to .tex file.
 
         Find all citation keys from context written to .tex file.
@@ -195,29 +169,16 @@ class Cite:
         Examples
         --------
         >>> import wdbibtex
-        >>> ct = wdbibtex.Cite()
-        >>> ct.parse_context(
+        >>> tx = wdbibtex.LaTeX()
+        >>> tx._parse_context(
         ...     'Some citation \\cite{key}. Some example \\cite{key1,key2}'
         ... )
-        >>> ct.citation_keys_in_context
+        >>> tx._citation_keys_in_context
         ['key', 'key1,key2']
         """
         found_keys = re.findall(r'\\+cite\{(.*?)\}', c)
         for k in found_keys:
-            self.citation_keys_in_context.append(k)
-
-    @property
-    def citation_keys_in_context(self):
-        return self._citation_keys_in_context
-
-    @citation_keys_in_context.setter
-    def citation_keys_in_context(self, lis):
-        if isinstance(lis, list):
-            self._citation_keys_in_context = lis
-        else:
-            raise TypeError(
-                'citation_keys_in_context must be a list.'
-            )
+            self._citation_keys_in_context.append(k)
 
     def read_aux(self):
         r"""Read .aux file.
@@ -283,9 +244,9 @@ class Cite:
             self._conversion_dict.update(
                 {cite: self._compress(cite_nums)}
                 )
-        for cite in self.citation_keys_in_context:
+        for cite in self._citation_keys_in_context:
             cite_nums = [self._bibcite[c] for c in cite.split(',')]
-            if self.use_cite_package:
+            if self._use_cite_package:
                 self._conversion_dict.update(
                     {cite: self._compress(sorted(cite_nums))}
                 )
@@ -312,23 +273,24 @@ class Cite:
         Examples
         --------
         >>> import wdbibtex
-        >>> c = wdbibtex.Cite()
-        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
-        >>> c.cite('\\cite{key1}')
+        >>> tx = wdbibtex.LaTeX()
+        >>> tx.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> tx.cite('\\cite{key1}')
         '[1]'
-        >>> c.cite('\\cite{key2,key3}')
+        >>> tx.cite('\\cite{key2,key3}')
         '[2,3]'
-        >>> c.cite('\\cite{key3,key2,key1}')
+        >>> tx.cite('\\cite{key3,key2,key1}')
         '[3,2,1]'
 
         >>> import wdbibtex
-        >>> c = wdbibtex.Cite(use_cite_package=True)
-        >>> c.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
-        >>> c.cite('\\cite{key1}')
+        >>> tx = wdbibtex.LaTeX()
+        >>> tx.add_package('cite')
+        >>> tx.citation_labels = {'key1': 1, 'key2': 2, 'key3': 3}
+        >>> tx.cite('\\cite{key1}')
         '[1]'
-        >>> c.cite('\\cite{key2,key3}')
+        >>> tx.cite('\\cite{key2,key3}')
         '[2,3]'
-        >>> c.cite('\\cite{key3,key2,key1}')
+        >>> tx.cite('\\cite{key3,key2,key1}')
         '[1\u20133]'
 
         Note \\u2013 is en-dash.
@@ -344,7 +306,7 @@ class Cite:
                     + self._citeright
                 )
             if len(keys) > 1:
-                if self.use_cite_package:
+                if self._use_cite_package:
                     nums = sorted(
                         [self._citation_labels[key] for key in keys]
                     )
@@ -693,6 +655,8 @@ class LaTeX(Cite, Bibliography):
 
         >>> import wdbibtex
         >>> import pathlib
+        >>> import shutil
+        >>> shutil.rmtree('.tmp', ignore_errors=True)
         >>> tx = wdbibtex.LaTeX(workdir='.tmp')
         >>> pathlib.Path('.tmp/testbst.bst').touch()
         >>> tx.bibliographystyle = None
@@ -774,13 +738,18 @@ class LaTeX(Cite, Bibliography):
 
     def __update_packages(self):
         pkgs = []
+        is_cite_package_found = False
         for pkg, *opts in self.__package_list:
             if bool(opts):
                 pkgs.append('\\usepackage[%s]{%s}' % (','.join(opts), pkg))
             else:
                 pkgs.append('\\usepackage{%s}' % pkg)
 
+            if pkg == 'cite':
+                is_cite_package_found = True
+
         self.__packages = '\n'.join(pkgs)
+        self._use_cite_package = is_cite_package_found
 
     def add_package(self, package, *options):
         """Add a package to the package list
@@ -891,6 +860,7 @@ class LaTeX(Cite, Bibliography):
                     '',
                 ])
             )
+        self._parse_context(c)
 
     def build(self):
         """Build LaTeX related files.
