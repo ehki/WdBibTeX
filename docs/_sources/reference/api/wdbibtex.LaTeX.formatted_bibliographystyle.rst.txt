@@ -1,0 +1,6 @@
+﻿wdbibtex.LaTeX.formatted\_bibliographystyle
+===========================================
+
+.. currentmodule:: wdbibtex
+
+.. autoproperty:: LaTeX.formatted_bibliographystyle

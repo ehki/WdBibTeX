@@ -1,0 +1,6 @@
+﻿wdbibtex.LaTeX.cite
+===================
+
+.. currentmodule:: wdbibtex
+
+.. automethod:: LaTeX.cite

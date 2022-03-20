@@ -1,0 +1,6 @@
+﻿wdbibtex.LaTeX.add\_package
+===========================
+
+.. currentmodule:: wdbibtex
+
+.. automethod:: LaTeX.add_package

@@ -1,0 +1,6 @@
+﻿wdbibtex.LaTeX.bibliographystyle
+================================
+
+.. currentmodule:: wdbibtex
+
+.. autoproperty:: LaTeX.bibliographystyle

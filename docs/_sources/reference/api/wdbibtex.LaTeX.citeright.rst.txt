@@ -1,0 +1,6 @@
+﻿wdbibtex.LaTeX.citeright
+========================
+
+.. currentmodule:: wdbibtex
+
+.. autoproperty:: LaTeX.citeright

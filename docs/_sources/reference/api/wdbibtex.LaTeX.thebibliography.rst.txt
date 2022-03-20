@@ -1,0 +1,6 @@
+﻿wdbibtex.LaTeX.thebibliography
+==============================
+
+.. currentmodule:: wdbibtex
+
+.. autoproperty:: LaTeX.thebibliography

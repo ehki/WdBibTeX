@@ -1,0 +1,6 @@
+﻿wdbibtex.LaTeX.set\_bibliographystyle
+=====================================
+
+.. currentmodule:: wdbibtex
+
+.. automethod:: LaTeX.set_bibliographystyle

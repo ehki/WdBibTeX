@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>wdbibtex.LaTeX.cnd &#8212; wdbibtex  documentation</title>
+    <title>wdbibtex.LaTeX.set_documentclass &#8212; WdBibTeX 0.2.0</title>
     
     <link href="../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -32,10 +32,11 @@
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.png"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="wdbibtex.LaTeX.locale" href="wdbibtex.LaTeX.locale.html" />
-    <link rel="prev" title="wdbibtex.LaTeX" href="wdbibtex.LaTeX.html" />
+    <link rel="next" title="wdbibtex.LaTeX.write" href="wdbibtex.LaTeX.write.html" />
+    <link rel="prev" title="wdbibtex.LaTeX.set_bibliographystyle" href="wdbibtex.LaTeX.set_bibliographystyle.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en">
     
@@ -78,7 +79,7 @@
 
 <li class="toctree-l1 nav-item">
  <a class="reference internal nav-link" href="../../example.html">
-  Example
+  Examples
  </a>
 </li>
 
@@ -135,6 +136,21 @@
     </a>
    </li>
    <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.WdBibTeX.target_file.html">
+     wdbibtex.WdBibTeX.target_file
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.WdBibTeX.original_file.html">
+     wdbibtex.WdBibTeX.original_file
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.WdBibTeX.workdir.html">
+     wdbibtex.WdBibTeX.workdir
+    </a>
+   </li>
+   <li class="toctree-l2">
     <a class="reference internal" href="wdbibtex.WdBibTeX.build.html">
      wdbibtex.WdBibTeX.build
     </a>
@@ -160,6 +176,11 @@
     </a>
    </li>
    <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.WdBibTeX.read_preamble.html">
+     wdbibtex.WdBibTeX.read_preamble
+    </a>
+   </li>
+   <li class="toctree-l2">
     <a class="reference internal" href="wdbibtex.WdBibTeX.replace_all.html">
      wdbibtex.WdBibTeX.replace_all
     </a>
@@ -181,9 +202,34 @@
      wdbibtex.LaTeX
     </a>
    </li>
-   <li class="toctree-l2 current active">
-    <a class="current reference internal" href="#">
-     wdbibtex.LaTeX.cnd
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.bibliographystyle.html">
+     wdbibtex.LaTeX.bibliographystyle
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.citation_labels.html">
+     wdbibtex.LaTeX.citation_labels
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.citeleft.html">
+     wdbibtex.LaTeX.citeleft
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.citeright.html">
+     wdbibtex.LaTeX.citeright
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.documentclass.html">
+     wdbibtex.LaTeX.documentclass
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.formatted_bibliographystyle.html">
+     wdbibtex.LaTeX.formatted_bibliographystyle
     </a>
    </li>
    <li class="toctree-l2">
@@ -192,13 +238,38 @@
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="wdbibtex.LaTeX.tbt.html">
-     wdbibtex.LaTeX.tbt
+    <a class="reference internal" href="wdbibtex.LaTeX.packages.html">
+     wdbibtex.LaTeX.packages
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.preamble.html">
+     wdbibtex.LaTeX.preamble
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.thebibliography.html">
+     wdbibtex.LaTeX.thebibliography
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.add_package.html">
+     wdbibtex.LaTeX.add_package
     </a>
    </li>
    <li class="toctree-l2">
     <a class="reference internal" href="wdbibtex.LaTeX.build.html">
      wdbibtex.LaTeX.build
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.cite.html">
+     wdbibtex.LaTeX.cite
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.is_package_used.html">
+     wdbibtex.LaTeX.is_package_used
     </a>
    </li>
    <li class="toctree-l2">
@@ -209,6 +280,16 @@
    <li class="toctree-l2">
     <a class="reference internal" href="wdbibtex.LaTeX.read_bbl.html">
      wdbibtex.LaTeX.read_bbl
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.set_bibliographystyle.html">
+     wdbibtex.LaTeX.set_bibliographystyle
+    </a>
+   </li>
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
+     wdbibtex.LaTeX.set_documentclass
     </a>
    </li>
    <li class="toctree-l2">
@@ -257,19 +338,18 @@
               
               <div>
                 
-  <section id="wdbibtex-latex-cnd">
-<h1>wdbibtex.LaTeX.cnd<a class="headerlink" href="#wdbibtex-latex-cnd" title="Permalink to this headline">¶</a></h1>
-<dl class="py property">
-<dt class="sig sig-object py" id="wdbibtex.LaTeX.cnd">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">LaTeX.</span></span><span class="sig-name descname"><span class="pre">cnd</span></span><a class="headerlink" href="#wdbibtex.LaTeX.cnd" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns citation key to replacement number dictionary.</p>
-<p>Citation to Number Dictionary will be used to replace
-citation text in word file such as \cite{key1} to
-number such ash [1].</p>
+  <section id="wdbibtex-latex-set-documentclass">
+<h1>wdbibtex.LaTeX.set_documentclass<a class="headerlink" href="#wdbibtex-latex-set-documentclass" title="Permalink to this headline">¶</a></h1>
+<dl class="py method">
+<dt class="sig sig-object py" id="wdbibtex.LaTeX.set_documentclass">
+<span class="sig-prename descclassname"><span class="pre">LaTeX.</span></span><span class="sig-name descname"><span class="pre">set_documentclass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">documentclass</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/wdbibtex/latex.html#LaTeX.set_documentclass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wdbibtex.LaTeX.set_documentclass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Documentclass setter.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt>dict</dt><dd><p>Search key and replacement value.</p>
+<dt><strong>documentclass</strong></dt><dd><p>Documentclass</p>
+</dd>
+<dt><strong>*options</strong></dt><dd><p>Documentclass options.</p>
 </dd>
 </dl>
 </dd>
@@ -284,17 +364,17 @@ number such ash [1].</p>
               
               <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="wdbibtex.LaTeX.html" title="previous page">
+    <a class='left-prev' id="prev-link" href="wdbibtex.LaTeX.set_bibliographystyle.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">wdbibtex.LaTeX</p>
+            <p class="prev-next-title">wdbibtex.LaTeX.set_bibliographystyle</p>
         </div>
     </a>
-    <a class='right-next' id="next-link" href="wdbibtex.LaTeX.locale.html" title="next page">
+    <a class='right-next' id="next-link" href="wdbibtex.LaTeX.write.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">wdbibtex.LaTeX.locale</p>
+        <p class="prev-next-title">wdbibtex.LaTeX.write</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>
@@ -312,7 +392,7 @@ number such ash [1].</p>
     
     <div class="footer-item">
       <p class="copyright">
-    &copy; Copyright 2022, ehki.<br>
+    &copy; Copyright 2022, Haruki Ejiri.<br>
 </p>
     </div>
     

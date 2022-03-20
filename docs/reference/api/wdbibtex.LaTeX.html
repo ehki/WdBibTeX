@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>wdbibtex.LaTeX &#8212; wdbibtex  documentation</title>
+    <title>wdbibtex.LaTeX &#8212; WdBibTeX 0.2.0</title>
     
     <link href="../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -32,9 +32,10 @@
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.png"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="wdbibtex.LaTeX.cnd" href="wdbibtex.LaTeX.cnd.html" />
+    <link rel="next" title="wdbibtex.LaTeX.bibliographystyle" href="wdbibtex.LaTeX.bibliographystyle.html" />
     <link rel="prev" title="LaTeX" href="../latex.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en">
@@ -78,7 +79,7 @@
 
 <li class="toctree-l1 nav-item">
  <a class="reference internal nav-link" href="../../example.html">
-  Example
+  Examples
  </a>
 </li>
 
@@ -135,6 +136,21 @@
     </a>
    </li>
    <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.WdBibTeX.target_file.html">
+     wdbibtex.WdBibTeX.target_file
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.WdBibTeX.original_file.html">
+     wdbibtex.WdBibTeX.original_file
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.WdBibTeX.workdir.html">
+     wdbibtex.WdBibTeX.workdir
+    </a>
+   </li>
+   <li class="toctree-l2">
     <a class="reference internal" href="wdbibtex.WdBibTeX.build.html">
      wdbibtex.WdBibTeX.build
     </a>
@@ -160,6 +176,11 @@
     </a>
    </li>
    <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.WdBibTeX.read_preamble.html">
+     wdbibtex.WdBibTeX.read_preamble
+    </a>
+   </li>
+   <li class="toctree-l2">
     <a class="reference internal" href="wdbibtex.WdBibTeX.replace_all.html">
      wdbibtex.WdBibTeX.replace_all
     </a>
@@ -182,8 +203,33 @@
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="wdbibtex.LaTeX.cnd.html">
-     wdbibtex.LaTeX.cnd
+    <a class="reference internal" href="wdbibtex.LaTeX.bibliographystyle.html">
+     wdbibtex.LaTeX.bibliographystyle
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.citation_labels.html">
+     wdbibtex.LaTeX.citation_labels
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.citeleft.html">
+     wdbibtex.LaTeX.citeleft
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.citeright.html">
+     wdbibtex.LaTeX.citeright
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.documentclass.html">
+     wdbibtex.LaTeX.documentclass
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.formatted_bibliographystyle.html">
+     wdbibtex.LaTeX.formatted_bibliographystyle
     </a>
    </li>
    <li class="toctree-l2">
@@ -192,13 +238,38 @@
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="wdbibtex.LaTeX.tbt.html">
-     wdbibtex.LaTeX.tbt
+    <a class="reference internal" href="wdbibtex.LaTeX.packages.html">
+     wdbibtex.LaTeX.packages
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.preamble.html">
+     wdbibtex.LaTeX.preamble
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.thebibliography.html">
+     wdbibtex.LaTeX.thebibliography
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.add_package.html">
+     wdbibtex.LaTeX.add_package
     </a>
    </li>
    <li class="toctree-l2">
     <a class="reference internal" href="wdbibtex.LaTeX.build.html">
      wdbibtex.LaTeX.build
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.cite.html">
+     wdbibtex.LaTeX.cite
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.is_package_used.html">
+     wdbibtex.LaTeX.is_package_used
     </a>
    </li>
    <li class="toctree-l2">
@@ -209,6 +280,16 @@
    <li class="toctree-l2">
     <a class="reference internal" href="wdbibtex.LaTeX.read_bbl.html">
      wdbibtex.LaTeX.read_bbl
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.set_bibliographystyle.html">
+     wdbibtex.LaTeX.set_bibliographystyle
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wdbibtex.LaTeX.set_documentclass.html">
+     wdbibtex.LaTeX.set_documentclass
     </a>
    </li>
    <li class="toctree-l2">
@@ -261,7 +342,7 @@
 <h1>wdbibtex.LaTeX<a class="headerlink" href="#wdbibtex-latex" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="wdbibtex.LaTeX">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wdbibtex.</span></span><span class="sig-name descname"><span class="pre">LaTeX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bibtexcmd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bibtexopts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dashstarts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preamble</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetbasename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wdbib'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">texcmd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">texopts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.tmp'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/wdbibtex/latex.html#LaTeX"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wdbibtex.LaTeX" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wdbibtex.</span></span><span class="sig-name descname"><span class="pre">LaTeX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bibtexcmd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bibtexopts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preamble</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetbasename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wdbib'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">texcmd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">texopts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.tmp'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/wdbibtex/latex.html#LaTeX"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wdbibtex.LaTeX" title="Permalink to this definition">¶</a></dt>
 <dd><p>LaTeX related contents and commands.</p>
 <p>Run LaTeX and BibTeX commands. Write .tex files.
 Read and parse .aux and .bbl files.
@@ -275,14 +356,10 @@ If None, automatically selected accorting to system locale.</p>
 <dt><strong>bibtexopts</strong><span class="classifier">str or None, default None</span></dt><dd><p>BibTeX command options.
 If None, automatically selected according to system locale.</p>
 </dd>
-<dt><strong>dashstarts</strong><span class="classifier">int, default 3</span></dt><dd><p>Only 2 or 3,
-If dashstarts is 2, ‘1 and 2’ turns 1-2.
-If dashstarts is 3, ‘1 and 2’ turns 1,2.</p>
-</dd>
 <dt><strong>preamble</strong><span class="classifier">str or None, default None</span></dt><dd><p>Preamble of .tex file.
 If None, automatically selected.</p>
 </dd>
-<dt><strong>targetbasename</strong><span class="classifier">str, default wdbib</span></dt><dd><p>Base name of LaTeX related files.</p>
+<dt><strong>targetbasename</strong><span class="classifier">str, default ‘wdbib’</span></dt><dd><p>Base name of LaTeX related files.</p>
 </dd>
 <dt><strong>texcmd</strong><span class="classifier">str or None, default None</span></dt><dd><p>LaTeX command.
 If None, automatically selected according to system locale.</p>
@@ -290,7 +367,7 @@ If None, automatically selected according to system locale.</p>
 <dt><strong>texopts</strong><span class="classifier">str or None, default None</span></dt><dd><p>LaTeX command options.
 If None, automatically selected accorgin to system locale.</p>
 </dd>
-<dt><strong>workdir</strong><span class="classifier">str | pathlib.Path, default ‘.tmp’</span></dt><dd><p>Temporal working directory to store LaTeX contents.</p>
+<dt><strong>workdir</strong><span class="classifier">str or path object, default ‘.tmp’</span></dt><dd><p>Temporal working directory to store LaTeX contents.</p>
 </dd>
 </dl>
 </dd>
@@ -302,14 +379,35 @@ If None, automatically selected accorgin to system locale.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="wdbibtex.LaTeX.cnd.html#wdbibtex.LaTeX.cnd" title="wdbibtex.LaTeX.cnd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cnd</span></code></a></p></td>
-<td><p>Returns citation key to replacement number dictionary.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="wdbibtex.LaTeX.bibliographystyle.html#wdbibtex.LaTeX.bibliographystyle" title="wdbibtex.LaTeX.bibliographystyle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bibliographystyle</span></code></a></p></td>
+<td><p>Bibliographystyle string.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="wdbibtex.LaTeX.locale.html#wdbibtex.LaTeX.locale" title="wdbibtex.LaTeX.locale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">locale</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="wdbibtex.LaTeX.citation_labels.html#wdbibtex.LaTeX.citation_labels" title="wdbibtex.LaTeX.citation_labels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">citation_labels</span></code></a></p></td>
+<td><p>Key to number map of citations.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="wdbibtex.LaTeX.citeleft.html#wdbibtex.LaTeX.citeleft" title="wdbibtex.LaTeX.citeleft"><code class="xref py py-obj docutils literal notranslate"><span class="pre">citeleft</span></code></a></p></td>
+<td><p>Left delimiter of list.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="wdbibtex.LaTeX.citeright.html#wdbibtex.LaTeX.citeright" title="wdbibtex.LaTeX.citeright"><code class="xref py py-obj docutils literal notranslate"><span class="pre">citeright</span></code></a></p></td>
+<td><p>Right delimiter of list.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="wdbibtex.LaTeX.documentclass.html#wdbibtex.LaTeX.documentclass" title="wdbibtex.LaTeX.documentclass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">documentclass</span></code></a></p></td>
+<td><p>LaTeX documentclass string.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="wdbibtex.LaTeX.formatted_bibliographystyle.html#wdbibtex.LaTeX.formatted_bibliographystyle" title="wdbibtex.LaTeX.formatted_bibliographystyle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">formatted_bibliographystyle</span></code></a></p></td>
+<td><p>[Read only] Formatted bibliographystyle, e.g.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="wdbibtex.LaTeX.locale.html#wdbibtex.LaTeX.locale" title="wdbibtex.LaTeX.locale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">locale</span></code></a></p></td>
 <td><p>Returns system locale</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="wdbibtex.LaTeX.tbt.html#wdbibtex.LaTeX.tbt" title="wdbibtex.LaTeX.tbt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tbt</span></code></a></p></td>
-<td><p>Plain text for replacement of bibliography list.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="wdbibtex.LaTeX.packages.html#wdbibtex.LaTeX.packages" title="wdbibtex.LaTeX.packages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">packages</span></code></a></p></td>
+<td><p>Returns used LaTeX packages.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="wdbibtex.LaTeX.preamble.html#wdbibtex.LaTeX.preamble" title="wdbibtex.LaTeX.preamble"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preamble</span></code></a></p></td>
+<td><p>Returns latex preamble text.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="wdbibtex.LaTeX.thebibliography.html#wdbibtex.LaTeX.thebibliography" title="wdbibtex.LaTeX.thebibliography"><code class="xref py py-obj docutils literal notranslate"><span class="pre">thebibliography</span></code></a></p></td>
+<td><p>Plain text to replace \thebibliography in word file.</p></td>
 </tr>
 </tbody>
 </table>
@@ -320,16 +418,31 @@ If None, automatically selected accorgin to system locale.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="wdbibtex.LaTeX.build.html#wdbibtex.LaTeX.build" title="wdbibtex.LaTeX.build"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="wdbibtex.LaTeX.add_package.html#wdbibtex.LaTeX.add_package" title="wdbibtex.LaTeX.add_package"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_package</span></code></a>(package, *options)</p></td>
+<td><p>Add a package to the package list</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="wdbibtex.LaTeX.build.html#wdbibtex.LaTeX.build" title="wdbibtex.LaTeX.build"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build</span></code></a>()</p></td>
 <td><p>Build LaTeX related files.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="wdbibtex.LaTeX.read_aux.html#wdbibtex.LaTeX.read_aux" title="wdbibtex.LaTeX.read_aux"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_aux</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="wdbibtex.LaTeX.cite.html#wdbibtex.LaTeX.cite" title="wdbibtex.LaTeX.cite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cite</span></code></a>(s)</p></td>
+<td><p>Do cite command formatting.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="wdbibtex.LaTeX.is_package_used.html#wdbibtex.LaTeX.is_package_used" title="wdbibtex.LaTeX.is_package_used"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_package_used</span></code></a>(p)</p></td>
+<td><p>Returns if the package is used.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="wdbibtex.LaTeX.read_aux.html#wdbibtex.LaTeX.read_aux" title="wdbibtex.LaTeX.read_aux"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_aux</span></code></a>()</p></td>
 <td><p>Read .aux file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="wdbibtex.LaTeX.read_bbl.html#wdbibtex.LaTeX.read_bbl" title="wdbibtex.LaTeX.read_bbl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_bbl</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="wdbibtex.LaTeX.read_bbl.html#wdbibtex.LaTeX.read_bbl" title="wdbibtex.LaTeX.read_bbl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_bbl</span></code></a>()</p></td>
 <td><p>Read .bbl file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="wdbibtex.LaTeX.write.html#wdbibtex.LaTeX.write" title="wdbibtex.LaTeX.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code></a>(c[, bib, bst])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="wdbibtex.LaTeX.set_bibliographystyle.html#wdbibtex.LaTeX.set_bibliographystyle" title="wdbibtex.LaTeX.set_bibliographystyle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_bibliographystyle</span></code></a>(bst)</p></td>
+<td><p>Bibliographystyle setter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="wdbibtex.LaTeX.set_documentclass.html#wdbibtex.LaTeX.set_documentclass" title="wdbibtex.LaTeX.set_documentclass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_documentclass</span></code></a>(documentclass, *options)</p></td>
+<td><p>Documentclass setter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="wdbibtex.LaTeX.write.html#wdbibtex.LaTeX.write" title="wdbibtex.LaTeX.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code></a>(c[, bib])</p></td>
 <td><p>Write .tex file.</p></td>
 </tr>
 </tbody>
@@ -351,10 +464,10 @@ If None, automatically selected accorgin to system locale.</p>
             <p class="prev-next-title">LaTeX</p>
         </div>
     </a>
-    <a class='right-next' id="next-link" href="wdbibtex.LaTeX.cnd.html" title="next page">
+    <a class='right-next' id="next-link" href="wdbibtex.LaTeX.bibliographystyle.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">wdbibtex.LaTeX.cnd</p>
+        <p class="prev-next-title">wdbibtex.LaTeX.bibliographystyle</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>
@@ -372,7 +485,7 @@ If None, automatically selected accorgin to system locale.</p>
     
     <div class="footer-item">
       <p class="copyright">
-    &copy; Copyright 2022, ehki.<br>
+    &copy; Copyright 2022, Haruki Ejiri.<br>
 </p>
     </div>
     

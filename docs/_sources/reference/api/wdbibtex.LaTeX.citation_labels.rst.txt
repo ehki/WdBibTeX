@@ -1,0 +1,6 @@
+﻿wdbibtex.LaTeX.citation\_labels
+===============================
+
+.. currentmodule:: wdbibtex
+
+.. autoproperty:: LaTeX.citation_labels

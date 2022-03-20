@@ -1,0 +1,6 @@
+﻿wdbibtex.LaTeX.citeleft
+=======================
+
+.. currentmodule:: wdbibtex
+
+.. autoproperty:: LaTeX.citeleft

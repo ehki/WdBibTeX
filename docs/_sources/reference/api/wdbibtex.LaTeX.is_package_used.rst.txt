@@ -1,0 +1,6 @@
+﻿wdbibtex.LaTeX.is\_package\_used
+================================
+
+.. currentmodule:: wdbibtex
+
+.. automethod:: LaTeX.is_package_used

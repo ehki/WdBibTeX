@@ -20,9 +20,9 @@ sys.path.insert(0, os.path.abspath('../'))
 project = 'wdbibtex'
 copyright = '2022, Haruki Ejiri'
 author = 'Haruki Ejiri'
-release = "0.1"
+release = "0.2.0"
 version = ".".join(release.split("."))
-html_title = 'WdBibTeX 0.1'
+html_title = 'WdBibTeX 0.2.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -35,6 +35,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx.ext.todo',
+    'sphinx.ext.githubpages',
     'sphinxarg.ext',
     'numpydoc',
 ]
