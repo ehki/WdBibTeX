@@ -155,32 +155,6 @@ class Cite:
                 '%s object given.' % type(d))
         self._citation_labels = d
 
-    # @property
-    # def use_cite_package(self):
-    #     """If Cite class emulate cite package's behavior.
-
-    #     Returns
-    #     -------
-    #     bool
-    #         If True, emulate cite package's behavior.
-    #         If False, emulrate LaTeX's original citation mechanism.
-
-    #     Raises
-    #     ------
-    #     TypeError
-    #         If non-bool value is given to setter.
-    #     """
-    #     return self._use_cite_package
-
-    # @use_cite_package.setter
-    # def use_cite_package(self, b):
-    #     if isinstance(b, bool):
-    #         self._use_cite_package = b
-    #     else:
-    #         raise TypeError(
-    #             'use_cite_package attribute must be bool.'
-    #         )
-
     def _parse_context(self, c):
         r"""Find all citation keys from context written to .tex file.
 
@@ -205,53 +179,6 @@ class Cite:
         found_keys = re.findall(r'\\+cite\{(.*?)\}', c)
         for k in found_keys:
             self._citation_keys_in_context.append(k)
-
-    # @property
-    # def citation_keys_in_context(self):
-    #     r"""List of citation keys may be called.
-
-    #     List of citation keys may be called during translation from citation
-    #     keys to citation numbers. The citation-key handling varied with the
-    #     LaTeX project uses the cite package or not. If the project does not
-    #     use cite package, multiple citation keys are separately stored in
-    #     the .aux file. For example, ``\cite{key1,key2}`` in .tex file becomes
-    #     ``\citation{key1}\n\citation{key2}`` in .aux file.
-    #     If the project uses cite package, the multiple citation keys are
-    #     placed in .aux file as is. For example, ``\cite{key1,key2}`` in .tex
-    #     file is ``\citation{key1,key2}`` in .aux file.
-    #     This attribute increase the handling of the citation keys by storing
-    #     all citation keys found in .tex file as is.
-
-    #     Parameters
-    #     ----------
-    #     c : str
-    #         Parsed texts.
-
-    #     See Also
-    #     --------
-    #     _parse_context : set citation_keys_in_context by parsing text
-
-    #     Examples
-    #     --------
-    #     >>> import wdbibtex
-    #     >>> ct = wdbibtex.Cite()
-    #     >>> ct._parse_context(
-    #     ...     'Some citation \\cite{key}. Some example \\cite{key1,key2}'
-    #     ... )
-    #     >>> ct._citation_keys_in_context
-    #     ['key', 'key1,key2']
-    #     """
-
-    #     return self._citation_keys_in_context
-
-    # @citation_keys_in_context.setter
-    # def citation_keys_in_context(self, lis):
-    #     if isinstance(lis, list):
-    #         self._citation_keys_in_context = lis
-    #     else:
-    #         raise TypeError(
-    #             'citation_keys_in_context must be a list.'
-    #         )
 
     def read_aux(self):
         r"""Read .aux file.
