@@ -368,3 +368,22 @@ class TestExamples:
         os.chdir('examples/custom')
         yield None
         os.chdir(cwd)
+
+    def test_gen_ieejtran(self, chdir_ieejtran):
+        p = subprocess.run(['python', 'docxgen.py'])
+        assert p.returncode == 0
+        time.sleep(0.5)
+
+    def test_run_ieejtran(self, chdir_ieejtran):
+        p = subprocess.run(
+            ['python', '-m', 'wdbibtex', 'sample.docx']
+        )
+        assert p.returncode == 0
+        time.sleep(0.5)
+
+    @pytest.fixture(scope='function')
+    def chdir_ieejtran(self):
+        cwd = os.getcwd()
+        os.chdir('examples/ieejtran')
+        yield None
+        os.chdir(cwd)
