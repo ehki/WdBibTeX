@@ -459,14 +459,18 @@ class Bibliography:
         replacer = {}
         replacer.update({
             r'\n  ': ' ',
-            r'\{\\em (.*)\}': r'\1',
-            r'\\emph\{(.*)\}': r'\1',
-            r'\\BIBforeignlanguage\{(.*)\}\{(.*)\}': r'\2',
+            r'\{\\em (.*?)\}': r'\1',
+            r'\\emph\{(?!\\)(.*?)\}': r'\1',
+            r'\\BIBforeignlanguage\{(.*?)\}\{(.*?)\}': r'\2',
+            r'\\BIBforeignlanguage\{(.*?)\{(.*?)\}\}': r'\2',
             r'~': ' ',
             r'--': u'\u2014',
             r'``': '“',
             r"''": '”',
-            r'\n\n': '\n'
+            r'\n\n': '\n',
+            r'\\BIBentryALTinterwordspacing\n': '',
+            r'\\BIBentrySTDinterwordspacing\n': '',
+            r'\\url\{(.*?)\}': r'\1',
             })
         thebib_begin = None
         for i, line in enumerate(self._bbldata):
@@ -475,8 +479,17 @@ class Bibliography:
             if line.startswith('\\end{thebibliography}'):
                 thebib_end = i
         thebibtext = ''.join(self._bbldata[thebib_begin: thebib_end])
-        for k, v in replacer.items():
-            thebibtext = re.sub(k, v, thebibtext)
+
+        # Replace thebibliography text
+        found = True
+        while found:
+            found = False
+            for k, v in replacer.items():
+                thebibold = thebibtext
+                thebibtext = re.sub(k, v, thebibtext)
+                if thebibold != thebibtext:
+                    found = True
+
         for c, m in enumerate(re.findall('\\\\bibitem{(.*)}\n', thebibtext)):
             thebibtext = re.sub(
                 '\\\\bibitem{%s}\n' % m, '[%s]\t' % (c+1), thebibtext
