@@ -110,6 +110,12 @@ class WdBibTeX:
         if clear:
             self.clear()
 
+    def exportpdf(self):
+        """Export current docx file to pdf.
+        """
+        fn = os.path.splitext(self.__target_file)[0] + '.pdf'
+        self.__dc.SaveAs2(fn, 17)  # 17: wdFormatPDF
+
     def build(self, bib=None, bst=None):
         r"""Build word file with latex citations.
 

@@ -41,6 +41,14 @@ def getparser():
             'Default: False(= clean LaTeX files/directory)'
         )
     )
+    parser.add_argument(
+        '--exportpdf',
+        action='store_true',
+        help=(
+            'Export compiled docx to pdf. '
+            'Default: False'
+        )
+    )
     return parser
 
 
@@ -49,6 +57,8 @@ def main():
     args = parser.parse_args()
     wb = wdbibtex.WdBibTeX(args.file)
     wb.build(bib=args.bib, bst=args.bst)
+    if args.exportpdf:
+        wb.exportpdf()
     wb.close(clear=not args.keeptexdir)
     return 0
 
