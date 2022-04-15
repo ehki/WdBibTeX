@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>wdbibtex.word &#8212; WdBibTeX 0.2.0</title>
+    <title>wdbibtex.word &#8212; WdBibTeX 0.2.1</title>
     
     <link href="../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -252,6 +252,12 @@
         <span class="c1"># Clean working directory</span>
         <span class="k">if</span> <span class="n">clear</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">exportpdf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Export current docx file to pdf.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__target_file</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;.pdf&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__dc</span><span class="o">.</span><span class="n">SaveAs2</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="mi">17</span><span class="p">)</span>  <span class="c1"># 17: wdFormatPDF</span>
 
 <div class="viewcode-block" id="WdBibTeX.build"><a class="viewcode-back" href="../../reference/api/wdbibtex.WdBibTeX.build.html#wdbibtex.WdBibTeX.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bst</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Build word file with latex citations.</span>

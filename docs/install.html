@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Getting started &#8212; WdBibTeX 0.2.0</title>
+    <title>Getting started &#8212; WdBibTeX 0.2.1</title>
     
     <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
 <link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -232,7 +232,7 @@
 <section id="command-line-options">
 <h2>Command line options<a class="headerlink" href="#command-line-options" title="Permalink to this headline">¶</a></h2>
 <p>Module exexution of WdBibTeX accepts one positional argument and four optional arguments as follows.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">fancytool</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">bst</span> <span class="n">BST</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">bib</span> <span class="n">BIB</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">keeptexdir</span><span class="p">]</span> <span class="n">file</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">fancytool</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">bst</span> <span class="n">BST</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">bib</span> <span class="n">BIB</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">keeptexdir</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">exportpdf</span><span class="p">]</span> <span class="n">file</span>
 </pre></div>
 </div>
 <section id="Positional Arguments">
@@ -254,6 +254,10 @@
 </dd>
 <dt><kbd>--keeptexdir</kbd></dt>
 <dd><p>Keep LaTeX files and directory after run. Default: False(= clean LaTeX files/directory)</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--exportpdf</kbd></dt>
+<dd><p>Export compiled docx to pdf. Default: False</p>
 <p>Default: False</p>
 </dd>
 </dl>
