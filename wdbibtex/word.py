@@ -245,6 +245,51 @@ class WdBibTeX:
             if line in found:
                 break
             found.append(line)
+
+        for i in range(self.__dc.Shapes.Count):
+            self.__dc.Shapes(i+1).Select()
+            wholeshpe = self.__sl.Range
+            self.__fi = self.__sl.Find
+            self.__fi.ClearFormatting()
+            self.__fi.MatchFuzzy = False
+            searched = []
+            while True:
+                self.__fi.Execute(
+                    key,  # FindText
+                    False,  # MatchCase
+                    False,  # MatchWholeWord
+                    True,  # MatchWildcards
+                    False,  # MatchSoundsLike
+                    False,  # MatchAllWordForms
+                    True,  # Forward
+                    1,  # Wrap
+                    False,  # Format
+                    '',  # ReplaceWith
+                    0,  # Replace, 0: wdReplaceNone
+                )
+                line = [
+                    str(self.__sl.Range),
+                    self.__sl.Range.Start,
+                    self.__sl.Range.End
+                ]
+                if line in searched:
+                    break
+                else:
+                    searched.append(line)
+                if line in found:
+                    break
+                if line[0] == '':
+                    continue
+                if line[0] == str(wholeshpe):
+                    continue
+                found.append(line)
+
+        self.__sl.HomeKey(6)
+        if len(found) >= 2:
+            try:
+                found.remove(['', 0, 0])
+            except ValueError:
+                pass
         return sorted(found, key=lambda x: x[1])
 
     def open(self):
@@ -336,7 +381,6 @@ class WdBibTeX:
         --------
         find_all : Find all keys in the document.
         """
-
         self.__fi = self.__sl.Find
         self.__fi.ClearFormatting()
         self.__fi.MatchFuzzy = False
@@ -353,3 +397,21 @@ class WdBibTeX:
             val,  # ReplaceWith
             2,  # Replace, 2: wdReplaceAll
         )
+        for i in range(self.__dc.Shapes.Count):
+            self.__dc.Shapes(i+1).Select()
+            self.__fi = self.__sl.Find
+            self.__fi.ClearFormatting()
+            self.__fi.MatchFuzzy = False
+            self.__fi.Execute(
+                key,  # FindText
+                False,  # MatchCase
+                False,  # MatchWholeWord
+                True,  # MatchWildcards
+                False,  # MatchSoundsLike
+                False,  # MatchAllWordForms
+                True,  # Forward
+                1,  # Wrap, 1: wdFindContinue
+                False,  # Format
+                val,  # ReplaceWith
+                2,  # Replace, 2: wdReplaceAll
+            )
