@@ -857,7 +857,7 @@ class LaTeX(Cite, Bibliography):
 
         if bib is None:
             # Use only root name (file name without extension).
-            bib = ''.join(
+            bib = ','.join(
                 [os.path.splitext(b)[0] for b in glob.glob('*.bib')]
             )
 
