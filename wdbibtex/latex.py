@@ -460,7 +460,7 @@ class Bibliography:
         replacer.update({
             r'\n  ': ' ',
             r'\{\\em (.*?)\}': r'\1',
-            r'\\emph\{(?!\\)(.*?)\}': r'\1',
+            r'\\emph\{((?>[^\{\}]+|(?R))*)\}': r'\1',
             r'\\BIBforeignlanguage\{(.*?)\}\{(.*?)\}': r'\2',
             r'\\BIBforeignlanguage\{(.*?)\{(.*?)\}\}': r'\2',
             r'~': ' ',
@@ -498,7 +498,8 @@ class Bibliography:
             found = False
             for k, v in replacer.items():
                 thebibold = thebibtext
-                thebibtext = re.sub(k, v, thebibtext)
+                import regex
+                thebibtext = regex.sub(k, v, thebibtext)
                 if thebibold != thebibtext:
                     found = True
 
