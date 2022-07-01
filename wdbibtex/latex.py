@@ -490,6 +490,9 @@ class Bibliography:
             r'{\\AA}': 'Å',
             r'{\\aa}': 'å',
             r' +': ' ',
+            r'\\hskip [+-]?(?:\d*\.)?\d+(?:(?<!(\.\d+))\.\d*)?em ' +
+            r'plus [+-]?(?:\d*\.)?\d+(?:(?<!(\.\d+))\.\d*)?em ' +
+            r'minus [+-]?(?:\d*\.)?\d+(?:(?<!(\.\d+))\.\d*)?em\\relax': ' ',
             })
         thebib_begin = None
         for i, line in enumerate(self._bbldata):
