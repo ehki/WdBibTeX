@@ -489,6 +489,7 @@ class Bibliography:
             r"\{\\'\{o\}\}": 'ó',
             r'{\\AA}': 'Å',
             r'{\\aa}': 'å',
+            r' +': ' ',
             })
         thebib_begin = None
         for i, line in enumerate(self._bbldata):
