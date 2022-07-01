@@ -505,6 +505,20 @@ class Bibliography:
                 if thebibold != thebibtext:
                     found = True
 
+        # Bracket removal
+        found = True
+        while found:
+            found = False
+            thebibold = thebibtext
+            import regex
+            thebibtext = regex.sub(
+                r'(?<!bibitem)\{((?>[^\{\}]+|(?R))*)\}',
+                r'\1',
+                thebibtext
+            )
+            if thebibold != thebibtext:
+                found = True
+
         for c, m in enumerate(re.findall('\\\\bibitem{(.*)}\n', thebibtext)):
             thebibtext = re.sub(
                 '\\\\bibitem{%s}\n' % m, '[%s]\t' % (c+1), thebibtext
