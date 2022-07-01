@@ -460,7 +460,7 @@ class Bibliography:
         replacer.update({
             r'\n  ': ' ',
             r'\{\\em (.*?)\}': r'\1',
-            r'\\emph\{(?!\\)(.*?)\}': r'\1',
+            r'\\emph\{((?>[^\{\}]+|(?R))*)\}': r'\1',
             r'\\BIBforeignlanguage\{(.*?)\}\{(.*?)\}': r'\2',
             r'\\BIBforeignlanguage\{(.*?)\{(.*?)\}\}': r'\2',
             r'~': ' ',
@@ -471,6 +471,28 @@ class Bibliography:
             r'\\BIBentryALTinterwordspacing\n': '',
             r'\\BIBentrySTDinterwordspacing\n': '',
             r'\\url\{(.*?)\}': r'\1',
+            r'\{\\"\{A\}\}': 'Ä',
+            r'\{\\"\{a\}\}': 'ä',
+            r'\{\\"\{E\}\}': 'Ë',
+            r'\{\\"\{e\}\}': 'ë',
+            r'\{\\"\{I\}\}': 'Ï',
+            r'\{\\"\{i\}\}': 'ï',
+            r'\{\\"\{O\}\}': 'Ö',
+            r'\{\\"\{o\}\}': 'ö',
+            r'\{\\"\{U\}\}': 'Ü',
+            r'\{\\"\{u\}\}': 'ü',
+            r'\{\\"\{Y\}\}': 'Ÿ',
+            r'\{\\"\{y\}\}': 'ÿ',
+            r"\{\\'\{E\}\}": 'É',
+            r"\{\\'\{e\}\}": 'é',
+            r"\{\\'\{O\}\}": 'Ó',
+            r"\{\\'\{o\}\}": 'ó',
+            r'{\\AA}': 'Å',
+            r'{\\aa}': 'å',
+            r' +': ' ',
+            r'\\hskip [+-]?(?:\d*\.)?\d+(?:(?<!(\.\d+))\.\d*)?em ' +
+            r'plus [+-]?(?:\d*\.)?\d+(?:(?<!(\.\d+))\.\d*)?em ' +
+            r'minus [+-]?(?:\d*\.)?\d+(?:(?<!(\.\d+))\.\d*)?em\\relax': ' ',
             })
         thebib_begin = None
         for i, line in enumerate(self._bbldata):
@@ -486,9 +508,24 @@ class Bibliography:
             found = False
             for k, v in replacer.items():
                 thebibold = thebibtext
-                thebibtext = re.sub(k, v, thebibtext)
+                import regex
+                thebibtext = regex.sub(k, v, thebibtext)
                 if thebibold != thebibtext:
                     found = True
+
+        # Bracket removal
+        found = True
+        while found:
+            found = False
+            thebibold = thebibtext
+            import regex
+            thebibtext = regex.sub(
+                r'(?<!bibitem)\{((?>[^\{\}]+|(?R))*)\}',
+                r'\1',
+                thebibtext
+            )
+            if thebibold != thebibtext:
+                found = True
 
         for c, m in enumerate(re.findall('\\\\bibitem{(.*)}\n', thebibtext)):
             thebibtext = re.sub(
@@ -857,7 +894,7 @@ class LaTeX(Cite, Bibliography):
 
         if bib is None:
             # Use only root name (file name without extension).
-            bib = ''.join(
+            bib = ','.join(
                 [os.path.splitext(b)[0] for b in glob.glob('*.bib')]
             )
 
