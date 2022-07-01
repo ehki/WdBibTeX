@@ -17,7 +17,10 @@ setup(
     python_requires='>=3.8',
     packages=find_packages(),
     include_package_data=True,
-    install_requires=['pywin32>=302'],
+    install_requires=[
+        'pywin32>=302',
+        'regex>=2022.6.2',
+    ],
     long_description=long_description,
     long_description_content_type='text/markdown',
 
