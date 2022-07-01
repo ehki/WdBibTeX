@@ -1,6 +1,8 @@
 @REM Increment versions in
 @REM wdbibtex/__init__.py
 @REM docsrc/conf.py
+@REM
+@REM git checkout -b release/v0.2.2
 cd ../
 call %USERPROFILE%\Miniconda3\Scripts\activate.bat
 call conda remove -n wdbibtex-v0.2.2 --all -y
@@ -32,4 +34,10 @@ mv docsrc/_build/latex/manual.pdf ./
 @REM pause
 @REM pip uninstall wdbibtex -y
 @REM pip --no-cache-dir install wdbibtex
+pause
+@REM Check current branch
+@REM git branch --contains
+pause
+@REM git add docs docsrc manual.pdf
+@REM git commit -m "version 0.2.2"
 pause
