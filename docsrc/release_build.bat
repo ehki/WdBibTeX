@@ -2,17 +2,17 @@
 @REM wdbibtex/__init__.py
 @REM docsrc/conf.py
 @REM
-@REM git checkout -b release/v0.2.2
+git checkout -b release/v0.2.3
 cd ../
 call %USERPROFILE%\Miniconda3\Scripts\activate.bat
-call conda remove -n wdbibtex-v0.2.2 --all -y
-call conda create -n wdbibtex-v0.2.2 python=3.9.6 -y
-call conda activate wdbibtex-v0.2.2
+call conda remove -n wdbibtex-v0.2.3 --all -y
+call conda create -n wdbibtex-v0.2.3 python=3.9.6 -y
+call conda activate wdbibtex-v0.2.3
 call conda install pywin32 -y
 rm -rf dist build wdbibtex.egg-info debug.log
 python setup.py sdist
 python setup.py bdist_wheel
-pip install dist\wdbibtex-0.2.2-py3-none-any.whl
+pip install dist\wdbibtex-0.2.3-py3-none-any.whl
 pip install pytest
 python -m pytest
 pause
@@ -21,6 +21,7 @@ rm -rf docs
 sphinx-build docsrc docs
 sphinx-build -M latexpdf docsrc docsrc/_build
 mv docsrc/_build/latex/manual.pdf ./
+pip install twine
 @REM The following commands should be executed manually`
 @REM twine upload --repository testpypi dist/*
 @REM pause
@@ -38,6 +39,6 @@ pause
 @REM Check current branch
 @REM git branch --contains
 pause
-@REM git add docs docsrc manual.pdf
-@REM git commit -m "version 0.2.2"
+@REM git add docs docsrc manual.pdf wdbibtex
+@REM git commit -m "version 0.2.3"
 pause
