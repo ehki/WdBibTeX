@@ -14,6 +14,11 @@ pip install dist\wdbibtex-0.2.2-py3-none-any.whl
 pip install pytest
 python -m pytest
 pause
+pip install sphinx numpydoc pydata_sphinx_theme sphinx-argparse
+rm -rf docs
+sphinx-build docsrc docs
+sphinx-build -M latexpdf docsrc docsrc/_build
+mv docsrc/_build/latex/manual.pdf ./
 @REM The following commands should be executed manually`
 @REM twine upload --repository testpypi dist/*
 @REM pause
