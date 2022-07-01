@@ -471,6 +471,18 @@ class Bibliography:
             r'\\BIBentryALTinterwordspacing\n': '',
             r'\\BIBentrySTDinterwordspacing\n': '',
             r'\\url\{(.*?)\}': r'\1',
+            r'\{\\"\{A\}\}': 'Ä',
+            r'\{\\"\{a\}\}': 'ä',
+            r'\{\\"\{E\}\}': 'Ë',
+            r'\{\\"\{e\}\}': 'ë',
+            r'\{\\"\{I\}\}': 'Ï',
+            r'\{\\"\{i\}\}': 'ï',
+            r'\{\\"\{O\}\}': 'Ö',
+            r'\{\\"\{o\}\}': 'ö',
+            r'\{\\"\{U\}\}': 'Ü',
+            r'\{\\"\{u\}\}': 'ü',
+            r'\{\\"\{Y\}\}': 'Ÿ',
+            r'\{\\"\{y\}\}': 'ÿ',
             })
         thebib_begin = None
         for i, line in enumerate(self._bbldata):
