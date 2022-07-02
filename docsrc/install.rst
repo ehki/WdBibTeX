@@ -48,7 +48,7 @@ Let target Word file name be ``file.docx``.
 Command line options
 --------------------
 
-Module exexution of WdBibTeX accepts one positional argument and four optional arguments as follows.
+Module exexution of WdBibTeX accepts one positional argument and five optional arguments as follows.
 
 .. argparse::
    :ref: wdbibtex.__main__.getparser
