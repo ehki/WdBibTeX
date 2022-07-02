@@ -110,6 +110,12 @@ class WdBibTeX:
         if clear:
             self.clear()
 
+    def updatetoc(self):
+        """Update all table of contents in the document.
+        """
+        for toc in self.__dc.TablesOfContents:
+            toc.Update()
+
     def exportpdf(self):
         """Export current docx file to pdf.
         """
