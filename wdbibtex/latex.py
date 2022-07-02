@@ -464,7 +464,7 @@ class Bibliography:
             r'\\BIBforeignlanguage\{(.*?)\}\{(.*?)\}': r'\2',
             r'\\BIBforeignlanguage\{(.*?)\{(.*?)\}\}': r'\2',
             r'~': ' ',
-            r'--': u'\u2014',
+            r'--': u'\u2013',
             r'``': '“',
             r"''": '”',
             r'\n\n': '\n',
