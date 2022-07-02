@@ -19,7 +19,8 @@ Dependencies
 
 - Windows OS, for pywin32
 - pywin32>=302, for operating MS Word
-- TeX Live 2021, for building LaTeX file.
+- regex>=2022.6.2, for converting LaTeX string to text
+- TeX Live 2022, for building LaTeX file
 
 
 Usage
@@ -51,5 +52,5 @@ Module exexution of WdBibTeX accepts one positional argument and four optional a
 
 .. argparse::
    :ref: wdbibtex.__main__.getparser
-   :prog: fancytool
+   :prog: python -m wdbibtex
    :nodescription:
