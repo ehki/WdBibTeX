@@ -34,6 +34,14 @@ def getparser():
         )
     )
     parser.add_argument(
+        '--updatetoc',
+        action='store_true',
+        help=(
+            'Update table of contents after LaTeX compilation. '
+            'Default: False'
+        )
+    )
+    parser.add_argument(
         '--keeptexdir',
         action='store_true',
         help=(
@@ -57,6 +65,8 @@ def main():
     args = parser.parse_args()
     wb = wdbibtex.WdBibTeX(args.file)
     wb.build(bib=args.bib, bst=args.bst)
+    if args.updatetoc:
+        wb.updatetoc()
     if args.exportpdf:
         wb.exportpdf()
     wb.close(clear=not args.keeptexdir)
