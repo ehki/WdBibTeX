@@ -51,5 +51,5 @@ Module exexution of WdBibTeX accepts one positional argument and four optional a
 
 .. argparse::
    :ref: wdbibtex.__main__.getparser
-   :prog: fancytool
+   :prog: python -m wdbibtex
    :nodescription:
