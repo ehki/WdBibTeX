@@ -172,7 +172,7 @@ class TestLaTeX(unittest.TestCase):
         self.assertEqual(
             bb.thebibliography,
             u"[1]\tI. Yamada, J. Yamada, S. Yamada, and S. Yamada, "
-            u"“Title1,” Japanese Journal, vol. 15, pp. 20\u201430, "
+            u"“Title1,” Japanese Journal, vol. 15, pp. 20\u201330, "
             u"march 2019.\n"
         )
         # Clear working directory
@@ -287,7 +287,7 @@ class TestLaTeX(unittest.TestCase):
         self.assertEqual(
             bb.thebibliography,
             (u"[1]\tI. Yamada, J. Yamada, S. Yamada, and S. Yamada, “Title1,” "
-             u"Japanese Journal, vol. 15, pp. 20—30, march 2019.\n"
+             u"Japanese Journal, vol. 15, pp. 20\u201330, march 2019.\n"
              u"[2]\tG. Yamada and R. Yamada, “Title2,” Japanese Journal, "
              u"vol. 15, p. 21, dec. 2019.\n"
              u"[3]\tG. Yamada and R. Yamada, “Title2 is true?,” "

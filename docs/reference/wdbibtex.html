@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>WdBibTeX &#8212; WdBibTeX 0.2.3</title>
+    <title>WdBibTeX &#8212; WdBibTeX 0.2.4</title>
 <script>
   document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
   document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
@@ -65,7 +65,7 @@
   
   
   
-    <p class="title logo__title">WdBibTeX 0.2.3</p>
+    <p class="title logo__title">WdBibTeX 0.2.4</p>
   
 </a>
     
@@ -184,6 +184,11 @@
     </a>
    </li>
    <li class="toctree-l2">
+    <a class="reference internal" href="api/wdbibtex.WdBibTeX.exportpdf.html">
+     wdbibtex.WdBibTeX.exportpdf
+    </a>
+   </li>
+   <li class="toctree-l2">
     <a class="reference internal" href="api/wdbibtex.WdBibTeX.find_all.html">
      wdbibtex.WdBibTeX.find_all
     </a>
@@ -201,6 +206,11 @@
    <li class="toctree-l2">
     <a class="reference internal" href="api/wdbibtex.WdBibTeX.replace_all.html">
      wdbibtex.WdBibTeX.replace_all
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="api/wdbibtex.WdBibTeX.updatetoc.html">
+     wdbibtex.WdBibTeX.updatetoc
     </a>
    </li>
   </ul>
@@ -420,17 +430,23 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="api/wdbibtex.WdBibTeX.close.html#wdbibtex.WdBibTeX.close" title="wdbibtex.WdBibTeX.close"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WdBibTeX.close</span></code></a>([clear])</p></td>
 <td><p>Close word file and word application.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/wdbibtex.WdBibTeX.find_all.html#wdbibtex.WdBibTeX.find_all" title="wdbibtex.WdBibTeX.find_all"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WdBibTeX.find_all</span></code></a>(key)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="api/wdbibtex.WdBibTeX.exportpdf.html#wdbibtex.WdBibTeX.exportpdf" title="wdbibtex.WdBibTeX.exportpdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WdBibTeX.exportpdf</span></code></a>()</p></td>
+<td><p>Export current docx file to pdf.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/wdbibtex.WdBibTeX.find_all.html#wdbibtex.WdBibTeX.find_all" title="wdbibtex.WdBibTeX.find_all"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WdBibTeX.find_all</span></code></a>(key)</p></td>
 <td><p>Find all keys from word file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/wdbibtex.WdBibTeX.open.html#wdbibtex.WdBibTeX.open" title="wdbibtex.WdBibTeX.open"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WdBibTeX.open</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="api/wdbibtex.WdBibTeX.open.html#wdbibtex.WdBibTeX.open" title="wdbibtex.WdBibTeX.open"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WdBibTeX.open</span></code></a>()</p></td>
 <td><p>Open copied word document.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/wdbibtex.WdBibTeX.read_preamble.html#wdbibtex.WdBibTeX.read_preamble" title="wdbibtex.WdBibTeX.read_preamble"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WdBibTeX.read_preamble</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/wdbibtex.WdBibTeX.read_preamble.html#wdbibtex.WdBibTeX.read_preamble" title="wdbibtex.WdBibTeX.read_preamble"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WdBibTeX.read_preamble</span></code></a>()</p></td>
 <td><p>Read preamble contents if exists.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/wdbibtex.WdBibTeX.replace_all.html#wdbibtex.WdBibTeX.replace_all" title="wdbibtex.WdBibTeX.replace_all"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WdBibTeX.replace_all</span></code></a>(key, val)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="api/wdbibtex.WdBibTeX.replace_all.html#wdbibtex.WdBibTeX.replace_all" title="wdbibtex.WdBibTeX.replace_all"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WdBibTeX.replace_all</span></code></a>(key, val)</p></td>
 <td><p>Replace all keys in document with value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/wdbibtex.WdBibTeX.updatetoc.html#wdbibtex.WdBibTeX.updatetoc" title="wdbibtex.WdBibTeX.updatetoc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WdBibTeX.updatetoc</span></code></a>()</p></td>
+<td><p>Update all table of contents in the document.</p></td>
 </tr>
 </tbody>
 </table>

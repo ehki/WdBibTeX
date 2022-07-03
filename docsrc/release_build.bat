@@ -2,17 +2,17 @@
 @REM wdbibtex/__init__.py
 @REM docsrc/conf.py
 @REM
-git checkout -b release/v0.2.3
+git checkout -b release/v0.2.4
 cd ../
 call %USERPROFILE%\Miniconda3\Scripts\activate.bat
-call conda remove -n wdbibtex-v0.2.3 --all -y
-call conda create -n wdbibtex-v0.2.3 python=3.9.6 -y
-call conda activate wdbibtex-v0.2.3
+call conda remove -n wdbibtex-v0.2.4 --all -y
+call conda create -n wdbibtex-v0.2.4 python=3.9.6 -y
+call conda activate wdbibtex-v0.2.4
 call conda install pywin32 -y
 rm -rf dist build wdbibtex.egg-info debug.log
 python setup.py sdist
 python setup.py bdist_wheel
-pip install dist\wdbibtex-0.2.3-py3-none-any.whl
+pip install dist\wdbibtex-0.2.4-py3-none-any.whl
 pip install pytest
 python -m pytest
 pause
@@ -22,23 +22,25 @@ sphinx-build docsrc docs
 sphinx-build -M latexpdf docsrc docsrc/_build
 mv docsrc/_build/latex/manual.pdf ./
 pip install twine
+pause
 @REM The following commands should be executed manually`
-@REM twine upload --repository testpypi dist/*
-@REM pause
-@REM start "" https://test.pypi.org/project/wdbibtex
-@REM pause
-@REM pip uninstall wdbibtex -y
-@REM pip --no-cache-dir install --index-url https://test.pypi.org/simple/ wdbibtex
-@REM twine upload --repository pypi dist/*
-@REM pause
-@REM start "" https://pypi.org/project/wdbibtex
-@REM pause
-@REM pip uninstall wdbibtex -y
-@REM pip --no-cache-dir install wdbibtex
+twine upload --repository testpypi dist/*
+pause
+start "" https://test.pypi.org/project/wdbibtex
+pause
+pip uninstall wdbibtex -y
+pip --no-cache-dir install --index-url https://test.pypi.org/simple/ wdbibtex
+pause
+twine upload --repository pypi dist/*
+pause
+start "" https://pypi.org/project/wdbibtex
+pause
+pip uninstall wdbibtex -y
+pip --no-cache-dir install wdbibtex
 pause
 @REM Check current branch
-@REM git branch --contains
+git branch --contains
 pause
-@REM git add docs docsrc manual.pdf wdbibtex
-@REM git commit -m "version 0.2.3"
+git add docs docsrc manual.pdf wdbibtex
+git commit -m "version 0.2.4"
 pause

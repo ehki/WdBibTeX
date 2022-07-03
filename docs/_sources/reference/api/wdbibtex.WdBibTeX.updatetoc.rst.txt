@@ -1,0 +1,6 @@
+﻿wdbibtex.WdBibTeX.updatetoc
+===========================
+
+.. currentmodule:: wdbibtex
+
+.. automethod:: WdBibTeX.updatetoc

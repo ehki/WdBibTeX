@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>Getting started &#8212; WdBibTeX 0.2.3</title>
+    <title>Getting started &#8212; WdBibTeX 0.2.4</title>
 <script>
   document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
   document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
@@ -65,7 +65,7 @@
   
   
   
-    <p class="title logo__title">WdBibTeX 0.2.3</p>
+    <p class="title logo__title">WdBibTeX 0.2.4</p>
   
 </a>
     
@@ -226,7 +226,8 @@
 <ul class="simple">
 <li><p>Windows OS, for pywin32</p></li>
 <li><p>pywin32&gt;=302, for operating MS Word</p></li>
-<li><p>TeX Live 2021, for building LaTeX file.</p></li>
+<li><p>regex&gt;=2022.6.2, for converting LaTeX string to text</p></li>
+<li><p>TeX Live 2022, for building LaTeX file</p></li>
 </ul>
 </section>
 <section id="usage">
@@ -248,8 +249,8 @@
 </section>
 <section id="command-line-options">
 <h2>Command line options<a class="headerlink" href="#command-line-options" title="Permalink to this heading">#</a></h2>
-<p>Module exexution of WdBibTeX accepts one positional argument and four optional arguments as follows.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">fancytool</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">bst</span> <span class="n">BST</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">bib</span> <span class="n">BIB</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">keeptexdir</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">exportpdf</span><span class="p">]</span> <span class="n">file</span>
+<p>Module exexution of WdBibTeX accepts one positional argument and five optional arguments as follows.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">wdbibtex</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">bst</span> <span class="n">BST</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">bib</span> <span class="n">BIB</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">updatetoc</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">keeptexdir</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">exportpdf</span><span class="p">]</span> <span class="n">file</span>
 </pre></div>
 </div>
 <section id="Positional Arguments">
@@ -268,6 +269,10 @@
 </dd>
 <dt><kbd>--bib</kbd></dt>
 <dd><p>Bibliography file. Default: all .bib in target file directory</p>
+</dd>
+<dt><kbd>--updatetoc</kbd></dt>
+<dd><p>Update table of contents after LaTeX compilation. Default: False</p>
+<p>Default: False</p>
 </dd>
 <dt><kbd>--keeptexdir</kbd></dt>
 <dd><p>Keep LaTeX files and directory after run. Default: False(= clean LaTeX files/directory)</p>

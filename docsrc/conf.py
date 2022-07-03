@@ -20,9 +20,9 @@ sys.path.insert(0, os.path.abspath('../'))
 project = 'wdbibtex'
 copyright = '2022, Haruki Ejiri'
 author = 'Haruki Ejiri'
-release = "0.2.3"
+release = "0.2.4"
 version = ".".join(release.split("."))
-html_title = 'WdBibTeX 0.2.3'
+html_title = 'WdBibTeX 0.2.4'
 
 
 # -- General configuration ---------------------------------------------------

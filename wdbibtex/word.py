@@ -110,6 +110,12 @@ class WdBibTeX:
         if clear:
             self.clear()
 
+    def updatetoc(self):
+        """Update all table of contents in the document.
+        """
+        for toc in self.__dc.TablesOfContents:
+            toc.Update()
+
     def exportpdf(self):
         """Export current docx file to pdf.
         """
@@ -290,7 +296,7 @@ class WdBibTeX:
                 found.remove(['', 0, 0])
             except ValueError:
                 pass
-        return sorted(found, key=lambda x: x[1])
+        return found
 
     def open(self):
         """Open copied word document.
@@ -397,6 +403,7 @@ class WdBibTeX:
             val,  # ReplaceWith
             2,  # Replace, 2: wdReplaceAll
         )
+        self.__sl.HomeKey(6)
         for i in range(self.__dc.Shapes.Count):
             self.__dc.Shapes(i+1).Select()
             self.__fi = self.__sl.Find
@@ -415,3 +422,4 @@ class WdBibTeX:
                 val,  # ReplaceWith
                 2,  # Replace, 2: wdReplaceAll
             )
+        self.__sl.HomeKey(6)
