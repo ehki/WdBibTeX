@@ -9,7 +9,7 @@ __all__ = [
 ]
 
 __copyright__ = 'Copyright (C) 2022 Haruki EJIRI'
-__version__ = '0.2.3'
+__version__ = '0.2.4'
 __license__ = 'MIT'
 __author__ = 'Haruki EJIRI'
 __author_email__ = '0y35.ejiri.vmqewyhw@gmail.com'
