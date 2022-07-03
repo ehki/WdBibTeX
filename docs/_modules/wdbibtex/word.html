@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>wdbibtex.word &#8212; WdBibTeX 0.2.3</title>
+    <title>wdbibtex.word &#8212; WdBibTeX 0.2.4</title>
 <script>
   document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
   document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
@@ -62,7 +62,7 @@
   
   
   
-    <p class="title logo__title">WdBibTeX 0.2.3</p>
+    <p class="title logo__title">WdBibTeX 0.2.4</p>
   
 </a>
     
@@ -270,11 +270,17 @@
         <span class="k">if</span> <span class="n">clear</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">exportpdf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="WdBibTeX.updatetoc"><a class="viewcode-back" href="../../reference/api/wdbibtex.WdBibTeX.updatetoc.html#wdbibtex.WdBibTeX.updatetoc">[docs]</a>    <span class="k">def</span> <span class="nf">updatetoc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update all table of contents in the document.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">toc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dc</span><span class="o">.</span><span class="n">TablesOfContents</span><span class="p">:</span>
+            <span class="n">toc</span><span class="o">.</span><span class="n">Update</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="WdBibTeX.exportpdf"><a class="viewcode-back" href="../../reference/api/wdbibtex.WdBibTeX.exportpdf.html#wdbibtex.WdBibTeX.exportpdf">[docs]</a>    <span class="k">def</span> <span class="nf">exportpdf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Export current docx file to pdf.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">fn</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__target_file</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;.pdf&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__dc</span><span class="o">.</span><span class="n">SaveAs2</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="mi">17</span><span class="p">)</span>  <span class="c1"># 17: wdFormatPDF</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__dc</span><span class="o">.</span><span class="n">SaveAs2</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="mi">17</span><span class="p">)</span>  <span class="c1"># 17: wdFormatPDF</span></div>
 
 <div class="viewcode-block" id="WdBibTeX.build"><a class="viewcode-back" href="../../reference/api/wdbibtex.WdBibTeX.build.html#wdbibtex.WdBibTeX.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bst</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Build word file with latex citations.</span>
@@ -450,7 +456,7 @@
                 <span class="n">found</span><span class="o">.</span><span class="n">remove</span><span class="p">([</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                 <span class="k">pass</span>
-        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">found</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
+        <span class="k">return</span> <span class="n">found</span></div>
 
 <div class="viewcode-block" id="WdBibTeX.open"><a class="viewcode-back" href="../../reference/api/wdbibtex.WdBibTeX.open.html#wdbibtex.WdBibTeX.open">[docs]</a>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Open copied word document.</span>
@@ -557,6 +563,7 @@
             <span class="n">val</span><span class="p">,</span>  <span class="c1"># ReplaceWith</span>
             <span class="mi">2</span><span class="p">,</span>  <span class="c1"># Replace, 2: wdReplaceAll</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__sl</span><span class="o">.</span><span class="n">HomeKey</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__dc</span><span class="o">.</span><span class="n">Shapes</span><span class="o">.</span><span class="n">Count</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__dc</span><span class="o">.</span><span class="n">Shapes</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">Select</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__fi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sl</span><span class="o">.</span><span class="n">Find</span>
@@ -574,7 +581,8 @@
                 <span class="kc">False</span><span class="p">,</span>  <span class="c1"># Format</span>
                 <span class="n">val</span><span class="p">,</span>  <span class="c1"># ReplaceWith</span>
                 <span class="mi">2</span><span class="p">,</span>  <span class="c1"># Replace, 2: wdReplaceAll</span>
-            <span class="p">)</span></div></div>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__sl</span><span class="o">.</span><span class="n">HomeKey</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span></div></div>
 </pre></div>
 
               </article>

@@ -1,0 +1,6 @@
+﻿wdbibtex.WdBibTeX.exportpdf
+===========================
+
+.. currentmodule:: wdbibtex
+
+.. automethod:: WdBibTeX.exportpdf
